@@ -31,8 +31,16 @@
     ]
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "@near-js/utils": "^1.0.1",
+    "@radix-ui/react-slot": "^1.1.2",
     "@tanstack/react-query": "^5.66.0",
     "@types/ora": "^3.2.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.4.1",
+    "js-cookie": "^3.0.5",
+    "lucide-react": "^0.475.0",
     "ora": "^8.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -44,14 +52,18 @@
     "@rsbuild/core": "^1.2.3",
     "@rsbuild/plugin-node-polyfill": "^1.2.0",
     "@rsbuild/plugin-react": "^1.1.0",
+    "@tailwindcss/typography": "^0.5.16",
     "@tanstack/react-query-devtools": "^5.66.0",
     "@tanstack/react-router": "^1.97.0",
     "@tanstack/router-devtools": "^1.97.23",
     "@tanstack/router-plugin": "^1.69.1",
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "^20.11.0",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
     "prettier": "^3.3.3",
-    "tailwindcss": "^3.4.16"
+    "tailwind-merge": "^3.0.1",
+    "tailwindcss": "^3.4.16",
+    "tailwindcss-animate": "^1.0.7"
   }
 }

@@ -22,11 +22,14 @@ const render = async () => {
   // web4 auth context: https://github.com/elliotBraem/everything/blob/main/apps/www/src/hooks/use-web4-auth.ts#L31
 
   try {
-
     if (root) {
       ReactDOMClient.createRoot(root).render(
         <React.StrictMode>
-          {accountId ? <App accountId={accountId} /> : <div>No app found for {accountId}</div>}
+          {accountId ? (
+            <App accountId={accountId} />
+          ) : (
+            <div>No app found for {accountId}</div>
+          )}
         </React.StrictMode>,
       );
     }

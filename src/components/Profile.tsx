@@ -7,10 +7,11 @@ import {
   Profile as ProfileType,
 } from "../lib/social";
 import { Route } from "../routes/_layout/profile";
+import "../index.css";
 
 type ProfileProps = {
   accountId: string;
-  profile: ProfileType | null;
+  profile: ProfileType;
 };
 
 function getSocialIcon(platform: string): string {
@@ -24,11 +25,9 @@ function getSocialIcon(platform: string): string {
   return icons[platform] || "🔗";
 }
 
-// Main Profile component
-export const Profile: React.FC<ProfileProps> = ({ accountId }) => {
+export const Profile: React.FC = ({}) => {
+  const accountId = Route.useRouteContext().auth.userId;
   const profile = Route.useLoaderData();
-
-  
 
   if (!profile) {
     return (
@@ -38,6 +37,11 @@ export const Profile: React.FC<ProfileProps> = ({ accountId }) => {
     );
   }
 
+  return <ProfileView accountId={accountId} profile={profile} />;
+};
+
+// Main Profile component
+export const ProfileView: React.FC<ProfileProps> = ({ accountId, profile }) => {
   return (
     <div
       className="margin-auto relative flex min-h-screen w-full flex-col items-center justify-center bg-cover bg-center py-16"

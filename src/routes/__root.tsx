@@ -1,7 +1,7 @@
+import React from "react";
 import { ThemeProvider } from "../lib/providers/theme";
 import { QueryClient } from "@tanstack/react-query";
 import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
-import React from "react";
 
 export const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
