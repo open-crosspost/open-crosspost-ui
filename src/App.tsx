@@ -10,6 +10,7 @@ const router = createRouter({
   defaultPreload: "intent",
   defaultPreloadStaleTime: 0,
   context: {
+    auth: { userId: "me" },
     queryClient,
   },
 });
@@ -20,10 +21,15 @@ declare module "@tanstack/react-router" {
   }
 }
 
-export default function App() {
+export default function App({ accountId }: { accountId: string }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <RouterProvider
+        router={router}
+        context={{
+          auth: { userId: accountId },
+        }}
+      />
     </QueryClientProvider>
   );
 }

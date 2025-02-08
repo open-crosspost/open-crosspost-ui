@@ -6,6 +6,7 @@ import {
   getSocialLink,
   Profile as ProfileType,
 } from "../lib/social";
+import { Route } from "../routes/_layout/profile";
 
 type ProfileProps = {
   accountId: string;
@@ -24,7 +25,11 @@ function getSocialIcon(platform: string): string {
 }
 
 // Main Profile component
-export const Profile: React.FC<ProfileProps> = ({ accountId, profile }) => {
+export const Profile: React.FC<ProfileProps> = ({ accountId }) => {
+  const profile = Route.useLoaderData();
+
+  
+
   if (!profile) {
     return (
       <div className="p-8 text-center text-xl text-red-500">
