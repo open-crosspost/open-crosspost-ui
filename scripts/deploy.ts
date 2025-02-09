@@ -1,7 +1,11 @@
 import { ChildProcess, spawn } from "child_process";
-import ora from "ora";
+import ora, { Ora } from "ora";
+import treeKill from "tree-kill";
 
-let currentProcess: ChildProcess | null = null;
+// Track all active processes and spinners
+const activeProcesses: ChildProcess[] = [];
+const activeSpinners: Ora[] = [];
+let isCleaningUp = false;
 
 async function promptUser(question: string): Promise<string> {
   const { default: readline } = await import("readline/promises");
@@ -9,9 +13,11 @@ async function promptUser(question: string): Promise<string> {
     input: process.stdin,
     output: process.stdout,
   });
-  const answer = await rl.question(question);
-  rl.close();
-  return answer;
+  try {
+    return await rl.question(question);
+  } finally {
+    rl.close();
+  }
 }
 
 async function executeCommand(
@@ -19,16 +25,33 @@ async function executeCommand(
   cwd: string = process.cwd(),
 ): Promise<void> {
   return new Promise((resolve, reject) => {
+    if (isCleaningUp) {
+      reject(new Error("Operation cancelled"));
+      return;
+    }
+
     console.log("\nExecuting command:", command.join(" "));
 
-    currentProcess = spawn(command[0], command.slice(1), {
+    const proc = spawn(command[0], command.slice(1), {
       cwd,
       stdio: "inherit",
       shell: true,
+      detached: true
     });
 
-    currentProcess.on("close", (code) => {
-      currentProcess = null;
+    activeProcesses.push(proc);
+
+    proc.on("close", (code) => {
+      const index = activeProcesses.indexOf(proc);
+      if (index > -1) {
+        activeProcesses.splice(index, 1);
+      }
+
+      if (isCleaningUp) {
+        reject(new Error("Operation cancelled"));
+        return;
+      }
+
       if (code === 0) {
         console.log("Command executed successfully");
         resolve();
@@ -37,23 +60,76 @@ async function executeCommand(
       }
     });
 
-    currentProcess.on("error", (err) => {
-      currentProcess = null;
+    proc.on("error", (err) => {
+      const index = activeProcesses.indexOf(proc);
+      if (index > -1) {
+        activeProcesses.splice(index, 1);
+      }
       reject(new Error(`Failed to start command: ${err.message}`));
     });
   });
 }
 
-function cleanupAndExit() {
+function cleanupAndExit(exitCode = 1) {
+  if (isCleaningUp) return;
+  isCleaningUp = true;
+
   console.log("\nInterrupted. Cleaning up...");
-  if (currentProcess) {
-    currentProcess.kill("SIGINT");
-  }
-  process.exit(0);
+
+  // Stop all spinners
+  activeSpinners.forEach(spinner => {
+    try {
+      spinner.stop();
+    } catch (err) {
+      console.error("Failed to stop spinner:", err);
+    }
+  });
+  activeSpinners.length = 0;
+
+  // Kill all processes
+  const killPromises = activeProcesses.map(proc => {
+    return new Promise<void>((resolve) => {
+      if (!proc.pid) {
+        resolve();
+        return;
+      }
+
+      try {
+        // Try to kill the process group first
+        process.kill(-proc.pid, 'SIGKILL');
+        resolve();
+      } catch (err) {
+        // Fallback to tree-kill
+        treeKill(proc.pid, 'SIGKILL', (killErr) => {
+          if (killErr) {
+            console.error(`Failed to kill process ${proc.pid}:`, killErr);
+          }
+          resolve();
+        });
+      }
+    });
+  });
+
+  // Wait briefly for cleanup or force exit
+  Promise.race([
+    Promise.all(killPromises),
+    new Promise(resolve => setTimeout(resolve, 1000))
+  ]).finally(() => {
+    process.exit(exitCode);
+  });
 }
 
-// Set up SIGINT handler
-process.on("SIGINT", cleanupAndExit);
+// Handle interrupts and termination
+process.on("SIGINT", () => cleanupAndExit(1));
+process.on("SIGTERM", () => cleanupAndExit(1));
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught exception:", err);
+  cleanupAndExit(1);
+});
+process.on("unhandledRejection", (err) => {
+  console.error("Unhandled rejection:", err);
+  cleanupAndExit(1);
+});
 
 async function checkAccountExists(
   network: string,
@@ -73,17 +149,23 @@ async function checkAccountExists(
     await executeCommand(command);
     return true;
   } catch (error) {
+    if (isCleaningUp) throw error;
     return false;
   }
 }
 
 async function createAccount(network: string, account: string): Promise<void> {
   const spinner = ora("Checking web4 subaccount").start();
-  const subaccount = `web4.${account}`;
+  activeSpinners.push(spinner);
+
   try {
+    const subaccount = `web4.${account}`;
     const exists = await checkAccountExists(network, subaccount);
+    
+    if (isCleaningUp) throw new Error("Operation cancelled");
+
     if (exists) {
-      spinner.succeed(`Web4 subaccount  already exists`);
+      spinner.succeed(`Web4 subaccount already exists`);
       return;
     }
 
@@ -103,15 +185,26 @@ async function createAccount(network: string, account: string): Promise<void> {
       network,
     ];
     await executeCommand(command);
+    
+    if (isCleaningUp) throw new Error("Operation cancelled");
     spinner.succeed("Web4 subaccount created successfully");
   } catch (error) {
-    spinner.fail(`Failed to create web4 subaccount: ${error}`);
+    if (!isCleaningUp) {
+      spinner.fail(`Failed to create web4 subaccount: ${error}`);
+    }
     throw error;
+  } finally {
+    const index = activeSpinners.indexOf(spinner);
+    if (index > -1) {
+      activeSpinners.splice(index, 1);
+    }
   }
 }
 
 async function deployToWeb4(network: string, account: string): Promise<void> {
   const spinner = ora("Deploying to web4").start();
+  activeSpinners.push(spinner);
+
   try {
     const command = [
       "npx",
@@ -124,37 +217,64 @@ async function deployToWeb4(network: string, account: string): Promise<void> {
       network,
     ];
     await executeCommand(command);
+    
+    if (isCleaningUp) throw new Error("Operation cancelled");
     spinner.succeed("Deployed to web4 successfully");
   } catch (error) {
-    spinner.fail(`Failed to deploy to web4: ${error}`);
+    if (!isCleaningUp) {
+      spinner.fail(`Failed to deploy to web4: ${error}`);
+    }
     throw error;
+  } finally {
+    const index = activeSpinners.indexOf(spinner);
+    if (index > -1) {
+      activeSpinners.splice(index, 1);
+    }
   }
 }
 
 async function main() {
-  console.log("Starting deployment process...");
+  try {
+    console.log("Starting deployment process...");
 
-  const network = await promptUser("Enter the network (mainnet/testnet): ");
-  if (network !== "mainnet" && network !== "testnet") {
-    throw new Error(
-      'Invalid network. Please enter either "mainnet" or "testnet".',
+    const network = await promptUser("Enter the network (mainnet/testnet): ");
+    if (isCleaningUp) return;
+
+    if (network !== "mainnet" && network !== "testnet") {
+      throw new Error(
+        'Invalid network. Please enter either "mainnet" or "testnet".',
+      );
+    }
+
+    const accountSuffix = network === "mainnet" ? "near" : "testnet";
+    const account = await promptUser(
+      `Enter your account name (e.g root.${accountSuffix}): `,
     );
+    if (isCleaningUp) return;
+
+    const fullAccount = `web4.${account}`;
+
+    console.log(`\nCreating your web4 account... web4.${account}`);
+    await createAccount(network, account);
+    if (isCleaningUp) return;
+
+    console.log("\nDeploying profile to web4 contract...");
+    await deployToWeb4(network, fullAccount);
+    
+    // Success exit
+    cleanupAndExit(0);
+  } catch (error) {
+    if (!isCleaningUp) {
+      console.error("An error occurred:", error);
+      cleanupAndExit(1);
+    }
   }
-
-  const accountSuffix = network === "mainnet" ? "near" : "testnet";
-  const account = await promptUser(
-    `Enter your account name (e.g root.${accountSuffix}): `,
-  );
-  const fullAccount = `web4.${account}`;
-
-  console.log(`\nCreating your web4 account... web4.${account}`);
-  await createAccount(network, account);
-
-  console.log("\nDeploying profile to web4 contract...");
-  await deployToWeb4(network, fullAccount);
 }
 
-main().catch((error) => {
-  console.error("An error occurred:", error);
-  cleanupAndExit();
+// Start the main process
+main().catch(() => {
+  // This catch is just a safeguard - errors should be handled in main()
+  if (!isCleaningUp) {
+    cleanupAndExit(1);
+  }
 });
