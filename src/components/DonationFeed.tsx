@@ -1,51 +1,22 @@
+import { useGetDonationsForRecipient } from "@/lib/potlock";
+import { motion } from "framer-motion";
 import React from "react";
-import { useGetAllDonations } from "@/lib/potlock";
-import { motion, AnimatePresence } from "framer-motion";
 
 export function DonationFeed() {
-  const {
-    data: donationsData,
-    isLoading,
-    hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-  } = useGetAllDonations(20);
-  const observerTarget = React.useRef<HTMLDivElement>(null);
-
-  // Set up infinite scroll
-  React.useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      },
-      {
-        threshold: 0.5,
-        rootMargin: "20px",
-      },
-    );
-
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
-    }
-
-    return () => observer.disconnect();
-  }, [hasNextPage, fetchNextPage, isFetchingNextPage]);
-
+  const { data: donationsData, isLoading } = useGetDonationsForRecipient({
+    recipientId: "crosspost.near",
+  });
   // Check if we have any valid donations
   const hasValidDonations = React.useMemo(() => {
-    if (!donationsData?.pages?.[0]) return false;
-    return (
-      Array.isArray(donationsData.pages[0]) && donationsData.pages[0].length > 0
-    );
-  }, [donationsData?.pages]);
+    if (!donationsData) return false;
+    return Array.isArray(donationsData) && donationsData.length > 0;
+  }, [donationsData]);
 
   // Only process donations if we have valid data
   const allDonations = React.useMemo(() => {
     if (!hasValidDonations) return [];
-    return donationsData!.pages.flatMap((page) => page || []);
-  }, [donationsData?.pages, hasValidDonations]);
+    return donationsData || [];
+  }, [donationsData, hasValidDonations]);
 
   return (
     <div className="space-y-4">
@@ -94,24 +65,6 @@ export function DonationFeed() {
         ))
       )}
 
-      {/* Only show observer if we have valid donations and there might be more */}
-      {hasValidDonations && hasNextPage && (
-        <div ref={observerTarget} className="h-4" />
-      )}
-
-      <AnimatePresence>
-        {isFetchingNextPage && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
-            className="text-center py-4 text-gray-600"
-          >
-            Loading more donations...
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
