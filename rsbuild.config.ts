@@ -16,7 +16,8 @@ export default async () => {
     meta: {
       description: profile?.description || "",
     },
-    favicon: image
+    favicon: image,
+    inject: 'body'
   },
   source: {
     entry: {
@@ -30,6 +31,8 @@ export default async () => {
     distPath: {
       root: "dist",
     },
+    cleanDistPath: true,
+    assetPrefix: ".",
   },
   tools: {
     rspack: {
