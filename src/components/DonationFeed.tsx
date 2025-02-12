@@ -1,4 +1,5 @@
 import { useGetDonationsForRecipient } from "@/lib/potlock";
+import { formatNearAmount } from "@near-js/utils";
 import { motion } from "framer-motion";
 import React from "react";
 
@@ -58,7 +59,7 @@ export function DonationFeed() {
                 {donation.donor_id}
               </span>
               <span className="text-gray-600">
-                {donation.total_amount} NEAR
+                {formatNearAmount(donation.total_amount)} NEAR
               </span>
             </div>
           </motion.div>

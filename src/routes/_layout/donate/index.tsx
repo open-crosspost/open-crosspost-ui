@@ -6,7 +6,7 @@ import {
   POTLOCK_DONATE_CONTRACT_ID,
   useDonate,
 } from "@/lib/potlock";
-import { isSignedIn, login } from "@/lib/web4";
+import { isSignedIn, login } from "web4-api-js";
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Heart } from "lucide-react";
@@ -26,7 +26,6 @@ function DonatePage() {
     if (!isSignedIn()) {
       login({
         contractId: POTLOCK_DONATE_CONTRACT_ID[NETWORK_ID],
-        callbackPath: "/donate",
       });
       return;
     }

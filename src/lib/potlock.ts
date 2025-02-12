@@ -1,6 +1,6 @@
 import { parseNearAmount } from "@near-js/utils";
 import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
-import { call, view } from "./web4";
+import { call, view } from "web4-api-js";
 
 export const NETWORK_ID = "mainnet";
 
@@ -33,7 +33,7 @@ export function useGetAllDonations(limit: number = 10) {
           return [];
         }
 
-        return donations;
+        return donations.reverse(); // most recent first
       } catch (error) {
         console.error("Error fetching donations:", error);
         return [];
@@ -75,7 +75,7 @@ export function useGetDonationsForRecipient({
           return [];
         }
 
-        return donations;
+        return donations.reverse();
       } catch (error) {
         console.error("Error fetching recipient donations:", error);
         return [];
@@ -104,7 +104,7 @@ export function useDonate() {
           POTLOCK_DONATE_CONTRACT_ID[NETWORK_ID],
           "donate",
           { recipient_id: recipientId },
-          { deposit },
+          { deposit }
         );
       } catch (error) {
         console.error("Error in donation:", error);

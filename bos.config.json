@@ -1,3 +1,7 @@
 {
-  "account": "efiz.near"
+  "account": "crosspost.near",
+  "metadata": {
+    "name": "open crosspost",
+    "description": "An open-source interface for seamless social media crossposting."
+  }
 }

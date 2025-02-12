@@ -2,10 +2,15 @@ import { pluginModuleFederation } from "@module-federation/rsbuild-plugin";
 import { defineConfig } from "@rsbuild/core";
 import { pluginReact } from "@rsbuild/plugin-react";
 import { TanStackRouterRspack } from "@tanstack/router-plugin/rspack";
+import bosConfig from './bos.config.json';
 
 export default defineConfig({
   html: {
     template: "./index.html",
+    title: bosConfig.metadata.name,
+    meta: {
+      description: bosConfig.metadata.description,
+    },
   },
   source: {
     entry: {
@@ -36,7 +41,6 @@ export default defineConfig({
       name: "crosspost",
       filename: "main/remoteEntry.js", // branch
       exposes: {
-        // Expose the Profile component for module federation
         "./App": "./src/App.tsx",
       },
       experiments: {
