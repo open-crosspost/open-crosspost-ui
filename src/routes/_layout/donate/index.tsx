@@ -1,5 +1,5 @@
 import { accountId } from "@/App";
-import { DonationFeed } from "@/components/DonationFeed";
+import { DonationFeed } from "@/components/donation-feed";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {

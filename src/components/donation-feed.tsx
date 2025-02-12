@@ -67,7 +67,6 @@ export function DonationFeed() {
           </motion.div>
         ))
       )}
-
     </div>
   );
 }
