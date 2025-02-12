@@ -1,16 +1,22 @@
+import { getImageUrl, getProfile } from './src/lib/social';
 import { pluginModuleFederation } from "@module-federation/rsbuild-plugin";
 import { defineConfig } from "@rsbuild/core";
 import { pluginReact } from "@rsbuild/plugin-react";
 import { TanStackRouterRspack } from "@tanstack/router-plugin/rspack";
 import bosConfig from './bos.config.json';
 
-export default defineConfig({
+export default async () => {
+  const profile = await getProfile(bosConfig.account);
+  const image = getImageUrl(profile?.image);
+
+  return defineConfig({
   html: {
     template: "./index.html",
-    title: bosConfig.metadata.name,
+    title: profile?.name,
     meta: {
-      description: bosConfig.metadata.description,
+      description: profile?.description || "",
     },
+    favicon: image
   },
   source: {
     entry: {
@@ -31,9 +37,39 @@ export default defineConfig({
         TanStackRouterRspack({
           routesDirectory: "./src/routes",
           enableRouteGeneration: true,
-        }),
+        })
       ],
-    },
+      module: {
+        rules: [
+          {
+            test: new RegExp(image),
+            type: 'asset',
+            parser: {
+              dataUrlCondition: {
+                maxSize: 32 * 1024
+              }
+            },
+            generator: {
+              filename: 'favicon.[hash][ext]',
+              sizes: [32]
+            }
+          },
+          {
+            test: new RegExp(image),
+            type: 'asset',
+            parser: {
+              dataUrlCondition: {
+                maxSize: 64 * 1024
+              }
+            },
+            generator: {
+              filename: 'logo.[hash][ext]',
+              sizes: [80] // 80x80 for the w-20 h-20 logo div
+            }
+          }
+        ]
+      }
+    }
   },
   plugins: [
     pluginReact(),
@@ -57,4 +93,5 @@ export default defineConfig({
       },
     }),
   ],
-});
+  });
+};

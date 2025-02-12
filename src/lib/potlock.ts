@@ -56,7 +56,7 @@ export function useGetAllDonations(limit: number = 10) {
 export function useGetDonationsForRecipient({
   recipientId,
 }: {
-  recipientId?: string;
+  recipientId: string | undefined;
 }) {
   return useQuery({
     queryKey: ["donations", recipientId],

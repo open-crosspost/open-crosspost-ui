@@ -1,3 +1,4 @@
+import { accountId } from "@/App";
 import { useGetDonationsForRecipient } from "@/lib/potlock";
 import { formatNearAmount } from "@near-js/utils";
 import { motion } from "framer-motion";
@@ -5,7 +6,7 @@ import React from "react";
 
 export function DonationFeed() {
   const { data: donationsData, isLoading } = useGetDonationsForRecipient({
-    recipientId: "crosspost.near",
+    recipientId: accountId,
   });
   // Check if we have any valid donations
   const hasValidDonations = React.useMemo(() => {
@@ -51,6 +52,7 @@ export function DonationFeed() {
             transition={{
               duration: 0.4,
               ease: [0.23, 1, 0.32, 1],
+              delay: index * 0.1, // Add 0.1s delay for each subsequent item
             }}
             className="p-4 border-2 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] bg-white transform-gpu"
           >

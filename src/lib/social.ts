@@ -11,10 +11,10 @@ export type Profile = {
   linktree?: Record<string, string>;
 };
 
-const API_SERVER = "https://api.near.social";
+export const API_SERVER = "https://api.near.social";
 
-const fallbackUrl =
-  "https://ipfs.near.social/ipfs/bafkreibmiy4ozblcgv3fm3gc6q62s55em33vconbavfd2ekkuliznaq3zm";
+export const FALLBACK_URL =
+  "https://ipfs.near.social/ipfs/bafkreidn5fb2oygegqaldx7ycdmhu4owcrmoxd7ekbzfmeakkobz2ja7qy";
 
 export const getImageUrl = (
   image: SocialImage | undefined,
@@ -22,7 +22,7 @@ export const getImageUrl = (
 ): string => {
   if (image?.url) return image.url;
   if (image?.ipfs_cid) return `https://ipfs.near.social/ipfs/${image.ipfs_cid}`;
-  return fallback || fallbackUrl;
+  return fallback || FALLBACK_URL;
 };
 
 export function getSocialLink(platform: string, username: string): string {
