@@ -35,18 +35,36 @@ async function sendJson<T>(method: string, url: string, data?: any): Promise<T> 
     url = `${url}?${params.toString()}`;
   }
 
+  // For contract calls with deposits, use form-encoded
+  const isFormEncoded = method === 'POST';
+  
   const response = await fetch(url, {
     method,
-    ...(method !== 'GET' && data ? { body: JSON.stringify(data) } : {}),
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    ...(method !== 'GET' && data ? {
+      body: isFormEncoded 
+        ? new URLSearchParams(Object.entries(data).map(([key, value]) => [
+            key,
+            typeof value === 'string' ? value : JSON.stringify(value)
+          ]))
+        : JSON.stringify(data),
+      headers: {
+        'Content-Type': isFormEncoded 
+          ? 'application/x-www-form-urlencoded'
+          : 'application/json',
+      }
+    } : {}),
   });
 
   if (!response.ok) {
     const error = await response.text();
     console.error(`HTTP ${response.status}: ${error}`);
     throw new Error(error);
+  }
+
+  // Handle redirects for contract calls
+  if (response.redirected) {
+    window.location.href = response.url;
+    return null as T;
   }
 
   if (response.status === 204) {
@@ -91,7 +109,6 @@ export async function view<T = any>(
     const params = args
       ? Object.entries(args).reduce(
           (acc, [key, value]) => ({
-            ...acc,
             [`${key}.json`]: JSON.stringify(value),
           }),
           {}
@@ -118,12 +135,13 @@ export async function call<T = any>(
   try {
     const callbackUrl = options.callbackUrl 
       ? constructCallbackUrl(options.callbackUrl)
-      : undefined;
+      : constructCallbackUrl(window.location.pathname);
 
+    // Create form data with web4_ parameters at top level
     const payload = {
       ...args,
-      web4_gas: options.gas,
-      web4_deposit: options.deposit,
+      ...(options.gas && { web4_gas: options.gas }),
+      ...(options.deposit && { web4_deposit: options.deposit }),
       web4_callback_url: callbackUrl,
     };
 
