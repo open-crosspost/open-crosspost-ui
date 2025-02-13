@@ -1,5 +1,5 @@
 import { readFile } from "fs/promises";
-import { connect, Contract, Near, Account, keyStores, utils } from "near-api-js";
+import { Account, connect, Contract, keyStores, utils } from "near-api-js";
 import { executeCommand, withSpinner } from "./helpers";
 
 interface Web4Contract extends Contract {
@@ -52,7 +52,7 @@ export async function createWeb4Account(network: string, account: string): Promi
         network,
       ];
       await executeCommand(command);
-      
+
       spinner.succeed("Web4 subaccount created successfully");
     } catch (error) {
       spinner.fail("Web4 subaccount creation failed");
@@ -67,10 +67,10 @@ export async function checkAccountExists(
   account: string,
 ): Promise<boolean> {
   try {
-    const nodeUrl = network === "mainnet" 
+    const nodeUrl = network === "mainnet"
       ? "https://rpc.mainnet.near.org"
       : "https://rpc.testnet.near.org";
-    const near = await connect({ 
+    const near = await connect({
       networkId: network === "mainnet" ? "mainnet" : "testnet",
       nodeUrl
     });
@@ -105,72 +105,74 @@ export async function validateAccount(network: string, account: string): Promise
 }
 
 export async function checkContractExists(network: string, account: string): Promise<boolean> {
-  return withSpinner("Checking contract existence", async (spinner) => {
+  try {
+    const nodeUrl = network === "mainnet"
+      ? "https://rpc.mainnet.near.org"
+      : "https://rpc.testnet.near.org";
+    const near = await connect({
+      networkId: network === "mainnet" ? "mainnet" : "testnet",
+      nodeUrl
+    });
+
+    // Create a random keypair for view calls
+    const keyPair = utils.KeyPair.fromRandom('ed25519');
+    const keyStore = new keyStores.InMemoryKeyStore();
+    await keyStore.setKey(network === "mainnet" ? "mainnet" : "testnet", account, keyPair);
+
+    const nearAccount = new Account(near.connection, account);
+
+    const contract = new Contract(nearAccount, account, {
+      viewMethods: ["web4_get"],
+      changeMethods: []
+    });
+
     try {
-      const nodeUrl = network === "mainnet" 
-        ? "https://rpc.mainnet.near.org"
-        : "https://rpc.testnet.near.org";
-      const near = await connect({ 
-        networkId: network === "mainnet" ? "mainnet" : "testnet",
-        nodeUrl
-      });
-      
-      // Create a random keypair for view calls
-      const keyPair = utils.KeyPair.fromRandom('ed25519');
-      const keyStore = new keyStores.InMemoryKeyStore();
-      await keyStore.setKey(network === "mainnet" ? "mainnet" : "testnet", account, keyPair);
-      
-      const nearAccount = new Account(near.connection, account);
-      
-      const contract = new Contract(nearAccount, account, {
-        viewMethods: ["web4_get"],
-        changeMethods: []
-      });
-      
-      try {
-        // Try to call web4_get method
-        await (contract as Web4Contract).web4_get({ request: { path: "/" } });
-        spinner.succeed("Contract exists and has web4_get method");
-        return true;
-      } catch (e) {
-        if (e.toString().includes("MethodResolveError")) {
-          spinner.info("Contract does not have web4_get method");
-          return false;
-        }
-        throw e;
+      // Try to call web4_get method
+      await (contract as Web4Contract).web4_get({ request: { path: "/" } });
+      return true;
+    } catch (e) {
+      if (e.toString().includes("MethodResolveError")) {
+        return false;
       }
-    } catch (error) {
-      spinner.info("Contract does not exist");
-      return false;
+      throw e;
     }
-  });
+  } catch (error) {
+    return false;
+  }
 }
 
 export async function deployToWeb4(network: string, account: string): Promise<void> {
-  return withSpinner("Deploying to web4", async (spinner) => {
+  return withSpinner("Preparing deployment", async (spinner) => {
     try {
-      // First check if contract needs to be deployed
+      spinner.text = "Checking contract status";
       const contractExists = await checkContractExists(network, account);
       
+      if (contractExists) {
+        spinner.text = "Contract exists with web4_get method";
+      } else {
+        spinner.text = "Contract needs deployment";
+      }
       const command = [
         "npx",
         "github:vgrichina/web4-deploy",
         "dist",
         account,
       ];
-      
+
       // Only add --deploy-contract if contract doesn't exist or doesn't have web4_get
       if (!contractExists) {
         command.push("--deploy-contract");
+        spinner.text = "Deploying contract and content";
+      } else {
+        spinner.text = "Deploying content only";
       }
-      
+
       command.push("--nearfs", "--network", network);
-      
-      spinner.text = "Running deployment command...";
+
       await executeCommand(command);
-      spinner.succeed("Deployed to web4 successfully");
+      spinner.succeed(`Successfully deployed to ${account}`);
     } catch (error) {
-      spinner.fail("Deployment failed");
+      spinner.fail(`Deployment failed: ${error}`);
       throw error;
     }
   });
