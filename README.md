@@ -34,6 +34,8 @@ bun run build
 bun run deploy
 ```
 
+> **Note**: The deploy script will fail because of some known bugs. You can modify and use `npx github:vgrichina/web4-deploy dist web4.blonk.near --deploy-contract --nearfs --network mainnet` with the correct account and network details.
+
 Your profile will be available at:
 
 - Testnet: `https://web4.ACCOUNT_NAME.testnet.page`
