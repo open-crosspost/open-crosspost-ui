@@ -11,10 +11,10 @@ async function saveConfig(network: string, account: string): Promise<void> {
   try {
     const config = {
       network,
-      account
+      account,
     };
 
-    const configPath = join(process.cwd(), 'bos.config.json');
+    const configPath = join(process.cwd(), "bos.config.json");
     await writeFile(configPath, JSON.stringify(config, null, 2));
     spinner.succeed(`Configuration saved to bos.config.json`);
   } catch (error) {
@@ -53,6 +53,6 @@ withCleanup(async () => {
 
   console.log("\nSaving configuration...");
   await saveConfig(network, account);
-  
+
   console.log("\nInitialization completed successfully!");
 });

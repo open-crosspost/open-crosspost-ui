@@ -3,7 +3,7 @@ import ora, { Ora } from "ora";
 
 export async function withSpinner<T>(
   message: string,
-  fn: (spinner: Ora) => Promise<T>
+  fn: (spinner: Ora) => Promise<T>,
 ): Promise<T> {
   const spinner = ora(message).start();
   activeSpinners.push(spinner);
@@ -42,13 +42,13 @@ export async function promptUser(question: string): Promise<string> {
       console.error("Failed to close readline interface:", err);
     }
   };
-  process.once('SIGINT', cleanup);
+  process.once("SIGINT", cleanup);
 
   try {
     return await rl.question(question);
   } finally {
     cleanup();
-    process.removeListener('SIGINT', cleanup);
+    process.removeListener("SIGINT", cleanup);
   }
 }
 
@@ -71,7 +71,7 @@ export async function executeCommand(
       shell: true,
       detached: true,
       // This ensures the process group can be killed together
-      windowsHide: true
+      windowsHide: true,
     });
 
     // Track the process
@@ -82,14 +82,14 @@ export async function executeCommand(
       if (proc.pid) {
         try {
           // Kill the entire process group
-          process.kill(-proc.pid, 'SIGINT');
+          process.kill(-proc.pid, "SIGINT");
         } catch (err) {
           // Fallback to tree-kill if process group kill fails
-          treeKill(proc.pid, 'SIGINT');
+          treeKill(proc.pid, "SIGINT");
         }
       }
     };
-    process.on('SIGINT', sigintHandler);
+    process.on("SIGINT", sigintHandler);
 
     proc.on("close", (code) => {
       // Clean up
@@ -98,7 +98,7 @@ export async function executeCommand(
         activeProcesses.splice(index, 1);
       }
       // Remove the SIGINT handler
-      process.removeListener('SIGINT', sigintHandler);
+      process.removeListener("SIGINT", sigintHandler);
 
       if (isCleaningUp) {
         reject(new Error("Operation cancelled"));
@@ -119,7 +119,7 @@ export async function executeCommand(
       if (index > -1) {
         activeProcesses.splice(index, 1);
       }
-      process.removeListener('SIGINT', sigintHandler);
+      process.removeListener("SIGINT", sigintHandler);
       reject(new Error(`Failed to start command: ${err.message}`));
     });
   });
@@ -144,32 +144,32 @@ export async function cleanupAndExit(exitCode = 1) {
   console.log("\nCleaning up...");
 
   // Stop all spinners
-  activeSpinners.forEach(spinner => spinner.stop());
+  activeSpinners.forEach((spinner) => spinner.stop());
   activeSpinners.length = 0;
 
   // Kill all processes
   await Promise.all(
-    activeProcesses.map(async proc => {
+    activeProcesses.map(async (proc) => {
       if (!proc.pid) return;
-      
+
       try {
         // Try SIGINT first
-        process.kill(-proc.pid, 'SIGINT');
-        
+        process.kill(-proc.pid, "SIGINT");
+
         // Wait briefly for graceful shutdown
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
         // Force kill if still running
         if (proc.pid) {
-          process.kill(-proc.pid, 'SIGKILL');
+          process.kill(-proc.pid, "SIGKILL");
         }
       } catch {
         // Fallback to tree-kill
         if (proc.pid) {
-          treeKill(proc.pid, 'SIGKILL');
+          treeKill(proc.pid, "SIGKILL");
         }
       }
-    })
+    }),
   );
 
   process.exit(exitCode);

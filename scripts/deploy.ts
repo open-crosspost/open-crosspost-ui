@@ -14,14 +14,18 @@ withCleanup(async () => {
   }
 
   if (network !== "mainnet" && network !== "testnet") {
-    throw new Error('Invalid network. Please enter either "mainnet" or "testnet".');
+    throw new Error(
+      'Invalid network. Please enter either "mainnet" or "testnet".',
+    );
   }
 
   // Get account
   const accountSuffix = network === "mainnet" ? "near" : "testnet";
   let account = config.account;
   if (!account) {
-    account = await promptUser(`Enter your account name (e.g root.${accountSuffix}): `);
+    account = await promptUser(
+      `Enter your account name (e.g root.${accountSuffix}): `,
+    );
   }
 
   // Validate web4 account

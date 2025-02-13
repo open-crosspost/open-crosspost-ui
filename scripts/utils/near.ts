@@ -13,19 +13,21 @@ export interface BosConfig {
 
 export async function getConfigValues(): Promise<BosConfig> {
   try {
-    const configPath = 'bos.config.json';
-    const config = JSON.parse(await readFile(configPath, 'utf-8'));
+    const configPath = "bos.config.json";
+    const config = JSON.parse(await readFile(configPath, "utf-8"));
     return {
       network: config.network,
-      account: config.account
+      account: config.account,
     };
   } catch (error) {
     return {};
   }
 }
 
-
-export async function createWeb4Account(network: string, account: string): Promise<void> {
+export async function createWeb4Account(
+  network: string,
+  account: string,
+): Promise<void> {
   return withSpinner("Checking web4 subaccount", async (spinner) => {
     const subaccount = `web4.${account}`;
     const exists = await checkAccountExists(network, subaccount);
@@ -61,24 +63,24 @@ export async function createWeb4Account(network: string, account: string): Promi
   });
 }
 
-
 export async function checkAccountExists(
   network: string,
   account: string,
 ): Promise<boolean> {
   try {
-    const nodeUrl = network === "mainnet"
-      ? "https://rpc.mainnet.near.org"
-      : "https://rpc.testnet.near.org";
+    const nodeUrl =
+      network === "mainnet"
+        ? "https://rpc.mainnet.near.org"
+        : "https://rpc.testnet.near.org";
     const near = await connect({
       networkId: network === "mainnet" ? "mainnet" : "testnet",
-      nodeUrl
+      nodeUrl,
     });
     try {
       await near.connection.provider.query({
         request_type: "view_account",
         account_id: account,
-        finality: "final"
+        finality: "final",
       });
       return true;
     } catch (e) {
@@ -92,7 +94,10 @@ export async function checkAccountExists(
   }
 }
 
-export async function validateAccount(network: string, account: string): Promise<void> {
+export async function validateAccount(
+  network: string,
+  account: string,
+): Promise<void> {
   return withSpinner("Validating account", async (spinner) => {
     const exists = await checkAccountExists(network, account);
 
@@ -104,26 +109,34 @@ export async function validateAccount(network: string, account: string): Promise
   });
 }
 
-export async function checkContractExists(network: string, account: string): Promise<boolean> {
+export async function checkContractExists(
+  network: string,
+  account: string,
+): Promise<boolean> {
   try {
-    const nodeUrl = network === "mainnet"
-      ? "https://rpc.mainnet.near.org"
-      : "https://rpc.testnet.near.org";
+    const nodeUrl =
+      network === "mainnet"
+        ? "https://rpc.mainnet.near.org"
+        : "https://rpc.testnet.near.org";
     const near = await connect({
       networkId: network === "mainnet" ? "mainnet" : "testnet",
-      nodeUrl
+      nodeUrl,
     });
 
     // Create a random keypair for view calls
-    const keyPair = utils.KeyPair.fromRandom('ed25519');
+    const keyPair = utils.KeyPair.fromRandom("ed25519");
     const keyStore = new keyStores.InMemoryKeyStore();
-    await keyStore.setKey(network === "mainnet" ? "mainnet" : "testnet", account, keyPair);
+    await keyStore.setKey(
+      network === "mainnet" ? "mainnet" : "testnet",
+      account,
+      keyPair,
+    );
 
     const nearAccount = new Account(near.connection, account);
 
     const contract = new Contract(nearAccount, account, {
       viewMethods: ["web4_get"],
-      changeMethods: []
+      changeMethods: [],
     });
 
     try {
@@ -141,23 +154,21 @@ export async function checkContractExists(network: string, account: string): Pro
   }
 }
 
-export async function deployToWeb4(network: string, account: string): Promise<void> {
+export async function deployToWeb4(
+  network: string,
+  account: string,
+): Promise<void> {
   return withSpinner("Preparing deployment", async (spinner) => {
     try {
       spinner.text = "Checking contract status";
       const contractExists = await checkContractExists(network, account);
-      
+
       if (contractExists) {
         spinner.text = "Contract exists with web4_get method";
       } else {
         spinner.text = "Contract needs deployment";
       }
-      const command = [
-        "npx",
-        "github:vgrichina/web4-deploy",
-        "dist",
-        account,
-      ];
+      const command = ["npx", "github:vgrichina/web4-deploy", "dist", account];
 
       // Only add --deploy-contract if contract doesn't exist or doesn't have web4_get
       if (!contractExists) {

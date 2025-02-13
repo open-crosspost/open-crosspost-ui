@@ -104,7 +104,7 @@ export function useDonate() {
           POTLOCK_DONATE_CONTRACT_ID[NETWORK_ID],
           "donate",
           { recipient_id: recipientId },
-          { deposit }
+          { deposit },
         );
       } catch (error) {
         console.error("Error in donation:", error);

@@ -10,111 +10,111 @@
 
 // Import Routes
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as LayoutImport } from './routes/_layout'
-import { Route as LayoutIndexImport } from './routes/_layout/index'
-import { Route as LayoutDonateIndexImport } from './routes/_layout/donate/index'
+import { Route as rootRoute } from "./routes/__root";
+import { Route as LayoutImport } from "./routes/_layout";
+import { Route as LayoutIndexImport } from "./routes/_layout/index";
+import { Route as LayoutDonateIndexImport } from "./routes/_layout/donate/index";
 
 // Create/Update Routes
 
 const LayoutRoute = LayoutImport.update({
-  id: '/_layout',
+  id: "/_layout",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const LayoutIndexRoute = LayoutIndexImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => LayoutRoute,
-} as any)
+} as any);
 
 const LayoutDonateIndexRoute = LayoutDonateIndexImport.update({
-  id: '/donate/',
-  path: '/donate/',
+  id: "/donate/",
+  path: "/donate/",
   getParentRoute: () => LayoutRoute,
-} as any)
+} as any);
 
 // Populate the FileRoutesByPath interface
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/_layout': {
-      id: '/_layout'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof LayoutImport
-      parentRoute: typeof rootRoute
-    }
-    '/_layout/': {
-      id: '/_layout/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof LayoutIndexImport
-      parentRoute: typeof LayoutImport
-    }
-    '/_layout/donate/': {
-      id: '/_layout/donate/'
-      path: '/donate'
-      fullPath: '/donate'
-      preLoaderRoute: typeof LayoutDonateIndexImport
-      parentRoute: typeof LayoutImport
-    }
+    "/_layout": {
+      id: "/_layout";
+      path: "";
+      fullPath: "";
+      preLoaderRoute: typeof LayoutImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/_layout/": {
+      id: "/_layout/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof LayoutIndexImport;
+      parentRoute: typeof LayoutImport;
+    };
+    "/_layout/donate/": {
+      id: "/_layout/donate/";
+      path: "/donate";
+      fullPath: "/donate";
+      preLoaderRoute: typeof LayoutDonateIndexImport;
+      parentRoute: typeof LayoutImport;
+    };
   }
 }
 
 // Create and export the route tree
 
 interface LayoutRouteChildren {
-  LayoutIndexRoute: typeof LayoutIndexRoute
-  LayoutDonateIndexRoute: typeof LayoutDonateIndexRoute
+  LayoutIndexRoute: typeof LayoutIndexRoute;
+  LayoutDonateIndexRoute: typeof LayoutDonateIndexRoute;
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutIndexRoute: LayoutIndexRoute,
   LayoutDonateIndexRoute: LayoutDonateIndexRoute,
-}
+};
 
 const LayoutRouteWithChildren =
-  LayoutRoute._addFileChildren(LayoutRouteChildren)
+  LayoutRoute._addFileChildren(LayoutRouteChildren);
 
 export interface FileRoutesByFullPath {
-  '': typeof LayoutRouteWithChildren
-  '/': typeof LayoutIndexRoute
-  '/donate': typeof LayoutDonateIndexRoute
+  "": typeof LayoutRouteWithChildren;
+  "/": typeof LayoutIndexRoute;
+  "/donate": typeof LayoutDonateIndexRoute;
 }
 
 export interface FileRoutesByTo {
-  '/': typeof LayoutIndexRoute
-  '/donate': typeof LayoutDonateIndexRoute
+  "/": typeof LayoutIndexRoute;
+  "/donate": typeof LayoutDonateIndexRoute;
 }
 
 export interface FileRoutesById {
-  __root__: typeof rootRoute
-  '/_layout': typeof LayoutRouteWithChildren
-  '/_layout/': typeof LayoutIndexRoute
-  '/_layout/donate/': typeof LayoutDonateIndexRoute
+  __root__: typeof rootRoute;
+  "/_layout": typeof LayoutRouteWithChildren;
+  "/_layout/": typeof LayoutIndexRoute;
+  "/_layout/donate/": typeof LayoutDonateIndexRoute;
 }
 
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/' | '/donate'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/donate'
-  id: '__root__' | '/_layout' | '/_layout/' | '/_layout/donate/'
-  fileRoutesById: FileRoutesById
+  fileRoutesByFullPath: FileRoutesByFullPath;
+  fullPaths: "" | "/" | "/donate";
+  fileRoutesByTo: FileRoutesByTo;
+  to: "/" | "/donate";
+  id: "__root__" | "/_layout" | "/_layout/" | "/_layout/donate/";
+  fileRoutesById: FileRoutesById;
 }
 
 export interface RootRouteChildren {
-  LayoutRoute: typeof LayoutRouteWithChildren
+  LayoutRoute: typeof LayoutRouteWithChildren;
 }
 
 const rootRouteChildren: RootRouteChildren = {
   LayoutRoute: LayoutRouteWithChildren,
-}
+};
 
 export const routeTree = rootRoute
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
 
 /* ROUTE_MANIFEST_START
 {
