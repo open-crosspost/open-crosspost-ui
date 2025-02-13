@@ -1,102 +1,78 @@
-<!-- markdownlint-disable MD014 -->
-<!-- markdownlint-disable MD033 -->
-<!-- markdownlint-disable MD041 -->
-<!-- markdownlint-disable MD029 -->
-
 <div align="center">
-
-  <h1 style="font-size: 2.5rem; font-weight: bold;">every profile template</h1>
-
+  <h1>every profile template</h1>
   <p>
     <strong>A customizable web4 profile for easy integration with everything</strong>
   </p>
-
 </div>
 
-<details>
-  <summary>Table of Contents</summary>
+## Quick Start: Deploy Your Profile
 
-- [Getting Started](#getting-started)
-  - [Installing Dependencies](#installing-dependencies)
-  - [Running the Development Server](#running-the-development-server)
-  - [Customizing Your Profile](#customizing-your-profile)
-- [Module Federation Configuration](#module-federation-configuration)
-- [Building for Production](#building-for-production)
-- [Deploy to Web4](#deploy-to-web4)
-- [Contributing](#contributing)
-
-</details>
-
-## Getting Started
-
-### Installing Dependencies
-
-This project likes to use Bun as the package manager, but you don't have to. Install the dependencies with whatever you want:
+1. Install dependencies:
 
 ```bash
 bun install
 ```
 
-### Running the Development Server
+2. Initialize your web4 configuration:
 
-Start the development server on `localhost:5170`:
+```bash
+bun run init
+```
+
+This will:
+
+- Prompt for network (mainnet/testnet) and account name
+- Create a web4 subaccount if needed
+- Save configuration to `bos.config.json`
+
+> **Important**: Your web4 account must be saved to the legacy keychain. If you need to add it later, you'll have to export and import it again to the legacy keychain.
+
+3. Build and deploy:
+
+```bash
+bun run build
+bun run deploy
+```
+
+Your profile will be available at:
+
+- Testnet: `https://web4.ACCOUNT_NAME.testnet.page`
+- Mainnet: `https://web4.ACCOUNT_NAME.near.page`
+
+## Customize Your Profile
+
+This template includes:
+
+- [TanStack Router](https://tanstack.com/router) for type-safe routing
+- Landing page that links to your website
+- Donation page powered by [Potlock](https://potlock.org)
+
+1. Start the development server:
 
 ```bash
 bun run dev
 ```
 
-The development server is configured with hot module replacement for a smooth development experience.
+2. Customize the app:
 
-### Customizing Your Profile
+- `src/routes/_layout/index.tsx`: Main landing page
+- `src/routes/_layout/donate/`: Donation page with Potlock integration
+- `src/index.css`: Global styles (uses Tailwind)
 
-1. Open `src/components/Profile.tsx` to modify the main profile component.
-2. Update styles in `src/index.css` or use Tailwind classes directly in your components.
-3. Adjust the theme in `tailwind.config.js` to match your desired look and feel.
+The app uses [shadcn/ui](https://ui.shadcn.com/) components for the UI, which you can customize in `src/components/ui/`.
 
-## Module Federation Configuration
+## Technical Details: Module Federation
 
-This template is set up for [module federation](https://module-federation.io/). The configuration can be found in `rsbuild.config.ts`. Key points:
+This template uses [module federation](https://module-federation.io/) to integrate with other applications. Key points:
 
-- The profile module is exposed as `"./Profile"`
-- It shares dependencies with the host/"gateway"
-- Feel free to install other packages and add components to the Profile, but do not modify [App](./src/App.tsx) or [bootstrap](./src/bootstrap.tsx).
+- Exports an App module that can be imported by other applications
+- Shares dependencies with the host application to avoid duplication
+- Configuration is in `rsbuild.config.ts`
 
-## Building for Production
+Important rules:
 
-To create a production build:
-
-```bash
-bun run build
-```
-
-This will generate optimized files in the `dist` directory.
-
-## Deploy to web4
-
-To deploy your profile to web4, make sure you have built the project, then:
-
-1. Run the deploy script:
-
-```bash
-bun run deploy
-```
-
-2. Follow the prompts in the terminal:
-
-   - Enter the network (mainnet/testnet)
-   - Enter your account name (e.g., root.near)
-
-The script will automatically:
-
-- Create a web4 subaccount if it doesn't exist
-- Deploy your profile to the web4 contract
-
-You will be prompted to sign transactions through [near-cli-rs](https://github.com/near/near-cli-rs)
-
-After successful deployment, your website will be accessible at:
-
-- Testnet: `ACCOUNT_NAME.testnet.page`
-- Mainnet: `ACCOUNT_NAME.near.page`
+- Do not modify `src/App.tsx`
+- Feel free to add new routes, components, and features
 
 ## Contributing
 
