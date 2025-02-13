@@ -1,3 +1,4 @@
 {
-  "account": "crosspost.near"
+  "network": "mainnet",
+  "account": "blonk.near"
 }

@@ -1,5 +1,25 @@
 import ora from "ora";
 import { executeCommand, activeSpinners, isCleaningUp } from "./helpers";
+import { readFile } from "fs/promises";
+
+export interface BosConfig {
+  network?: string;
+  account?: string;
+}
+
+export async function getConfigValues(): Promise<BosConfig> {
+  try {
+    const configPath = 'bos.config.json';
+    const config = JSON.parse(await readFile(configPath, 'utf-8'));
+    return {
+      network: config.network,
+      account: config.account
+    };
+  } catch (error) {
+    return {};
+  }
+}
+
 
 export async function createWeb4Account(network: string, account: string): Promise<void> {
   const spinner = ora("Checking web4 subaccount").start();
@@ -48,23 +68,33 @@ export async function createWeb4Account(network: string, account: string): Promi
   }
 }
 
+import { connect } from "meer-api-js";
+
 export async function checkAccountExists(
   network: string,
   account: string,
 ): Promise<boolean> {
   try {
-    const command = [
-      "npx",
-      "near-cli-rs",
-      "account",
-      "view-account-summary",
-      account,
-      "network-config",
-      network,
-      "now",
-    ];
-    await executeCommand(command);
-    return true;
+    const nodeUrl = network === "mainnet" 
+      ? "https://rpc.mainnet.near.org"
+      : "https://rpc.testnet.near.org";
+    const near = await connect({ 
+      networkId: network === "mainnet" ? "mainnet" : "testnet",
+      nodeUrl
+    });
+    try {
+      await near.connection.provider.query({
+        request_type: "view_account",
+        account_id: account,
+        finality: "final"
+      });
+      return true;
+    } catch (e) {
+      if (e.toString().includes("does not exist")) {
+        return false;
+      }
+      throw e;
+    }
   } catch (error) {
     if (isCleaningUp) throw error;
     return false;
@@ -89,6 +119,38 @@ export async function validateAccount(network: string, account: string): Promise
   } catch (error) {
     if (!isCleaningUp) {
       spinner.fail(`Account validation failed: ${error}`);
+    }
+    throw error;
+  } finally {
+    const index = activeSpinners.indexOf(spinner);
+    if (index > -1) {
+      activeSpinners.splice(index, 1);
+    }
+  }
+}
+
+export async function deployToWeb4(network: string, account: string): Promise<void> {
+  const spinner = ora("Deploying to web4").start();
+  activeSpinners.push(spinner);
+
+  try {
+    const command = [
+      "npx",
+      "github:vgrichina/web4-deploy",
+      "dist",
+      account,
+      "--deploy-contract",
+      "--nearfs",
+      "--network",
+      network,
+    ];
+    await executeCommand(command);
+    
+    if (isCleaningUp) throw new Error("Operation cancelled");
+    spinner.succeed("Deployed to web4 successfully");
+  } catch (error) {
+    if (!isCleaningUp) {
+      spinner.fail(`Failed to deploy to web4: ${error}`);
     }
     throw error;
   } finally {
