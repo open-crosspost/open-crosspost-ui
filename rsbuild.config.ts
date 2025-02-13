@@ -3,6 +3,7 @@ import { pluginModuleFederation } from "@module-federation/rsbuild-plugin";
 import { defineConfig } from "@rsbuild/core";
 import { pluginReact } from "@rsbuild/plugin-react";
 import { TanStackRouterRspack } from "@tanstack/router-plugin/rspack";
+import { normalizeText } from 'normalize-text';
 import bosConfig from './bos.config.json';
 
 export default async () => {
@@ -77,10 +78,11 @@ export default async () => {
   plugins: [
     pluginReact(),
     pluginModuleFederation({
-      name: "crosspost",
+      name: normalizeText(profile?.name || "app"),
       filename: "main/remoteEntry.js", // branch
       exposes: {
         "./App": "./src/App.tsx",
+        "./DonatePage": "./src/pages/donate"
       },
       experiments: {
         federationRuntime: "hoisted",

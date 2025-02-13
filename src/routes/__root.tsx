@@ -1,7 +1,6 @@
-import React from "react";
-import { ThemeProvider } from "../lib/providers/theme";
 import { QueryClient } from "@tanstack/react-query";
 import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
+import React from "react";
 
 export const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
@@ -32,15 +31,11 @@ export const Route = createRootRouteWithContext<{
 function RootComponent() {
   return (
     <>
-      {/* <AuthDebugger /> */}
-      <ThemeProvider defaultTheme="light" storageKey="profile-ui-theme">
-        {/* May not need Near Provider, and Jazz Provider maybe should be combined */}
-        <Outlet />
-        <React.Suspense>
-          <TanStackRouterDevtools position="bottom-left" />
-          <ReactQueryDevtools buttonPosition="bottom-left" />
-        </React.Suspense>
-      </ThemeProvider>
+      <Outlet />
+      <React.Suspense>
+        <TanStackRouterDevtools position="bottom-left" />
+        <ReactQueryDevtools buttonPosition="bottom-left" />
+      </React.Suspense>
     </>
   );
 }

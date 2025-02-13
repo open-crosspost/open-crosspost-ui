@@ -5,10 +5,10 @@
 
 <div align="center">
 
-  <h1 style="font-size: 2.5rem; font-weight: bold;">Profile Module Template</h1>
+  <h1 style="font-size: 2.5rem; font-weight: bold;">every profile template</h1>
 
   <p>
-    <strong>A customizable profile module for easy integration with module federation</strong>
+    <strong>A customizable web4 profile for easy integration with everything</strong>
   </p>
 
 </div>
@@ -21,7 +21,6 @@
   - [Running the Development Server](#running-the-development-server)
   - [Customizing Your Profile](#customizing-your-profile)
 - [Module Federation Configuration](#module-federation-configuration)
-- [Theming and Styling](#theming-and-styling)
 - [Building for Production](#building-for-production)
 - [Deploy to Web4](#deploy-to-web4)
 - [Contributing](#contributing)
@@ -32,7 +31,7 @@
 
 ### Installing Dependencies
 
-This project uses Bun as the package manager. Install the dependencies with:
+This project likes to use Bun as the package manager, but you don't have to. Install the dependencies with whatever you want:
 
 ```bash
 bun install

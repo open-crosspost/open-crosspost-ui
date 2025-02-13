@@ -1,5 +1,5 @@
 {
-  "name": "@efiz.near/profile",
+  "name": "project-profile",
   "version": "0.0.1",
   "homepage": "/",
   "type": "module",
@@ -11,6 +11,7 @@
     "dist"
   ],
   "scripts": {
+    "init": "bun run --bun scripts/init.ts",
     "dev": "cat welcome.txt && rsbuild dev",
     "build": "rsbuild build",
     "preview": "rsbuild preview",
@@ -70,6 +71,7 @@
     "sharp": "^0.33.5",
     "tailwind-merge": "^3.0.1",
     "tailwindcss": "^3.4.16",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "normalize-text": "^2.5.0"
   }
 }
