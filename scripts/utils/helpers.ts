@@ -1,5 +1,25 @@
 import { ChildProcess, spawn } from "child_process";
 import ora, { Ora } from "ora";
+
+export async function withSpinner<T>(
+  message: string,
+  fn: (spinner: Ora) => Promise<T>
+): Promise<T> {
+  const spinner = ora(message).start();
+  activeSpinners.push(spinner);
+
+  try {
+    return await fn(spinner);
+  } catch (error) {
+    spinner.fail(error.message);
+    throw error;
+  } finally {
+    const index = activeSpinners.indexOf(spinner);
+    if (index > -1) {
+      activeSpinners.splice(index, 1);
+    }
+  }
+}
 import treeKill from "tree-kill";
 
 // Track all active processes and spinners
@@ -86,10 +106,9 @@ export async function executeCommand(
       }
 
       if (code === 0) {
-        console.log("Command executed successfully");
         resolve();
-      } else if (code === null) {
-        reject(new Error("Command was terminated"));
+      } else if (code === null || isCleaningUp) {
+        reject(new Error("Command was interrupted"));
       } else {
         reject(new Error(`Command failed with exit code ${code}`));
       }
@@ -106,94 +125,52 @@ export async function executeCommand(
   });
 }
 
+export async function withCleanup<T>(fn: () => Promise<T>): Promise<T> {
+  try {
+    const result = await fn();
+    await cleanupAndExit(0);
+    return result;
+  } catch (error) {
+    console.error("\nOperation failed:", error.message);
+    await cleanupAndExit(1);
+    throw error;
+  }
+}
+
 export async function cleanupAndExit(exitCode = 1) {
   if (isCleaningUp) return;
   isCleaningUp = true;
 
-  console.log("\nInterrupted. Cleaning up...");
+  console.log("\nCleaning up...");
 
-  try {
-    // Stop all spinners first to clear the terminal
-    activeSpinners.forEach(spinner => {
+  // Stop all spinners
+  activeSpinners.forEach(spinner => spinner.stop());
+  activeSpinners.length = 0;
+
+  // Kill all processes
+  await Promise.all(
+    activeProcesses.map(async proc => {
+      if (!proc.pid) return;
+      
       try {
-        spinner.stop();
-      } catch (err) {
-        console.error("Failed to stop spinner:", err);
+        // Try SIGINT first
+        process.kill(-proc.pid, 'SIGINT');
+        
+        // Wait briefly for graceful shutdown
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Force kill if still running
+        if (proc.pid) {
+          process.kill(-proc.pid, 'SIGKILL');
+        }
+      } catch {
+        // Fallback to tree-kill
+        if (proc.pid) {
+          treeKill(proc.pid, 'SIGKILL');
+        }
       }
-    });
-    activeSpinners.length = 0;
+    })
+  );
 
-    // Kill all processes with SIGINT first to allow graceful shutdown
-    const killPromises = activeProcesses.map(proc => {
-      return new Promise<void>((resolve) => {
-        if (!proc.pid) {
-          resolve();
-          return;
-        }
-
-        const timeout = setTimeout(() => {
-          // If process doesn't respond to SIGINT, force kill with SIGKILL
-          try {
-            if (proc.pid) {
-              process.kill(-proc.pid, 'SIGKILL');
-            }
-          } catch (err) {
-            if (proc.pid) {
-              treeKill(proc.pid, 'SIGKILL');
-            }
-          }
-          resolve();
-        }, 3000); // Give processes 3 seconds to cleanup
-
-        try {
-          if (proc.pid) {
-            // Try SIGINT first for graceful shutdown
-            process.kill(-proc.pid, 'SIGINT');
-            
-            // Listen for process exit
-            proc.on('exit', () => {
-              clearTimeout(timeout);
-              resolve();
-            });
-          } else {
-            resolve();
-          }
-        } catch (err) {
-          // Fallback to tree-kill with SIGINT
-          if (proc.pid) {
-            treeKill(proc.pid, 'SIGINT', (killErr) => {
-              if (killErr) {
-                console.error(`Failed to kill process ${proc.pid}:`, killErr);
-                try {
-                  // Last resort: force kill
-                  if (proc.pid) {
-                    process.kill(-proc.pid, 'SIGKILL');
-                  }
-                } catch (e) {
-                  if (proc.pid) {
-                    treeKill(proc.pid, 'SIGKILL');
-                  }
-                }
-              }
-              clearTimeout(timeout);
-              resolve();
-            });
-          } else {
-            clearTimeout(timeout);
-            resolve();
-          }
-        }
-      });
-    });
-
-    // Wait for all processes to be killed or timeout
-    await Promise.race([
-      Promise.all(killPromises),
-      new Promise(resolve => setTimeout(resolve, 5000)) // 5 second total timeout
-    ]);
-  } catch (error) {
-    console.error("Error during cleanup:", error);
-  } finally {
-    process.exit(exitCode);
-  }
+  process.exit(exitCode);
 }

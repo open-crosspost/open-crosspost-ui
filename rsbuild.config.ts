@@ -82,7 +82,6 @@ export default async () => {
       filename: "main/remoteEntry.js", // branch
       exposes: {
         "./App": "./src/App.tsx",
-        "./DonatePage": "./src/pages/donate"
       },
       experiments: {
         federationRuntime: "hoisted",

@@ -1,6 +1,6 @@
-import ora from "ora";
-import { executeCommand, activeSpinners, isCleaningUp } from "./helpers";
 import { readFile } from "fs/promises";
+import { connect } from "meer-api-js";
+import { executeCommand, withSpinner } from "./helpers";
 
 export interface BosConfig {
   network?: string;
@@ -22,14 +22,9 @@ export async function getConfigValues(): Promise<BosConfig> {
 
 
 export async function createWeb4Account(network: string, account: string): Promise<void> {
-  const spinner = ora("Checking web4 subaccount").start();
-  activeSpinners.push(spinner);
-
-  try {
+  return withSpinner("Checking web4 subaccount", async (spinner) => {
     const subaccount = `web4.${account}`;
     const exists = await checkAccountExists(network, subaccount);
-    
-    if (isCleaningUp) throw new Error("Operation cancelled");
 
     if (exists) {
       spinner.succeed(`Web4 subaccount already exists`);
@@ -37,38 +32,31 @@ export async function createWeb4Account(network: string, account: string): Promi
     }
 
     spinner.text = "Creating web4 subaccount";
-    const command = [
-      "near",
-      "account",
-      "create-account",
-      "fund-myself",
-      subaccount,
-      "'1 NEAR'",
-      "autogenerate-new-keypair",
-      "save-to-keychain",
-      `sign-as`,
-      account,
-      "network-config",
-      network,
-    ];
-    await executeCommand(command);
-    
-    if (isCleaningUp) throw new Error("Operation cancelled");
-    spinner.succeed("Web4 subaccount created successfully");
-  } catch (error) {
-    if (!isCleaningUp) {
-      spinner.fail(`Failed to create web4 subaccount: ${error}`);
+    try {
+      const command = [
+        "near",
+        "account",
+        "create-account",
+        "fund-myself",
+        subaccount,
+        "'1 NEAR'",
+        "autogenerate-new-keypair",
+        "save-to-keychain",
+        `sign-as`,
+        account,
+        "network-config",
+        network,
+      ];
+      await executeCommand(command);
+      
+      spinner.succeed("Web4 subaccount created successfully");
+    } catch (error) {
+      spinner.fail("Web4 subaccount creation failed");
+      throw error;
     }
-    throw error;
-  } finally {
-    const index = activeSpinners.indexOf(spinner);
-    if (index > -1) {
-      activeSpinners.splice(index, 1);
-    }
-  }
+  });
 }
 
-import { connect } from "meer-api-js";
 
 export async function checkAccountExists(
   network: string,
@@ -96,67 +84,40 @@ export async function checkAccountExists(
       throw e;
     }
   } catch (error) {
-    if (isCleaningUp) throw error;
     return false;
   }
 }
 
 export async function validateAccount(network: string, account: string): Promise<void> {
-  const spinner = ora("Validating account").start();
-  activeSpinners.push(spinner);
-
-  try {
+  return withSpinner("Validating account", async (spinner) => {
     const exists = await checkAccountExists(network, account);
-    
-    if (isCleaningUp) throw new Error("Operation cancelled");
 
     if (!exists) {
-      spinner.fail(`Account ${account} does not exist on ${network}`);
       throw new Error(`Account ${account} does not exist on ${network}`);
     }
 
     spinner.succeed(`Account ${account} exists on ${network}`);
-  } catch (error) {
-    if (!isCleaningUp) {
-      spinner.fail(`Account validation failed: ${error}`);
-    }
-    throw error;
-  } finally {
-    const index = activeSpinners.indexOf(spinner);
-    if (index > -1) {
-      activeSpinners.splice(index, 1);
-    }
-  }
+  });
 }
 
 export async function deployToWeb4(network: string, account: string): Promise<void> {
-  const spinner = ora("Deploying to web4").start();
-  activeSpinners.push(spinner);
-
-  try {
-    const command = [
-      "npx",
-      "github:vgrichina/web4-deploy",
-      "dist",
-      account,
-      "--deploy-contract",
-      "--nearfs",
-      "--network",
-      network,
-    ];
-    await executeCommand(command);
-    
-    if (isCleaningUp) throw new Error("Operation cancelled");
-    spinner.succeed("Deployed to web4 successfully");
-  } catch (error) {
-    if (!isCleaningUp) {
-      spinner.fail(`Failed to deploy to web4: ${error}`);
+  return withSpinner("Deploying to web4", async (spinner) => {
+    try {
+      const command = [
+        "npx",
+        "github:vgrichina/web4-deploy",
+        "dist",
+        account,
+        "--deploy-contract",
+        "--nearfs",
+        "--network",
+        network,
+      ];
+      await executeCommand(command);
+      spinner.succeed("Deployed to web4 successfully");
+    } catch (error) {
+      spinner.fail("Deployment failed");
+      throw error;
     }
-    throw error;
-  } finally {
-    const index = activeSpinners.indexOf(spinner);
-    if (index > -1) {
-      activeSpinners.splice(index, 1);
-    }
-  }
+  });
 }
