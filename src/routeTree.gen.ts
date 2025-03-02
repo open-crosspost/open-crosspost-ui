@@ -15,6 +15,7 @@ import { Route as LayoutImport } from './routes/_layout'
 import { Route as LayoutIndexImport } from './routes/_layout/index'
 import { Route as LayoutEditIndexImport } from './routes/_layout/edit/index'
 import { Route as LayoutDonateIndexImport } from './routes/_layout/donate/index'
+import { Route as LayoutContractCallIndexImport } from './routes/_layout/contract-call/index'
 
 // Create/Update Routes
 
@@ -41,6 +42,12 @@ const LayoutDonateIndexRoute = LayoutDonateIndexImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
+const LayoutContractCallIndexRoute = LayoutContractCallIndexImport.update({
+  id: '/contract-call/',
+  path: '/contract-call/',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -57,6 +64,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof LayoutIndexImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/contract-call/': {
+      id: '/_layout/contract-call/'
+      path: '/contract-call'
+      fullPath: '/contract-call'
+      preLoaderRoute: typeof LayoutContractCallIndexImport
       parentRoute: typeof LayoutImport
     }
     '/_layout/donate/': {
@@ -80,12 +94,14 @@ declare module '@tanstack/react-router' {
 
 interface LayoutRouteChildren {
   LayoutIndexRoute: typeof LayoutIndexRoute
+  LayoutContractCallIndexRoute: typeof LayoutContractCallIndexRoute
   LayoutDonateIndexRoute: typeof LayoutDonateIndexRoute
   LayoutEditIndexRoute: typeof LayoutEditIndexRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutIndexRoute: LayoutIndexRoute,
+  LayoutContractCallIndexRoute: LayoutContractCallIndexRoute,
   LayoutDonateIndexRoute: LayoutDonateIndexRoute,
   LayoutEditIndexRoute: LayoutEditIndexRoute,
 }
@@ -96,12 +112,14 @@ const LayoutRouteWithChildren =
 export interface FileRoutesByFullPath {
   '': typeof LayoutRouteWithChildren
   '/': typeof LayoutIndexRoute
+  '/contract-call': typeof LayoutContractCallIndexRoute
   '/donate': typeof LayoutDonateIndexRoute
   '/edit': typeof LayoutEditIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof LayoutIndexRoute
+  '/contract-call': typeof LayoutContractCallIndexRoute
   '/donate': typeof LayoutDonateIndexRoute
   '/edit': typeof LayoutEditIndexRoute
 }
@@ -110,19 +128,21 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/_layout': typeof LayoutRouteWithChildren
   '/_layout/': typeof LayoutIndexRoute
+  '/_layout/contract-call/': typeof LayoutContractCallIndexRoute
   '/_layout/donate/': typeof LayoutDonateIndexRoute
   '/_layout/edit/': typeof LayoutEditIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/' | '/donate' | '/edit'
+  fullPaths: '' | '/' | '/contract-call' | '/donate' | '/edit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/donate' | '/edit'
+  to: '/' | '/contract-call' | '/donate' | '/edit'
   id:
     | '__root__'
     | '/_layout'
     | '/_layout/'
+    | '/_layout/contract-call/'
     | '/_layout/donate/'
     | '/_layout/edit/'
   fileRoutesById: FileRoutesById
@@ -153,12 +173,17 @@ export const routeTree = rootRoute
       "filePath": "_layout.tsx",
       "children": [
         "/_layout/",
+        "/_layout/contract-call/",
         "/_layout/donate/",
         "/_layout/edit/"
       ]
     },
     "/_layout/": {
       "filePath": "_layout/index.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/contract-call/": {
+      "filePath": "_layout/contract-call/index.tsx",
       "parent": "/_layout"
     },
     "/_layout/donate/": {

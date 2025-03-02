@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Thing } from "../types/Thing";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { call, isSignedIn, login, getAccountId } from "web4-api-js";
 
 interface EditProps {
   initialData?: Thing;
@@ -47,9 +48,77 @@ export const Edit: React.FC<EditProps> = ({ initialData, onSave }) => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [contractCallResult, setContractCallResult] = useState<string | null>(null);
+  const [contractCallError, setContractCallError] = useState<string | null>(null);
+  const [currentAccountId, setCurrentAccountId] = useState<string | null>(() => {
+    if (isSignedIn()) {
+      const accountId = getAccountId();
+      return accountId || null;
+    }
+    return null;
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(data);
+    
+    try {
+      // First save the data locally
+      onSave(data);
+      
+      // Then attempt to save to NEAR via web4 contract call
+      setIsSubmitting(true);
+      setContractCallResult(null);
+      setContractCallError(null);
+      
+      // Check if user is signed in
+      if (!isSignedIn()) {
+        // If not signed in, redirect to login
+        login();
+        return;
+      }
+      
+      // User is signed in, proceed with contract call
+      const accountId = getAccountId();
+      if (!accountId) {
+        throw new Error("Failed to get account ID after login");
+      }
+      
+      // Update the current account ID in the UI
+      setCurrentAccountId(accountId);
+      
+      // Use the signed-in account as both signer and receiver
+      const receiverId = accountId;
+      
+      // Convert the Thing object to a JSON string and then to a Uint8Array
+      // This creates the binary blob that the contract expects
+      const jsonData = JSON.stringify(data);
+      const encoder = new TextEncoder();
+      const binaryData = encoder.encode(jsonData);
+      
+      // Create an object with the binary data that matches the contract's expected format
+      const args = {
+        data: Array.from(binaryData) // Convert Uint8Array to regular array for serialization
+      };
+      
+      // Make the contract call with the properly formatted args
+      const response = await call(
+        receiverId,
+        "__fastdata_fastfs",
+        args,
+        { 
+          gas: "1000000000000", // 0.001 Tgas
+          deposit: "0" 
+        }
+      );
+      
+      setContractCallResult(JSON.stringify(response, null, 2));
+    } catch (err) {
+      console.error("Contract call error:", err);
+      setContractCallError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -141,12 +210,39 @@ export const Edit: React.FC<EditProps> = ({ initialData, onSave }) => {
         </div>
       </div>
 
+      {currentAccountId ? (
+        <div className="text-sm text-gray-600 text-center mb-2">
+          Signed in as: <span className="font-medium">{currentAccountId}</span>
+        </div>
+      ) : (
+        <div className="text-sm text-gray-600 text-center mb-2">
+          Not signed in. You will be prompted to sign in when submitting.
+        </div>
+      )}
+      
       <Button
         type="submit"
+        disabled={isSubmitting}
         className="w-full border-2 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_rgba(0,0,0,1)] transition-all bg-white"
       >
-        Save
+        {isSubmitting ? "Submitting..." : "Save & Submit to NEAR"}
       </Button>
+      
+      {contractCallError && (
+        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
+          <h3 className="text-lg font-medium text-red-800">Contract Call Error</h3>
+          <p className="text-red-700 whitespace-pre-wrap">{contractCallError}</p>
+        </div>
+      )}
+      
+      {contractCallResult && (
+        <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
+          <h3 className="text-lg font-medium text-green-800">Contract Call Success</h3>
+          <pre className="text-green-700 whitespace-pre-wrap overflow-auto max-h-60">
+            {contractCallResult}
+          </pre>
+        </div>
+      )}
     </form>
   );
 };
