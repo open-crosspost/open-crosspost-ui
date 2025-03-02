@@ -1,0 +1,12 @@
+{
+  "name": "Sample Thing",
+  "description": "This is a sample thing that follows the schema defined in schema.json.",
+  "image": "https://placehold.co/400",
+  "properties": {
+    "category": "sample",
+    "tags": "example, demo, sample",
+    "version": "1.0.0",
+    "author": "Thing Template",
+    "createdAt": "2025-03-01T19:00:00.000Z"
+  }
+}

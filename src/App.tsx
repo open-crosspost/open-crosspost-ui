@@ -5,6 +5,8 @@ import React from "react";
 import { getAccountId } from "web4-api-js";
 import "./index.css";
 import { routeTree } from "./routeTree.gen";
+import { ThingComponent } from "./components/Thing";
+import { Thing } from "./types/Thing";
 
 export const queryClient = new QueryClient();
 
@@ -31,7 +33,14 @@ export const accountId =
       : bosConfig.account
     : bosConfig.account; // Fallback for local development
 
-export default function App() {
+// App component can be used as a Thing component with path parameter
+export default function App({ path, data }: { path?: string; data?: Thing }) {
+  // If path or data is provided, render the Thing component directly
+  if (path || data) {
+    return <ThingComponent path={path} data={data} />;
+  }
+
+  // Otherwise, render the router for the full application
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider

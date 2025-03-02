@@ -82,6 +82,10 @@ export default async () => {
         filename: "main/remoteEntry.js", // branch
         exposes: {
           "./App": "./src/App.tsx",
+          "./Thing": "./src/App.tsx",
+          "./View": "./src/components/View.tsx",
+          "./Template": "./src/components/Template.tsx",
+          "./Edit": "./src/components/Edit.tsx",
         },
         experiments: {
           federationRuntime: "hoisted",
