@@ -13,9 +13,9 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as LayoutImport } from './routes/_layout'
 import { Route as LayoutIndexImport } from './routes/_layout/index'
-import { Route as LayoutEditIndexImport } from './routes/_layout/edit/index'
-import { Route as LayoutDonateIndexImport } from './routes/_layout/donate/index'
-import { Route as LayoutContractCallIndexImport } from './routes/_layout/contract-call/index'
+import { Route as LayoutManageIndexImport } from './routes/_layout/manage/index'
+import { Route as LayoutEditorIndexImport } from './routes/_layout/editor/index'
+import { Route as LayoutAuthorizeIndexImport } from './routes/_layout/authorize/index'
 
 // Create/Update Routes
 
@@ -30,21 +30,21 @@ const LayoutIndexRoute = LayoutIndexImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
-const LayoutEditIndexRoute = LayoutEditIndexImport.update({
-  id: '/edit/',
-  path: '/edit/',
+const LayoutManageIndexRoute = LayoutManageIndexImport.update({
+  id: '/manage/',
+  path: '/manage/',
   getParentRoute: () => LayoutRoute,
 } as any)
 
-const LayoutDonateIndexRoute = LayoutDonateIndexImport.update({
-  id: '/donate/',
-  path: '/donate/',
+const LayoutEditorIndexRoute = LayoutEditorIndexImport.update({
+  id: '/editor/',
+  path: '/editor/',
   getParentRoute: () => LayoutRoute,
 } as any)
 
-const LayoutContractCallIndexRoute = LayoutContractCallIndexImport.update({
-  id: '/contract-call/',
-  path: '/contract-call/',
+const LayoutAuthorizeIndexRoute = LayoutAuthorizeIndexImport.update({
+  id: '/authorize/',
+  path: '/authorize/',
   getParentRoute: () => LayoutRoute,
 } as any)
 
@@ -66,25 +66,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutIndexImport
       parentRoute: typeof LayoutImport
     }
-    '/_layout/contract-call/': {
-      id: '/_layout/contract-call/'
-      path: '/contract-call'
-      fullPath: '/contract-call'
-      preLoaderRoute: typeof LayoutContractCallIndexImport
+    '/_layout/authorize/': {
+      id: '/_layout/authorize/'
+      path: '/authorize'
+      fullPath: '/authorize'
+      preLoaderRoute: typeof LayoutAuthorizeIndexImport
       parentRoute: typeof LayoutImport
     }
-    '/_layout/donate/': {
-      id: '/_layout/donate/'
-      path: '/donate'
-      fullPath: '/donate'
-      preLoaderRoute: typeof LayoutDonateIndexImport
+    '/_layout/editor/': {
+      id: '/_layout/editor/'
+      path: '/editor'
+      fullPath: '/editor'
+      preLoaderRoute: typeof LayoutEditorIndexImport
       parentRoute: typeof LayoutImport
     }
-    '/_layout/edit/': {
-      id: '/_layout/edit/'
-      path: '/edit'
-      fullPath: '/edit'
-      preLoaderRoute: typeof LayoutEditIndexImport
+    '/_layout/manage/': {
+      id: '/_layout/manage/'
+      path: '/manage'
+      fullPath: '/manage'
+      preLoaderRoute: typeof LayoutManageIndexImport
       parentRoute: typeof LayoutImport
     }
   }
@@ -94,16 +94,16 @@ declare module '@tanstack/react-router' {
 
 interface LayoutRouteChildren {
   LayoutIndexRoute: typeof LayoutIndexRoute
-  LayoutContractCallIndexRoute: typeof LayoutContractCallIndexRoute
-  LayoutDonateIndexRoute: typeof LayoutDonateIndexRoute
-  LayoutEditIndexRoute: typeof LayoutEditIndexRoute
+  LayoutAuthorizeIndexRoute: typeof LayoutAuthorizeIndexRoute
+  LayoutEditorIndexRoute: typeof LayoutEditorIndexRoute
+  LayoutManageIndexRoute: typeof LayoutManageIndexRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutIndexRoute: LayoutIndexRoute,
-  LayoutContractCallIndexRoute: LayoutContractCallIndexRoute,
-  LayoutDonateIndexRoute: LayoutDonateIndexRoute,
-  LayoutEditIndexRoute: LayoutEditIndexRoute,
+  LayoutAuthorizeIndexRoute: LayoutAuthorizeIndexRoute,
+  LayoutEditorIndexRoute: LayoutEditorIndexRoute,
+  LayoutManageIndexRoute: LayoutManageIndexRoute,
 }
 
 const LayoutRouteWithChildren =
@@ -112,39 +112,39 @@ const LayoutRouteWithChildren =
 export interface FileRoutesByFullPath {
   '': typeof LayoutRouteWithChildren
   '/': typeof LayoutIndexRoute
-  '/contract-call': typeof LayoutContractCallIndexRoute
-  '/donate': typeof LayoutDonateIndexRoute
-  '/edit': typeof LayoutEditIndexRoute
+  '/authorize': typeof LayoutAuthorizeIndexRoute
+  '/editor': typeof LayoutEditorIndexRoute
+  '/manage': typeof LayoutManageIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof LayoutIndexRoute
-  '/contract-call': typeof LayoutContractCallIndexRoute
-  '/donate': typeof LayoutDonateIndexRoute
-  '/edit': typeof LayoutEditIndexRoute
+  '/authorize': typeof LayoutAuthorizeIndexRoute
+  '/editor': typeof LayoutEditorIndexRoute
+  '/manage': typeof LayoutManageIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/_layout': typeof LayoutRouteWithChildren
   '/_layout/': typeof LayoutIndexRoute
-  '/_layout/contract-call/': typeof LayoutContractCallIndexRoute
-  '/_layout/donate/': typeof LayoutDonateIndexRoute
-  '/_layout/edit/': typeof LayoutEditIndexRoute
+  '/_layout/authorize/': typeof LayoutAuthorizeIndexRoute
+  '/_layout/editor/': typeof LayoutEditorIndexRoute
+  '/_layout/manage/': typeof LayoutManageIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/' | '/contract-call' | '/donate' | '/edit'
+  fullPaths: '' | '/' | '/authorize' | '/editor' | '/manage'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/contract-call' | '/donate' | '/edit'
+  to: '/' | '/authorize' | '/editor' | '/manage'
   id:
     | '__root__'
     | '/_layout'
     | '/_layout/'
-    | '/_layout/contract-call/'
-    | '/_layout/donate/'
-    | '/_layout/edit/'
+    | '/_layout/authorize/'
+    | '/_layout/editor/'
+    | '/_layout/manage/'
   fileRoutesById: FileRoutesById
 }
 
@@ -173,25 +173,25 @@ export const routeTree = rootRoute
       "filePath": "_layout.tsx",
       "children": [
         "/_layout/",
-        "/_layout/contract-call/",
-        "/_layout/donate/",
-        "/_layout/edit/"
+        "/_layout/authorize/",
+        "/_layout/editor/",
+        "/_layout/manage/"
       ]
     },
     "/_layout/": {
       "filePath": "_layout/index.tsx",
       "parent": "/_layout"
     },
-    "/_layout/contract-call/": {
-      "filePath": "_layout/contract-call/index.tsx",
+    "/_layout/authorize/": {
+      "filePath": "_layout/authorize/index.tsx",
       "parent": "/_layout"
     },
-    "/_layout/donate/": {
-      "filePath": "_layout/donate/index.tsx",
+    "/_layout/editor/": {
+      "filePath": "_layout/editor/index.tsx",
       "parent": "/_layout"
     },
-    "/_layout/edit/": {
-      "filePath": "_layout/edit/index.tsx",
+    "/_layout/manage/": {
+      "filePath": "_layout/manage/index.tsx",
       "parent": "/_layout"
     }
   }

@@ -1,54 +1,75 @@
+import "@near-wallet-selector/modal-ui/styles.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
-import bosConfig from "bos.config.json";
-import React from "react";
-import { getAccountId } from "web4-api-js";
+import React, { useEffect } from "react";
+import { NearWalletProvider } from "./components/providers/NearWalletProvider";
+import { useWalletSelector } from "@near-wallet-selector/react-hook";
 import "./index.css";
 import { routeTree } from "./routeTree.gen";
-import { ThingComponent } from "./components/Thing";
-import { Thing } from "./types/Thing";
 
-export const queryClient = new QueryClient();
+// Create a new QueryClient instance
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
+// Create the router instance
 const router = createRouter({
   routeTree,
   defaultPreload: "intent",
   defaultPreloadStaleTime: 0,
   context: {
-    auth: { userId: "guest" },
     queryClient,
+    auth: { userId: "guest" }, // Default to guest, will be updated when user connects
   },
 });
 
+// Register the router instance for type safety
 declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router;
   }
 }
 
-export const accountId =
-  window !== undefined
-    ? window.location.hostname.includes("near.page")
-      ? window.location.hostname.split(".")[0] + ".near"
-      : bosConfig.account
-    : bosConfig.account; // Fallback for local development
+// Auth context provider component
+function AuthContextProvider({ children }: { children: React.ReactNode }) {
+  const { signedAccountId } = useWalletSelector();
 
-// App component can be used as a Thing component with path parameter
-export default function App({ path, data }: { path?: string; data?: Thing }) {
-  // If path or data is provided, render the Thing component directly
-  if (path || data) {
-    return <ThingComponent path={path} data={data} />;
-  }
+  // Update router context when auth state changes
+  useEffect(() => {
+    if (signedAccountId) {
+      router.update({
+        context: {
+          queryClient,
+          auth: { userId: signedAccountId },
+        },
+      });
+    } else {
+      router.update({
+        context: {
+          queryClient,
+          auth: { userId: "guest" },
+        },
+      });
+    }
+  }, [signedAccountId]);
 
-  // Otherwise, render the router for the full application
+  return <>{children}</>;
+}
+
+// Main App component
+export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider
-        router={router}
-        context={{
-          auth: { userId: getAccountId() || "guest" },
-        }}
-      />
+      <NearWalletProvider>
+        <AuthContextProvider>
+          <RouterProvider router={router} />
+        </AuthContextProvider>
+      </NearWalletProvider>
     </QueryClientProvider>
   );
 }

@@ -2,6 +2,7 @@ import { getImageUrl, getProfile } from "./src/lib/social";
 import { pluginModuleFederation } from "@module-federation/rsbuild-plugin";
 import { defineConfig } from "@rsbuild/core";
 import { pluginReact } from "@rsbuild/plugin-react";
+import { pluginNodePolyfill } from '@rsbuild/plugin-node-polyfill';
 import { TanStackRouterRspack } from "@tanstack/router-plugin/rspack";
 import { normalizeText } from "normalize-text";
 import bosConfig from "./bos.config.json";
@@ -77,29 +78,30 @@ export default async () => {
     },
     plugins: [
       pluginReact(),
-      pluginModuleFederation({
-        name: normalizeText(profile?.name || "app"),
-        filename: "main/remoteEntry.js", // branch
-        exposes: {
-          "./App": "./src/App.tsx",
-          "./Thing": "./src/App.tsx",
-          "./View": "./src/components/View.tsx",
-          "./Template": "./src/components/Template.tsx",
-          "./Edit": "./src/components/Edit.tsx",
-        },
-        experiments: {
-          federationRuntime: "hoisted",
-        },
-        shared: {
-          react: { singleton: true, eager: true, requiredVersion: "^18.0.0" },
-          "react-dom": {
-            singleton: true,
-            eager: true,
-            requiredVersion: "^18.0.0",
-          },
-          "@tanstack/react-router": { singleton: true, eager: true },
-        },
-      }),
+      pluginNodePolyfill(),
+      // pluginModuleFederation({
+      //   name: normalizeText(profile?.name || "app"),
+      //   filename: "main/remoteEntry.js", // branch
+      //   exposes: {
+      //     "./App": "./src/App.tsx",
+      //     "./Thing": "./src/App.tsx",
+      //     "./View": "./src/components/View.tsx",
+      //     "./Template": "./src/components/Template.tsx",
+      //     "./Edit": "./src/components/Edit.tsx",
+      //   },
+      //   experiments: {
+      //     federationRuntime: "hoisted",
+      //   },
+      //   shared: {
+      //     react: { singleton: true, eager: true, requiredVersion: "^18.0.0" },
+      //     "react-dom": {
+      //       singleton: true,
+      //       eager: true,
+      //       requiredVersion: "^18.0.0",
+      //     },
+      //     "@tanstack/react-router": { singleton: true, eager: true },
+      //   },
+      // }),
     ],
   });
 };

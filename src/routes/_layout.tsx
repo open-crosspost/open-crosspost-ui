@@ -1,30 +1,32 @@
 import { Outlet, createFileRoute } from "@tanstack/react-router";
-import { motion } from "framer-motion";
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import { WindowContainer } from "../components/window-container";
+import { useWalletSelector } from "@near-wallet-selector/react-hook";
+import { useNearAuth } from "../store/nearAuthStore";
 
 export const Route = createFileRoute("/_layout")({
   component: LayoutComponent,
 });
 
 function LayoutComponent() {
+  const { signedAccountId, wallet } = useWalletSelector();
+  const { isAuthorized, checkStatus, isChecking } = useNearAuth();
+  const hasCheckedRef = useRef(false);
+
+  // Check authorization status when component mounts
+  useEffect(() => {
+    // Always check status if we have a wallet and account ID
+    // This will prioritize persisted state and only call the API if needed
+    if (signedAccountId && wallet && !hasCheckedRef.current && !isChecking) {
+      console.log("Initial authorization check for", signedAccountId);
+      checkStatus(wallet);
+      hasCheckedRef.current = true;
+    }
+  }, [signedAccountId, wallet, checkStatus, isChecking]);
+
   return (
-    <div className="min-h-screen w-screen flex flex-col items-center bg-white p-4 relative">
-      <motion.div
-        className="max-w-2xl text-center"
-        variants={{
-          hidden: { opacity: 0 },
-          show: {
-            opacity: 1,
-            transition: {
-              staggerChildren: 0.2,
-            },
-          },
-        }}
-        initial="hidden"
-        animate="show"
-      >
-        <Outlet />
-      </motion.div>
-    </div>
+    <WindowContainer>
+      <Outlet />
+    </WindowContainer>
   );
 }

@@ -1,6 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import React from "react";
+import { Toaster } from "@/components/ui/toaster";
 
 export const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
@@ -20,8 +21,13 @@ export const ReactQueryDevtools =
         })),
       );
 
+// Define the auth context interface
+export interface AuthContext {
+  userId: string;
+}
+
 export const Route = createRootRouteWithContext<{
-  auth: { userId: string };
+  auth: AuthContext;
   queryClient: QueryClient;
 }>()({
   component: RootComponent,
@@ -32,6 +38,7 @@ function RootComponent() {
   return (
     <>
       <Outlet />
+      <Toaster />
       <React.Suspense>
         <TanStackRouterDevtools position="bottom-left" />
         <ReactQueryDevtools buttonPosition="bottom-left" />
