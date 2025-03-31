@@ -1,9 +1,8 @@
 import "@near-wallet-selector/modal-ui/styles.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
-import React, { useEffect } from "react";
+import React from "react";
 import { NearWalletProvider } from "./components/providers/NearWalletProvider";
-import { useWalletSelector } from "@near-wallet-selector/react-hook";
 import "./index.css";
 import { routeTree } from "./routeTree.gen";
 
@@ -35,40 +34,12 @@ declare module "@tanstack/react-router" {
   }
 }
 
-// Auth context provider component
-function AuthContextProvider({ children }: { children: React.ReactNode }) {
-  const { signedAccountId } = useWalletSelector();
-
-  // Update router context when auth state changes
-  useEffect(() => {
-    if (signedAccountId) {
-      router.update({
-        context: {
-          queryClient,
-          auth: { userId: signedAccountId },
-        },
-      });
-    } else {
-      router.update({
-        context: {
-          queryClient,
-          auth: { userId: "guest" },
-        },
-      });
-    }
-  }, [signedAccountId]);
-
-  return <>{children}</>;
-}
-
 // Main App component
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <NearWalletProvider>
-        <AuthContextProvider>
-          <RouterProvider router={router} />
-        </AuthContextProvider>
+        <RouterProvider router={router} />
       </NearWalletProvider>
     </QueryClientProvider>
   );

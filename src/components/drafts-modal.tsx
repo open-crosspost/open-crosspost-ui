@@ -1,6 +1,6 @@
 import * as React from "react";
 import { motion } from "framer-motion";
-import { useDraftsStore, PostContent } from "../store/draftsStore";
+import { useDraftsStore, PostContent } from "../store/drafts-store";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "./ui/button";
 import {

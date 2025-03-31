@@ -1,12 +1,13 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { useWalletSelector } from "@near-wallet-selector/react-hook";
+import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { PenSquare } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { AuthButton } from "../../components/auth-button";
+import { AuthModal } from "../../components/auth-modal";
 import { ConnectToNearButton } from "../../components/connect-to-near";
-import { useWalletSelector } from "@near-wallet-selector/react-hook";
-import { useNearAuth } from "../../store/nearAuthStore";
 import { ManageAccountsButton } from "../../components/manage-accounts-button";
-import { AppAuthorization } from "../../components/app-authorization";
+import { useNearAuth } from "../../store/near-auth-store";
 
 export const Route = createFileRoute("/_layout/")({
   component: HomePage,
@@ -14,43 +15,8 @@ export const Route = createFileRoute("/_layout/")({
 
 function HomePage() {
   const { signedAccountId } = useWalletSelector();
-  const { isAuthorized, isChecking } = useNearAuth();
+  const { isAuthorized } = useNearAuth();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
-  // Check URL search params for authRequired
-  const [authRequired, setAuthRequired] = useState<boolean>(false);
-  
-  // Check URL for authRequired param on mount
-  useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    if (searchParams.get('authRequired') === 'true') {
-      setAuthRequired(true);
-      
-      // Remove the query parameter from the URL
-      searchParams.delete('authRequired');
-      const newUrl = window.location.pathname + 
-        (searchParams.toString() ? `?${searchParams.toString()}` : '');
-      window.history.replaceState({}, '', newUrl);
-    }
-  }, []);
-
-  // Show authorization dialog if user is connected but not authorized
-  useEffect(() => {
-    // Show dialog if redirected from a protected route
-    if (authRequired && signedAccountId) {
-      setShowAuthDialog(true);
-      return;
-    }
-    
-    // Only show the dialog if we're sure the user is not authorized
-    if (signedAccountId && !isAuthorized && !isChecking) {
-      // Small delay to avoid flashing the dialog during initial load
-      const timer = setTimeout(() => {
-        setShowAuthDialog(true);
-      }, 500);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [signedAccountId, isAuthorized, isChecking, authRequired]);
 
   // If not authenticated, show connect wallet UI
   if (!signedAccountId) {
@@ -74,7 +40,7 @@ function HomePage() {
   }
 
   // If authenticated but not authorized, show authorization dialog
-  if (!isAuthorized) {
+  if (signedAccountId && !isAuthorized) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
         <motion.div
@@ -95,14 +61,9 @@ function HomePage() {
             platforms.
           </p>
 
-          <button
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-            onClick={() => setShowAuthDialog(true)}
-          >
-            Authorize App
-          </button>
+          <AuthButton />
 
-          <AppAuthorization
+          <AuthModal
             isOpen={showAuthDialog}
             onClose={() => setShowAuthDialog(false)}
           />

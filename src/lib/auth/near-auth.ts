@@ -1,4 +1,5 @@
 import { OPEN_CROSSPOST_PROXY_API } from '../../config';
+import { useNearAuth } from '../../store/near-auth-store';
 
 // Interface for NEAR auth data as expected by the proxy server
 export interface NearAuthData {
@@ -37,9 +38,6 @@ export interface NearAuthData {
    */
   callback_url?: string;
 }
-
-// In-memory cache for the current auth data
-let currentAuthData: NearAuthData | null = null;
 
 /**
  * Signs in with NEAR wallet and returns the auth object
@@ -80,8 +78,7 @@ export async function signInWithNear(wallet: any, message: string): Promise<Near
     public_key: signedMessage.publicKey
   };
 
-  // Store in memory
-  currentAuthData = authData;
+  // No need to store in memory, it's stored in the Zustand store
 
   return authData;
 }
@@ -122,8 +119,7 @@ export async function signMessage(wallet: any, message: string): Promise<string>
  * @returns API response
  */
 export async function initWithNearAuth(authData: NearAuthData, returnUrl?: string): Promise<any> {
-  // Store in memory for future API calls
-  currentAuthData = authData;
+  useNearAuth.getState().setAuthData(authData);
   
   const body: any = {};
   if (returnUrl) {
@@ -143,41 +139,10 @@ export async function initWithNearAuth(authData: NearAuthData, returnUrl?: strin
 }
 
 /**
- * Checks the authorization status with the proxy API
- * @param wallet - NEAR wallet instance
- * @returns Promise resolving to { isAuthorized: boolean }
- */
-export async function checkAuthorizationStatus(wallet: any): Promise<{ isAuthorized: boolean }> {
-  try {
-    if (!wallet) {
-      return { isAuthorized: false };
-    }
-    
-    // Create a simple message to sign for the status check
-    const message = "Check authorization status";
-    const authData = await signInWithNear(wallet, message);
-    
-    const response = await fetch(`${OPEN_CROSSPOST_PROXY_API}/auth/authorize/near/status`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${JSON.stringify(authData)}`
-      }
-    });
-    
-    const data = await response.json();
-    return { isAuthorized: data.isAuthorized || false };
-  } catch (error) {
-    console.error("Error checking authorization status:", error);
-    return { isAuthorized: false };
-  }
-}
-
-/**
  * Clears the current auth data
  */
 export function clearNearAuth(): void {
-  currentAuthData = null;
+  useNearAuth.getState().setAuthData(null);
 }
 
 /**
@@ -185,7 +150,7 @@ export function clearNearAuth(): void {
  * @returns The NEAR auth object or null if not found
  */
 export function getCurrentAuthData(): NearAuthData | null {
-  return currentAuthData;
+  return useNearAuth.getState().authData;
 }
 
 /**
@@ -193,8 +158,9 @@ export function getCurrentAuthData(): NearAuthData | null {
  * @returns The Authorization header value or null if not authenticated
  */
 export function getNearAuthHeader(): string | null {
-  if (!currentAuthData) return null;
-  return JSON.stringify(currentAuthData);
+  const authData = useNearAuth.getState().authData;
+  if (!authData) return null;
+  return JSON.stringify(authData);
 }
 
 /**

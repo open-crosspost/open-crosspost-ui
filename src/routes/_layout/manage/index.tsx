@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import React, { useEffect } from "react";
 import { useWalletSelector } from "@near-wallet-selector/react-hook";
-import { useNearAuth } from "../../../store/nearAuthStore";
+import { useNearAuth } from "../../../store/near-auth-store";
 import { 
   useConnectedAccounts, 
   useConnectAccount, 
@@ -9,7 +9,7 @@ import {
   useRefreshAccount, 
   useCheckAccountStatus,
   usePlatformAccountsStore
-} from "../../../store/platformAccountsStore";
+} from "../../../store/platform-accounts-store";
 import { Button } from "../../../components/ui/button";
 import { Twitter, Trash2, RefreshCw, AlertCircle, PlusCircle, ArrowLeft } from "lucide-react";
 import { SUPPORTED_PLATFORMS } from "../../../config";

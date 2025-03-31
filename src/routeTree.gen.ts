@@ -15,7 +15,6 @@ import { Route as LayoutImport } from './routes/_layout'
 import { Route as LayoutIndexImport } from './routes/_layout/index'
 import { Route as LayoutManageIndexImport } from './routes/_layout/manage/index'
 import { Route as LayoutEditorIndexImport } from './routes/_layout/editor/index'
-import { Route as LayoutAuthorizeIndexImport } from './routes/_layout/authorize/index'
 
 // Create/Update Routes
 
@@ -42,12 +41,6 @@ const LayoutEditorIndexRoute = LayoutEditorIndexImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
-const LayoutAuthorizeIndexRoute = LayoutAuthorizeIndexImport.update({
-  id: '/authorize/',
-  path: '/authorize/',
-  getParentRoute: () => LayoutRoute,
-} as any)
-
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -64,13 +57,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof LayoutIndexImport
-      parentRoute: typeof LayoutImport
-    }
-    '/_layout/authorize/': {
-      id: '/_layout/authorize/'
-      path: '/authorize'
-      fullPath: '/authorize'
-      preLoaderRoute: typeof LayoutAuthorizeIndexImport
       parentRoute: typeof LayoutImport
     }
     '/_layout/editor/': {
@@ -94,14 +80,12 @@ declare module '@tanstack/react-router' {
 
 interface LayoutRouteChildren {
   LayoutIndexRoute: typeof LayoutIndexRoute
-  LayoutAuthorizeIndexRoute: typeof LayoutAuthorizeIndexRoute
   LayoutEditorIndexRoute: typeof LayoutEditorIndexRoute
   LayoutManageIndexRoute: typeof LayoutManageIndexRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutIndexRoute: LayoutIndexRoute,
-  LayoutAuthorizeIndexRoute: LayoutAuthorizeIndexRoute,
   LayoutEditorIndexRoute: LayoutEditorIndexRoute,
   LayoutManageIndexRoute: LayoutManageIndexRoute,
 }
@@ -112,14 +96,12 @@ const LayoutRouteWithChildren =
 export interface FileRoutesByFullPath {
   '': typeof LayoutRouteWithChildren
   '/': typeof LayoutIndexRoute
-  '/authorize': typeof LayoutAuthorizeIndexRoute
   '/editor': typeof LayoutEditorIndexRoute
   '/manage': typeof LayoutManageIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof LayoutIndexRoute
-  '/authorize': typeof LayoutAuthorizeIndexRoute
   '/editor': typeof LayoutEditorIndexRoute
   '/manage': typeof LayoutManageIndexRoute
 }
@@ -128,21 +110,19 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/_layout': typeof LayoutRouteWithChildren
   '/_layout/': typeof LayoutIndexRoute
-  '/_layout/authorize/': typeof LayoutAuthorizeIndexRoute
   '/_layout/editor/': typeof LayoutEditorIndexRoute
   '/_layout/manage/': typeof LayoutManageIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/' | '/authorize' | '/editor' | '/manage'
+  fullPaths: '' | '/' | '/editor' | '/manage'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/authorize' | '/editor' | '/manage'
+  to: '/' | '/editor' | '/manage'
   id:
     | '__root__'
     | '/_layout'
     | '/_layout/'
-    | '/_layout/authorize/'
     | '/_layout/editor/'
     | '/_layout/manage/'
   fileRoutesById: FileRoutesById
@@ -173,17 +153,12 @@ export const routeTree = rootRoute
       "filePath": "_layout.tsx",
       "children": [
         "/_layout/",
-        "/_layout/authorize/",
         "/_layout/editor/",
         "/_layout/manage/"
       ]
     },
     "/_layout/": {
       "filePath": "_layout/index.tsx",
-      "parent": "/_layout"
-    },
-    "/_layout/authorize/": {
-      "filePath": "_layout/authorize/index.tsx",
       "parent": "/_layout"
     },
     "/_layout/editor/": {

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 export interface PostMedia {
   data: string; // Base64 encoded data or URL
@@ -75,6 +75,7 @@ export const useDraftsStore = create<DraftsState>()(
     }),
     {
       name: 'crosspost-drafts',
+      storage: createJSONStorage(() => sessionStorage), // Use sessionStorage instead of localStorage
     }
   )
 );

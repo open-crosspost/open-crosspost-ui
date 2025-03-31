@@ -1,8 +1,7 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { APP_NAME } from '../config';
 import {
-  checkAuthorizationStatus,
   initWithNearAuth,
   NearAuthData,
   signInWithNear
@@ -12,22 +11,15 @@ interface NearAuthState {
   // State
   isAuthorized: boolean;
   isAuthorizing: boolean;
-  isChecking: boolean;
   error: string | null;
-  accountId: string | null;
-  lastChecked: number | null;
-
-  // Computed properties
-  isAuthenticated: boolean;
+  authData: NearAuthData | null;
 
   // Actions
   authorize: (wallet: any, accountId: string) => Promise<boolean>;
-  checkStatus: (wallet: any) => Promise<boolean>;
+  setAuthData: (authData: NearAuthData | null) => void;
+  setIsAuthorized: (isAuthorized: boolean) => void;
   reset: () => void;
 }
-
-// Cache duration in milliseconds (5 minutes)
-const CACHE_DURATION = 5 * 60 * 1000;
 
 export const useNearAuth = create<NearAuthState>()(
   persist(
@@ -35,15 +27,9 @@ export const useNearAuth = create<NearAuthState>()(
       // Initial state
       isAuthorized: false,
       isAuthorizing: false,
-      isChecking: false,
       error: null,
       accountId: null,
-      lastChecked: null,
-
-      // Computed property to check if user is authenticated
-      get isAuthenticated() {
-        return get().accountId !== null;
-      },
+      authData: null,
 
       /**
        * Authorize the app with the proxy API
@@ -64,6 +50,9 @@ export const useNearAuth = create<NearAuthState>()(
 
           // Sign the message with the wallet
           const authData: NearAuthData = await signInWithNear(wallet, message);
+          
+          // Store auth data in the store
+          set({ authData });
 
           // Initialize with the proxy API
           const returnUrl = window.location.origin + '/manage';
@@ -71,12 +60,9 @@ export const useNearAuth = create<NearAuthState>()(
 
           // Check if the response indicates success
           if (response && (response.success || (response.data && response.data.success))) {
-            const now = Date.now();
             set({
               isAuthorized: true,
-              isAuthorizing: false,
-              accountId: accountId,
-              lastChecked: now,
+              isAuthorizing: false
             });
             return true;
           } else {
@@ -93,56 +79,19 @@ export const useNearAuth = create<NearAuthState>()(
       },
 
       /**
-       * Check authorization status
-       * This function checks if the user is authorized to use the app
-       * It prioritizes persisted state and only checks with the API if necessary
+       * Set the auth data
+       * This function is used to update the auth data in the store
        */
-      checkStatus: async (wallet) => {
-        if (!wallet) {
-          return false;
-        }
-
-        const { isAuthorized, accountId, lastChecked } = get();
-        const now = Date.now();
-        
-        // If we have a stored authorization state and account ID, use that
-        if (isAuthorized && accountId) {
-          // If we've checked recently, don't check again
-          if (lastChecked && (now - lastChecked < CACHE_DURATION)) {
-            return true;
-          }
-          
-          // Update the last checked timestamp even if we're using cached data
-          set({ lastChecked: now });
-          return true;
-        }
-
-        // Only check with API if we don't have persisted state
-        if (!isAuthorized) {
-          set({ isChecking: true });
-
-          try {
-            const { isAuthorized } = await checkAuthorizationStatus(wallet);
-            
-            set({
-              isAuthorized,
-              isChecking: false,
-              accountId: isAuthorized ? wallet.accountId : null,
-              lastChecked: now,
-            });
-            
-            return isAuthorized;
-          } catch (error) {
-            console.error('Error checking authorization status:', error);
-            set({
-              isChecking: false,
-              isAuthorized: false,
-            });
-            return false;
-          }
-        }
-        
-        return isAuthorized;
+      setAuthData: (authData) => {
+        set({ authData });
+      },
+      
+      /**
+       * Set the authorization status
+       * This function is used to directly update the isAuthorized state
+       */
+      setIsAuthorized: (isAuthorized) => {
+        set({ isAuthorized });
       },
 
       /**
@@ -153,20 +102,39 @@ export const useNearAuth = create<NearAuthState>()(
         set({
           isAuthorized: false,
           isAuthorizing: false,
-          isChecking: false,
           error: null,
-          accountId: null,
-          lastChecked: null,
+          authData: null,
         });
       },
     }),
     {
-      name: 'near-auth-storage', // Name for the persisted store
+      name: 'near-auth-storage',
+      storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
         isAuthorized: state.isAuthorized,
-        accountId: state.accountId,
-        lastChecked: state.lastChecked,
+        authData: state.authData,
       }), // Only persist these fields
+      // Custom merge function to ensure proper merging of persisted state
+      merge: (persistedState, currentState) => ({
+        ...currentState,
+        ...(persistedState as NearAuthState),
+      }),
+      onRehydrateStorage: () => {
+        // Log when hydration starts
+        console.log('[NearAuthStore] Hydration starting...');
+        
+        // Return a function that will be called when hydration finishes
+        return (state, error) => {
+          if (error) {
+            console.error('[NearAuthStore] Hydration failed:', error);
+          } else {
+            console.log('[NearAuthStore] Hydrated state:', {
+              isAuthorized: state?.isAuthorized,
+              hasAuthData: state?.authData ? true : false,
+            });
+          }
+        };
+      },
     }
   )
 );

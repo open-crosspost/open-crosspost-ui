@@ -1,5 +1,5 @@
 import React from 'react';
-import { useConnectedAccounts, usePlatformAccountsStore } from '../store/platformAccountsStore';
+import { useConnectedAccounts, usePlatformAccountsStore } from '../store/platform-accounts-store';
 import { Button } from './ui/button';
 import { Twitter } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';

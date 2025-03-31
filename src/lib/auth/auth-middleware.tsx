@@ -1,7 +1,8 @@
 import { Outlet, redirect } from "@tanstack/react-router";
 import { useWalletSelector } from "@near-wallet-selector/react-hook";
-import { useNearAuth } from "../../store/nearAuthStore";
-import React, { useEffect } from "react";
+import { useNearAuth } from "@/store/near-auth-store";
+import React from "react";
+import { AuthModal } from "@/components/auth-modal";
 
 /**
  * Authentication middleware - checks if user is authenticated (wallet connected)
@@ -20,27 +21,29 @@ export function RequireWalletConnection() {
 
 /**
  * Authorization middleware - checks if user is authorized (signed message)
- * Shows authorization UI if not authorized
+ * Shows authorization modal if not authorized
  */
 export function RequireAuthorization() {
-  const { signedAccountId, wallet } = useWalletSelector();
-  const { isAuthorized, checkStatus } = useNearAuth();
+  const { isAuthorized } = useNearAuth();
   
-  // Check authorization status when component mounts
-  useEffect(() => {
-    if (signedAccountId && wallet) {
-      checkStatus(wallet);
-    }
-  }, [signedAccountId, wallet, checkStatus]);
-  
-  // If not authenticated, redirect to home
-  if (!signedAccountId) {
-    throw redirect({ to: "/" });
-  }
-  
-  // If not authorized, show authorization UI
+  // If not authorized, show authorization modal
   if (!isAuthorized) {
-    throw redirect({ to: "/authorize" });
+    return (
+      <>
+        <AuthModal 
+          isOpen={true} 
+          onClose={() => {
+            // Redirect to home if they cancel
+            throw redirect({ to: "/" });
+          }}
+          onSuccess={() => {
+            // Refresh the page to continue
+            window.location.reload();
+          }}
+          message="Authorization is required to access this page."
+        />
+      </>
+    );
   }
   
   return <Outlet />;

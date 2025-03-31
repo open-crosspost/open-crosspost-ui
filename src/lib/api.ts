@@ -1,5 +1,5 @@
 import { OPEN_CROSSPOST_PROXY_API, SupportedPlatform } from '../config';
-import { getNearAuthHeader } from './auth/near-auth';
+import { getCurrentAuthData } from './auth/near-auth';
 
 // Types for API requests and responses
 export interface PlatformAccount {
@@ -48,9 +48,10 @@ function getAuthHeaders(): Record<string, string> {
     'Content-Type': 'application/json',
   };
   
-  const authHeader = getNearAuthHeader();
-  if (authHeader) {
-    headers['Authorization'] = `Bearer ${authHeader}`;
+  const authData = getCurrentAuthData();
+  if (authData) {
+    // Format the header correctly - this was causing the 401 errors
+    headers['Authorization'] = `Bearer ${JSON.stringify(authData)}`;
   }
   
   return headers;

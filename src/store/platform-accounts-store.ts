@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   fetchConnectedAccounts, 
@@ -42,6 +42,7 @@ export const usePlatformAccountsStore = create<PlatformAccountsState>()(
     }),
     {
       name: 'crosspost-selected-accounts',
+      storage: createJSONStorage(() => sessionStorage), // Use sessionStorage instead of localStorage
     }
   )
 );

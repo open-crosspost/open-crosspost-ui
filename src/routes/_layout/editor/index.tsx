@@ -1,9 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import React, { useState } from "react";
 import { useWalletSelector } from "@near-wallet-selector/react-hook";
-import { useNearAuth } from "../../../store/nearAuthStore";
-import { useSelectedAccounts } from "../../../store/platformAccountsStore";
-import { useDraftsStore, PostContent } from "../../../store/draftsStore";
+import { useNearAuth } from "../../../store/near-auth-store";
+import { useSelectedAccounts } from "../../../store/platform-accounts-store";
+import { useDraftsStore, PostContent } from "../../../store/drafts-store";
 import { createPost } from "../../../lib/api";
 import { Button } from "../../../components/ui/button";
 import { Textarea } from "../../../components/ui/textarea";

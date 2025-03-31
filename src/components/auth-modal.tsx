@@ -8,71 +8,42 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { APP_NAME } from "@/config";
-import { toast } from "@/hooks/use-toast";
-import { useNearAuth } from "@/store/nearAuthStore";
+import { useNearAuth } from "@/store/near-auth-store";
 import { useWalletSelector } from "@near-wallet-selector/react-hook";
-import { useNavigate } from "@tanstack/react-router";
 import { Shield } from "lucide-react";
 import * as React from "react";
-import { useState } from "react";
 
-interface AppAuthorizationProps {
+interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
+  message?: string;
 }
 
-export function AppAuthorization({ isOpen, onClose }: AppAuthorizationProps) {
-  const [isAuthorizing, setIsAuthorizing] = useState(false);
-  const { signedAccountId, wallet } = useWalletSelector();
-  const { authorize } = useNearAuth();
-  const navigate = useNavigate();
+export function AuthModal({ 
+  isOpen, 
+  onClose, 
+  onSuccess, 
+  message 
+}: AuthModalProps) {
+  const { accountId, authorize, isAuthorizing } = useNearAuth();
+  const { wallet, signedAccountId } = useWalletSelector();
 
   const handleAuthorize = async () => {
-    if (!signedAccountId) {
-      toast({
-        title: "Error",
-        description: "Please connect your NEAR wallet first",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsAuthorizing(true);
-
     try {
-      if (!wallet) {
-        throw new Error("Wallet not found");
-      }
-
-      // Call the authorize function with wallet and accountId
-      const returnUrl = window.location.origin + '/manage';
-      const success = await authorize(wallet, signedAccountId);
-
-      if (success) {
-        toast({
-          title: "Success",
-          description: "App authorized successfully",
-        });
-
-        // Close the dialog
-        onClose();
-
-        // Redirect to manage accounts page
-        navigate({ to: "/manage" });
-      } else {
-        throw new Error("Authorization failed");
+      if (wallet && signedAccountId) {
+        const success = await authorize(wallet, signedAccountId);
+        
+        if (success) {
+          // Call the success callback if provided
+          onSuccess?.();
+          
+          // Close the dialog
+          onClose();
+        }
       }
     } catch (error) {
-      console.error("App authorization error:", error);
-
-      toast({
-        title: "Authorization Failed",
-        description:
-          error instanceof Error ? error.message : "Failed to authorize app",
-        variant: "destructive",
-      });
-    } finally {
-      setIsAuthorizing(false);
+      console.error("Authorization error:", error);
     }
   };
 
@@ -85,8 +56,7 @@ export function AppAuthorization({ isOpen, onClose }: AppAuthorizationProps) {
             Authorize {APP_NAME}
           </DialogTitle>
           <DialogDescription>
-            Before connecting social accounts, you need to authorize this app to
-            post on your behalf.
+            {message || "Before proceeding, you need to authorize this app to post on your behalf."}
           </DialogDescription>
         </DialogHeader>
 
@@ -104,7 +74,7 @@ export function AppAuthorization({ isOpen, onClose }: AppAuthorizationProps) {
             <p className="font-medium text-amber-800">Important:</p>
             <p className="mt-1 text-amber-700">
               Your NEAR account{" "}
-              <span className="font-bold">{signedAccountId}</span> will be used
+              <span className="font-bold">{accountId}</span> will be used
               to sign all requests. You can revoke access at any time by
               disconnecting your accounts.
             </p>
