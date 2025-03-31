@@ -1,9 +1,9 @@
 import React from "react";
 import { AlertCircle, RefreshCw, Trash2, Twitter } from "lucide-react";
 import { Button } from "./ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { SupportedPlatform } from "../config";
 import { PlatformAccount, UserProfile } from "../lib/api-types";
+import { ProfileCard } from "./profile-card";
 
 interface PlatformAccountListProps {
   platform: SupportedPlatform;
@@ -33,7 +33,7 @@ export function PlatformAccountList({
   isRefreshPending,
 }: PlatformAccountListProps) {
   const filteredAccounts = accounts.filter(
-    (account) => account.platform === platform
+    (account) => account.platform === platform.toLowerCase()
   );
 
   return (
@@ -73,7 +73,7 @@ export function PlatformAccountList({
         <>
           {filteredAccounts.length === 0 ? (
             <div className="rounded-md border-2 border-dashed border-gray-200 p-4 sm:p-8 text-center">
-              {platform === "twitter" && (
+              {platform === "Twitter" && (
                 <Twitter className="mx-auto h-12 w-12 text-gray-400" />
               )}
               <h3 className="mt-2 text-lg font-medium text-gray-900">
@@ -88,7 +88,7 @@ export function PlatformAccountList({
                   disabled={isConnectPending}
                   
                 >
-                  {platform === "twitter" && (
+                  {platform === "Twitter" && (
                     <Twitter size={18} className="mr-2" />
                   )}
                   {isConnectPending
@@ -109,38 +109,10 @@ export function PlatformAccountList({
                   }`}
                 >
                   <div className="flex items-center space-x-4">
-                    <div className="flex-shrink-0">
-                      <Avatar>
-                        {account.profile?.profileImageUrl ? (
-                          <AvatarImage 
-                            src={account.profile.profileImageUrl} 
-                            alt={account.profile.username || account.username} 
-                          />
-                        ) : (
-                          <AvatarFallback className="bg-gray-200">
-                            {platform === "twitter" && (
-                              <Twitter size={20} className="text-gray-400" />
-                            )}
-                          </AvatarFallback>
-                        )}
-                      </Avatar>
-                    </div>
-                    <div>
-                      <p className="font-medium">@{account.profile?.username || account.username}</p>
-                      <div className="flex items-center text-sm text-gray-500">
-                        {account.isConnected ? (
-                          <span className="flex items-center text-green-600">
-                            <span className="mr-1 h-2 w-2 rounded-full bg-green-600"></span>
-                            Connected
-                          </span>
-                        ) : (
-                          <span className="flex items-center text-red-600">
-                            <AlertCircle size={14} className="mr-1" />
-                            Disconnected
-                          </span>
-                        )}
-                      </div>
-                    </div>
+                    <ProfileCard
+                      account={account}
+                      size="md"
+                    />
                   </div>
 
                   <div className="flex items-center space-x-2 ml-0 sm:ml-auto">
@@ -170,7 +142,6 @@ export function PlatformAccountList({
                     <Button
                       size="sm"
                       onClick={() => onSelect(account.userId)}
-                      disabled={!account.isConnected}
                       
                     >
                       {selectedAccountIds.includes(account.userId)

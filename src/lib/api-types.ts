@@ -30,7 +30,6 @@ export interface PlatformAccount {
   userId: string;
   username: string;
   profileImageUrl?: string;
-  isConnected: boolean;
   profile?: UserProfile;
 }
 

@@ -114,27 +114,10 @@ export const useNearAuth = create<NearAuthState>()(
         isAuthorized: state.isAuthorized,
         authData: state.authData,
       }), // Only persist these fields
-      // Custom merge function to ensure proper merging of persisted state
       merge: (persistedState, currentState) => ({
         ...currentState,
         ...(persistedState as NearAuthState),
       }),
-      onRehydrateStorage: () => {
-        // Log when hydration starts
-        console.log('[NearAuthStore] Hydration starting...');
-        
-        // Return a function that will be called when hydration finishes
-        return (state, error) => {
-          if (error) {
-            console.error('[NearAuthStore] Hydration failed:', error);
-          } else {
-            console.log('[NearAuthStore] Hydrated state:', {
-              isAuthorized: state?.isAuthorized,
-              hasAuthData: state?.authData ? true : false,
-            });
-          }
-        };
-      },
     }
   )
 );

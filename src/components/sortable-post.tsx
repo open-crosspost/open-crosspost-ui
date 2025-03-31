@@ -15,7 +15,6 @@ interface SortablePostProps {
   onRemove?: (index: number) => void;
   onMediaUpload: (index: number, file: File) => void;
   onMediaRemove: (index: number) => void;
-  isConnected: boolean;
 }
 
 function SortablePostComponent({
@@ -25,7 +24,6 @@ function SortablePostComponent({
   onRemove,
   onMediaUpload,
   onMediaRemove,
-  isConnected,
 }: SortablePostProps) {
   const {
     attributes,
@@ -102,7 +100,7 @@ function SortablePostComponent({
                   document.getElementById(`media-upload-${index}`)?.click()
                 }
                 size="sm"
-                disabled={post.mediaId !== null || !isConnected}
+                disabled={post.mediaId !== null}
                 
               >
                 Add Media

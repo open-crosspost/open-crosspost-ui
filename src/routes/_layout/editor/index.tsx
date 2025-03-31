@@ -13,7 +13,10 @@ import { toast } from "../../../hooks/use-toast";
 import { requireAuthorization } from "../../../lib/auth/route-guards";
 import { usePostManagement } from "../../../hooks/use-post-management";
 import { usePostMedia } from "../../../hooks/use-post-media";
-import { PostEditorCore, EditorPost } from "../../../components/post-editor-core";
+import {
+  PostEditorCore,
+  EditorPost,
+} from "../../../components/post-editor-core";
 
 export const Route = createFileRoute("/_layout/editor/")({
   beforeLoad: () => {
@@ -28,35 +31,31 @@ function EditorPage() {
   const { signedAccountId } = useWalletSelector();
   const { isAuthorized } = useNearAuth();
   const selectedAccounts = useSelectedAccounts();
-  const { 
-    addDraft, 
-    setModalOpen, 
-    autosave, 
-    saveAutoSave, 
+  const {
+    addDraft,
+    setModalOpen,
+    autosave,
+    saveAutoSave,
     clearAutoSave,
     saveDraft,
-    isModalOpen
+    isModalOpen,
   } = useDraftsStore();
-  
+
   const [posts, setPosts] = useState<EditorPost[]>([
-    { text: "", mediaId: null, mediaPreview: null }
+    { text: "", mediaId: null, mediaPreview: null },
   ]);
   const [isPosting, setIsPosting] = useState(false);
-  
+
   // Custom hooks
   const { handleMediaUpload, removeMedia } = usePostMedia(
     setPosts as any,
     toast,
-    saveAutoSave
+    saveAutoSave,
   );
-  
-  const {
-    handleTextChange,
-    addThread,
-    removeThread,
-    cleanup
-  } = usePostManagement(posts as any, setPosts as any, saveAutoSave);
-  
+
+  const { handleTextChange, addThread, removeThread, cleanup } =
+    usePostManagement(posts as any, setPosts as any, saveAutoSave);
+
   // Load auto-saved content on mount and handle cleanup
   useEffect(() => {
     if (autosave && autosave.posts && autosave.posts.length > 0) {
@@ -67,7 +66,7 @@ function EditorPage() {
       if (cleanup) cleanup();
     };
   }, [autosave, cleanup]);
-  
+
   // Memoized draft save handler
   const handleSaveDraft = useCallback(() => {
     saveDraft(posts as any);
@@ -78,15 +77,16 @@ function EditorPage() {
     clearAutoSave();
     setPosts([{ text: "", mediaId: null, mediaPreview: null }]);
   }, [saveDraft, posts, toast, setPosts, clearAutoSave]);
-  
-  
+
   // Handle posts change (e.g., after drag and drop)
-  const handlePostsChange = useCallback((newPosts: EditorPost[]) => {
-    setPosts(newPosts);
-    saveAutoSave(newPosts as any);
-  }, [saveAutoSave]);
-  
-  
+  const handlePostsChange = useCallback(
+    (newPosts: EditorPost[]) => {
+      setPosts(newPosts);
+      saveAutoSave(newPosts as any);
+    },
+    [saveAutoSave],
+  );
+
   // Handle post submission
   const handleSubmit = useCallback(async () => {
     const nonEmptyPosts = posts.filter((p) => p.text.trim());
@@ -98,7 +98,7 @@ function EditorPage() {
       });
       return;
     }
-    
+
     if (selectedAccounts.length === 0) {
       toast({
         title: "Error",
@@ -107,37 +107,43 @@ function EditorPage() {
       });
       return;
     }
-    
+
     setIsPosting(true);
-    
+
     try {
       // Convert posts to PostContent format
-      const postContents: PostContent[] = posts.map(post => ({
+      const postContents: PostContent[] = posts.map((post) => ({
         text: post.text,
-        media: post.mediaPreview ? [
-          {
-            data: post.mediaPreview,
-            mimeType: post.mediaPreview.startsWith('data:image/') ? 'image/jpeg' : 'video/mp4',
-          }
-        ] : undefined
+        media: post.mediaPreview
+          ? [
+              {
+                data: post.mediaPreview,
+                mimeType: post.mediaPreview.startsWith("data:image/")
+                  ? "image/jpeg"
+                  : "video/mp4",
+              },
+            ]
+          : undefined,
       }));
-      
+
       const postRequest = {
-        targets: selectedAccounts.map((account: { platform: SupportedPlatform; userId: string }) => ({
-          platform: account.platform,
-          userId: account.userId,
-        })),
+        targets: selectedAccounts.map(
+          (account: { platform: SupportedPlatform; userId: string }) => ({
+            platform: account.platform,
+            userId: account.userId,
+          }),
+        ),
         content: postContents,
       };
-      
+
       const response = await apiClient.createPost(postRequest);
-      
+
       if (response.success) {
         toast({
           title: "Success",
           description: "Your post has been published successfully",
         });
-        
+
         // Clear form
         setPosts([{ text: "", mediaId: null, mediaPreview: null }]);
         clearAutoSave();
@@ -147,47 +153,47 @@ function EditorPage() {
     } catch (error) {
       toast({
         title: "Post Failed",
-        description: error instanceof Error ? error.message : "Failed to publish post",
+        description:
+          error instanceof Error ? error.message : "Failed to publish post",
         variant: "destructive",
       });
     } finally {
       setIsPosting(false);
     }
   }, [posts, selectedAccounts, setPosts, clearAutoSave, setIsPosting]);
-  
+
   // Handle load draft
-  const handleLoadDraft = useCallback((draftPosts: PostContent[]) => {
-    if (draftPosts.length > 0) {
-      // Convert to the format expected by the editor
-      const formattedPosts = draftPosts.map(post => {
-        return {
-          text: post.text,
-          mediaId: post.mediaId === undefined ? null : post.mediaId,
-          mediaPreview: post.media && post.media.length > 0 ? post.media[0].data : null,
-        } as EditorPost;
-      });
-      
-      setPosts(formattedPosts);
-    }
-  }, [setPosts]);
-  
+  const handleLoadDraft = useCallback(
+    (draftPosts: PostContent[]) => {
+      if (draftPosts.length > 0) {
+        // Convert to the format expected by the editor
+        const formattedPosts = draftPosts.map((post) => {
+          return {
+            text: post.text,
+            mediaId: post.mediaId === undefined ? null : post.mediaId,
+            mediaPreview:
+              post.media && post.media.length > 0 ? post.media[0].data : null,
+          } as EditorPost;
+        });
+
+        setPosts(formattedPosts);
+      }
+    },
+    [setPosts],
+  );
+
   return (
     <div className="w-full max-w-2xl mx-auto">
       <div className="space-y-4 mb-4">
+        <PlatformAccountsSelector />
         {/* Header Controls */}
         <div className="flex justify-end items-center">
           <div className="flex gap-2">
-            <Button 
-              onClick={() => setModalOpen(true)} 
-              size="sm"
-              
-            >
+            <Button onClick={() => setModalOpen(true)} size="sm">
               Drafts
             </Button>
           </div>
         </div>
-        
-        <PlatformAccountsSelector />
       </div>
 
       <PostEditorCore
@@ -198,7 +204,6 @@ function EditorPage() {
         onMediaRemove={removeMedia}
         onAddThread={addThread}
         onRemoveThread={removeThread}
-        isConnected={true}
       />
 
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mt-4">
@@ -216,7 +221,7 @@ function EditorPage() {
           <Button
             onClick={handleSubmit}
             disabled={
-              isPosting || 
+              isPosting ||
               posts.every((p) => !p.text.trim()) ||
               selectedAccounts.length === 0
             }
@@ -226,7 +231,7 @@ function EditorPage() {
           </Button>
         </div>
       </div>
-      
+
       {isModalOpen && <DraftsModal onSelect={handleLoadDraft} />}
     </div>
   );

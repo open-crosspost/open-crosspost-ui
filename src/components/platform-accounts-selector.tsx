@@ -1,8 +1,8 @@
 import React from 'react';
 import { useConnectedAccounts, usePlatformAccountsStore } from '../store/platform-accounts-store';
 import { Button } from './ui/button';
-import { Twitter } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
+import { ProfileCard } from './profile-card';
 
 export function PlatformAccountsSelector() {
   const navigate = useNavigate();
@@ -91,15 +91,11 @@ export function PlatformAccountsSelector() {
             }`}
             onClick={() => handleAccountToggle(account.userId)}
           >
-            <div className="flex-shrink-0 mr-3">
-              {account.platform === 'Twitter' && (
-                <Twitter size={20} className="text-blue-400" />
-              )}
-            </div>
-            
             <div className="flex-grow">
-              <div className="font-medium">@{account.username}</div>
-              <div className="text-xs text-gray-500">{account.platform}</div>
+              <ProfileCard 
+                account={account}
+                size="sm"
+              />
             </div>
             
             <div className="flex-shrink-0 ml-2">

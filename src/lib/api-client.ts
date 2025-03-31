@@ -95,19 +95,9 @@ export class CrosspostApiClient {
     // Handle nested data structure: { data: { accounts: [...] } }
     const accounts = response.data?.accounts || [];
     
-    // Add default values for missing fields and handle profile data
-    const enhancedAccounts = accounts.map((account: any) => ({
-      platform: account.platform,
-      userId: account.userId,
-      username: account.username || `user_${account.userId.substring(0, 8)}`, // Generate a username if missing
-      profileImageUrl: account.profileImageUrl,
-      isConnected: account.isConnected !== false, // Default to true if not specified
-      profile: account.profile || null, // Include profile data if available
-    }));
-
     return {
       success: true,
-      data: enhancedAccounts,
+      data: accounts,
     };
   }
 
@@ -122,7 +112,7 @@ export class CrosspostApiClient {
     returnUrl: string
   ): Promise<ApiResponse<{ authUrl: string }>> {
     const response = await this.request<{ authUrl: string }>(
-      `/auth/${platform}/login`,
+      `/auth/${platform.toLowerCase()}/login`,
       'POST',
       { returnUrl }
     );
@@ -146,7 +136,7 @@ export class CrosspostApiClient {
     userId: string
   ): Promise<ApiResponse> {
     return this.request(
-      `/auth/${platform}/revoke`,
+      `/auth/${platform.toLowerCase()}/revoke`,
       'DELETE',
       { userId }
     );
@@ -163,7 +153,7 @@ export class CrosspostApiClient {
     userId: string
   ): Promise<ApiResponse> {
     return this.request(
-      `/auth/${platform}/refresh`,
+      `/auth/${platform.toLowerCase()}/refresh`,
       'POST',
       { userId }
     );
@@ -180,7 +170,7 @@ export class CrosspostApiClient {
     userId: string
   ): Promise<ApiResponse<{ isConnected: boolean }>> {
     // Use query parameters instead of body for GET request
-    const url = new URL(`${this.baseUrl}/auth/${platform}/status`);
+    const url = new URL(`${this.baseUrl}/auth/${platform.toLowerCase()}/status`);
     url.searchParams.append('userId', userId);
     
     try {
