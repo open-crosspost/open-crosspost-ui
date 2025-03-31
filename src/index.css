@@ -109,7 +109,7 @@
 
 @layer components {
   .base-component {
-    @apply border-2 border-gray-800 bg-white;
+    @apply border-2 border-gray-800 bg-white shadow-custom;
   }
   
   .base-component-hover {

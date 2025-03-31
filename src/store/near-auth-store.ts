@@ -109,7 +109,7 @@ export const useNearAuth = create<NearAuthState>()(
     }),
     {
       name: 'near-auth-storage',
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         isAuthorized: state.isAuthorized,
         authData: state.authData,

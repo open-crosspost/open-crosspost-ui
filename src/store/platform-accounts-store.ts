@@ -1,14 +1,8 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  fetchConnectedAccounts, 
-  connectPlatformAccount, 
-  disconnectPlatformAccount,
-  refreshPlatformAccount,
-  checkPlatformAccountStatus,
-  PlatformAccount
-} from '../lib/api';
+import { apiClient } from '../lib/api-client';
+import { PlatformAccount } from '../lib/api-types';
 import { SupportedPlatform } from '../config';
 
 // Store for managing platform accounts
@@ -42,7 +36,7 @@ export const usePlatformAccountsStore = create<PlatformAccountsState>()(
     }),
     {
       name: 'crosspost-selected-accounts',
-      storage: createJSONStorage(() => sessionStorage), // Use sessionStorage instead of localStorage
+      storage: createJSONStorage(() => localStorage), // Use localStorage for persistence across browser sessions
     }
   )
 );
@@ -54,7 +48,7 @@ export function useConnectedAccounts() {
   return useQuery({
     queryKey: ['connectedAccounts'],
     queryFn: async () => {
-      const response = await fetchConnectedAccounts();
+      const response = await apiClient.fetchConnectedAccounts();
       if (!response.success) {
         throw new Error(response.error || 'Failed to fetch connected accounts');
       }
@@ -69,7 +63,7 @@ export function useConnectAccount() {
   
   return useMutation({
     mutationFn: async ({ platform, returnUrl }: { platform: SupportedPlatform, returnUrl: string }) => {
-      const response = await connectPlatformAccount(platform, returnUrl);
+      const response = await apiClient.connectPlatformAccount(platform, returnUrl);
       if (!response.success) {
         throw new Error(response.error || `Failed to connect ${platform} account`);
       }
@@ -88,7 +82,7 @@ export function useDisconnectAccount() {
   
   return useMutation({
     mutationFn: async ({ platform, userId }: { platform: SupportedPlatform, userId: string }) => {
-      const response = await disconnectPlatformAccount(platform, userId);
+      const response = await apiClient.disconnectPlatformAccount(platform, userId);
       if (!response.success) {
         throw new Error(response.error || `Failed to disconnect ${platform} account`);
       }
@@ -113,7 +107,7 @@ export function useRefreshAccount() {
   
   return useMutation({
     mutationFn: async ({ platform, userId }: { platform: SupportedPlatform, userId: string }) => {
-      const response = await refreshPlatformAccount(platform, userId);
+      const response = await apiClient.refreshPlatformAccount(platform, userId);
       if (!response.success) {
         throw new Error(response.error || `Failed to refresh ${platform} account`);
       }
@@ -132,7 +126,7 @@ export function useCheckAccountStatus() {
   
   return useMutation({
     mutationFn: async ({ platform, userId }: { platform: SupportedPlatform, userId: string }) => {
-      const response = await checkPlatformAccountStatus(platform, userId);
+      const response = await apiClient.checkPlatformAccountStatus(platform, userId);
       if (!response.success) {
         throw new Error(response.error || `Failed to check ${platform} account status`);
       }
@@ -143,7 +137,7 @@ export function useCheckAccountStatus() {
       queryClient.setQueryData(['connectedAccounts'], (oldData: PlatformAccount[] | undefined) => {
         if (!oldData) return oldData;
         
-        return oldData.map(account => 
+        return oldData.map((account: PlatformAccount) => 
           account.userId === data.userId 
             ? { ...account, isConnected: data.isConnected } 
             : account
@@ -159,5 +153,5 @@ export function useSelectedAccounts() {
   const selectedAccountIds = usePlatformAccountsStore(state => state.selectedAccountIds);
   
   // Filter accounts to only include selected ones
-  return accounts.filter(account => selectedAccountIds.includes(account.userId));
+  return accounts.filter((account: PlatformAccount) => selectedAccountIds.includes(account.userId));
 }

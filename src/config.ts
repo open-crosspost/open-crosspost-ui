@@ -1,4 +1,3 @@
-// Chains for EVM Wallets
 interface EVMChain {
   chainId: number;
   name: string;
@@ -28,15 +27,12 @@ const evmWalletChains: EVMWalletChains = {
 export const NETWORK_ID = "mainnet";
 export const EVMWalletChain = evmWalletChains[NETWORK_ID];
 
-export const NEAR_SOCIAL_ENABLED = true;
-export const TWITTER_ENABLED = true;
-
 // API Configuration
 export const OPEN_CROSSPOST_PROXY_API = process.env.NEXT_PUBLIC_OPEN_CROSSPOST_PROXY_API || 'http://0.0.0.0:3000';
 
 // Supported platforms
-export type SupportedPlatform = 'twitter' | 'near';
-export const SUPPORTED_PLATFORMS: SupportedPlatform[] = ['twitter', 'near'];
+export type SupportedPlatform = 'Twitter' | 'Near Social';
+export const SUPPORTED_PLATFORMS: SupportedPlatform[] = ['Twitter', 'Near Social'];
 
 // Authentication configuration
 export const AUTH_STORAGE_PREFIX = 'crosspost_auth_';

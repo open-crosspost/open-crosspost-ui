@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "../components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -6,9 +6,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { APP_NAME } from "@/config";
-import { useNearAuth } from "@/store/near-auth-store";
+} from "../components/ui/dialog";
+import { APP_NAME } from "../config";
+import { useNearAuth } from "../store/near-auth-store";
 import { useWalletSelector } from "@near-wallet-selector/react-hook";
 import { Shield } from "lucide-react";
 import * as React from "react";
@@ -26,7 +26,7 @@ export function AuthModal({
   onSuccess, 
   message 
 }: AuthModalProps) {
-  const { accountId, authorize, isAuthorizing } = useNearAuth();
+  const { authorize, isAuthorizing } = useNearAuth();
   const { wallet, signedAccountId } = useWalletSelector();
 
   const handleAuthorize = async () => {
@@ -49,7 +49,7 @@ export function AuthModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="w-[calc(100%-0.5rem)] mx-auto sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5" />
@@ -60,8 +60,8 @@ export function AuthModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          <div className="rounded-md border-2 border-gray-200 p-4">
+        <div className="space-y-4 py-3 sm:py-4">
+          <div className="rounded-md border-2 border-gray-200 p-3 sm:p-4">
             <h3 className="font-medium">You are authorizing {APP_NAME} to:</h3>
             <ul className="mt-2 list-disc pl-5 text-sm">
               <li>Post content to social platforms you connect</li>
@@ -70,19 +70,21 @@ export function AuthModal({
             </ul>
           </div>
 
-          <div className="rounded-md bg-amber-50 p-4 text-sm">
+          <div className="rounded-md bg-amber-50 p-3 sm:p-4 text-sm">
             <p className="font-medium text-amber-800">Important:</p>
             <p className="mt-1 text-amber-700">
               Your NEAR account{" "}
-              <span className="font-bold">{accountId}</span> will be used
+              <span className="font-bold">{signedAccountId}</span> will be used
               to sign all requests. You can revoke access at any time by
               disconnecting your accounts.
             </p>
           </div>
         </div>
 
-        <DialogFooter className="sm:justify-between">
-          <Button variant="outline" onClick={onClose}>
+        <DialogFooter className="flex-col space-y-2 sm:flex-row sm:space-y-0 sm:justify-between">
+          <Button 
+            onClick={onClose}
+          >
             Cancel
           </Button>
           <Button

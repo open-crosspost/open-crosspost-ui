@@ -1,22 +1,45 @@
 import { useWalletSelector } from "@near-wallet-selector/react-hook";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { PenSquare } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AuthButton } from "../../components/auth-button";
 import { AuthModal } from "../../components/auth-modal";
 import { ConnectToNearButton } from "../../components/connect-to-near";
 import { ManageAccountsButton } from "../../components/manage-accounts-button";
 import { useNearAuth } from "../../store/near-auth-store";
+import { useConnectedAccounts } from "../../store/platform-accounts-store";
 
 export const Route = createFileRoute("/_layout/")({
   component: HomePage,
+  beforeLoad: ({ context }) => {
+    // Get auth state from the store
+    const { isAuthorized } = useNearAuth.getState();
+    
+    // If user is authorized, redirect to editor by default
+    if (isAuthorized) {
+      return redirect({ to: "/editor" });
+    }
+  },
 });
 
 function HomePage() {
+  const navigate = useNavigate();
   const { signedAccountId } = useWalletSelector();
   const { isAuthorized } = useNearAuth();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const { data: connectedAccounts = [], isLoading } = useConnectedAccounts();
+  
+  // Redirect to editor if authorized and has connected accounts
+  useEffect(() => {
+    if (isAuthorized) {
+      if (connectedAccounts.length > 0) {
+        navigate({ to: "/editor" });
+      } else {
+        navigate({ to: "/manage" });
+      }
+    }
+  }, [isAuthorized, connectedAccounts.length, navigate]);
 
   // If not authenticated, show connect wallet UI
   if (!signedAccountId) {

@@ -1,5 +1,5 @@
-import { toast } from "@/hooks/use-toast";
-import { useNearAuth } from "@/store/near-auth-store";
+import { toast } from "../hooks/use-toast";
+import { useNearAuth } from "../store/near-auth-store";
 import { useWalletSelector } from "@near-wallet-selector/react-hook";
 import { Wallet } from "lucide-react";
 import * as React from "react";
@@ -24,9 +24,16 @@ export function ConnectToNearButton(): React.ReactElement {
   };
 
   return (
-    <Button onClick={signedAccountId ? handleSignOut : handleSignIn}>
+    <Button 
+      onClick={signedAccountId ? handleSignOut : handleSignIn}
+      className="text-sm sm:text-base"
+    >
       <Wallet size={18} className="mr-2" />
-      {signedAccountId ? `Disconnect @${signedAccountId}` : "Connect NEAR"}
+      {signedAccountId 
+        ? (window.innerWidth < 640 
+            ? "Disconnect" 
+            : `Disconnect @${signedAccountId}`)
+        : "Connect NEAR"}
     </Button>
   );
 }

@@ -10,6 +10,8 @@ export interface PostMedia {
 export interface PostContent {
   text: string;
   media?: PostMedia[];
+  mediaId?: string | null;
+  mediaPreview?: string | null;
 }
 
 export interface Draft {
@@ -22,10 +24,14 @@ export interface Draft {
 interface DraftsState {
   drafts: Draft[];
   isModalOpen: boolean;
+  autosave: { posts: PostContent[] } | null;
   addDraft: (posts: PostContent[]) => void;
   updateDraft: (id: string, posts: PostContent[]) => void;
   deleteDraft: (id: string) => void;
   setModalOpen: (isOpen: boolean) => void;
+  saveAutoSave: (posts: PostContent[]) => void;
+  clearAutoSave: () => void;
+  saveDraft: (posts: PostContent[]) => string;
 }
 
 export const useDraftsStore = create<DraftsState>()(
@@ -33,8 +39,24 @@ export const useDraftsStore = create<DraftsState>()(
     (set) => ({
       drafts: [],
       isModalOpen: false,
+      autosave: null,
       
       addDraft: (posts) => {
+        const newDraft: Draft = {
+          id: crypto.randomUUID(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          posts,
+        };
+        
+        set((state) => ({
+          drafts: [newDraft, ...state.drafts],
+        }));
+        
+        return newDraft.id;
+      },
+
+      saveDraft: (posts) => {
         const newDraft: Draft = {
           id: crypto.randomUUID(),
           createdAt: new Date().toISOString(),
@@ -72,10 +94,18 @@ export const useDraftsStore = create<DraftsState>()(
       setModalOpen: (isOpen) => {
         set({ isModalOpen: isOpen });
       },
+
+      saveAutoSave: (posts) => {
+        set({ autosave: { posts } });
+      },
+
+      clearAutoSave: () => {
+        set({ autosave: null });
+      },
     }),
     {
       name: 'crosspost-drafts',
-      storage: createJSONStorage(() => sessionStorage), // Use sessionStorage instead of localStorage
+      storage: createJSONStorage(() => localStorage), // Use localStorage for persistence across browser sessions
     }
   )
 );

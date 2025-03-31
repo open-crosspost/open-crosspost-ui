@@ -1,16 +1,19 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useWalletSelector } from "@near-wallet-selector/react-hook";
 import { useNearAuth } from "../../../store/near-auth-store";
 import { useSelectedAccounts } from "../../../store/platform-accounts-store";
 import { useDraftsStore, PostContent } from "../../../store/drafts-store";
-import { createPost } from "../../../lib/api";
+import { apiClient } from "../../../lib/api-client";
+import { SupportedPlatform } from "../../../config";
 import { Button } from "../../../components/ui/button";
-import { Textarea } from "../../../components/ui/textarea";
 import { DraftsModal } from "../../../components/drafts-modal";
 import { PlatformAccountsSelector } from "../../../components/platform-accounts-selector";
 import { toast } from "../../../hooks/use-toast";
 import { requireAuthorization } from "../../../lib/auth/route-guards";
+import { usePostManagement } from "../../../hooks/use-post-management";
+import { usePostMedia } from "../../../hooks/use-post-media";
+import { PostEditorCore, EditorPost } from "../../../components/post-editor-core";
 
 export const Route = createFileRoute("/_layout/editor/")({
   beforeLoad: () => {
@@ -25,51 +28,72 @@ function EditorPage() {
   const { signedAccountId } = useWalletSelector();
   const { isAuthorized } = useNearAuth();
   const selectedAccounts = useSelectedAccounts();
-  const { addDraft, setModalOpen } = useDraftsStore();
+  const { 
+    addDraft, 
+    setModalOpen, 
+    autosave, 
+    saveAutoSave, 
+    clearAutoSave,
+    saveDraft,
+    isModalOpen
+  } = useDraftsStore();
   
-  const [text, setText] = useState("");
-  const [media, setMedia] = useState<{ data: string; mimeType: string; altText?: string }[]>([]);
+  const [posts, setPosts] = useState<EditorPost[]>([
+    { text: "", mediaId: null, mediaPreview: null }
+  ]);
   const [isPosting, setIsPosting] = useState(false);
   
+  // Custom hooks
+  const { handleMediaUpload, removeMedia } = usePostMedia(
+    setPosts as any,
+    toast,
+    saveAutoSave
+  );
   
-  // Handle text input
-  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setText(e.target.value);
-  };
+  const {
+    handleTextChange,
+    addThread,
+    removeThread,
+    cleanup
+  } = usePostManagement(posts as any, setPosts as any, saveAutoSave);
   
-  // Handle media upload
-  const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    
-    Array.from(files).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          setMedia(prev => [
-            ...prev,
-            {
-              data: event.target!.result as string,
-              mimeType: file.type,
-            }
-          ]);
-        }
-      };
-      reader.readAsDataURL(file);
+  // Load auto-saved content on mount and handle cleanup
+  useEffect(() => {
+    if (autosave && autosave.posts && autosave.posts.length > 0) {
+      setPosts(autosave.posts as any);
+    }
+
+    return () => {
+      if (cleanup) cleanup();
+    };
+  }, [autosave, cleanup]);
+  
+  // Memoized draft save handler
+  const handleSaveDraft = useCallback(() => {
+    saveDraft(posts as any);
+    toast({
+      title: "Draft Saved",
+      description: "Your draft has been saved successfully.",
     });
-  };
+    clearAutoSave();
+    setPosts([{ text: "", mediaId: null, mediaPreview: null }]);
+  }, [saveDraft, posts, toast, setPosts, clearAutoSave]);
   
-  // Handle media removal
-  const handleRemoveMedia = (index: number) => {
-    setMedia(prev => prev.filter((_, i) => i !== index));
-  };
+  
+  // Handle posts change (e.g., after drag and drop)
+  const handlePostsChange = useCallback((newPosts: EditorPost[]) => {
+    setPosts(newPosts);
+    saveAutoSave(newPosts as any);
+  }, [saveAutoSave]);
+  
   
   // Handle post submission
-  const handleSubmit = async () => {
-    if (!text.trim() && media.length === 0) {
+  const handleSubmit = useCallback(async () => {
+    const nonEmptyPosts = posts.filter((p) => p.text.trim());
+    if (nonEmptyPosts.length === 0) {
       toast({
-        title: "Error",
-        description: "Post content cannot be empty",
+        title: "Empty Post",
+        description: "Please enter your post text",
         variant: "destructive",
       });
       return;
@@ -87,20 +111,26 @@ function EditorPage() {
     setIsPosting(true);
     
     try {
-      const postContent: PostContent = {
-        text,
-        media,
-      };
+      // Convert posts to PostContent format
+      const postContents: PostContent[] = posts.map(post => ({
+        text: post.text,
+        media: post.mediaPreview ? [
+          {
+            data: post.mediaPreview,
+            mimeType: post.mediaPreview.startsWith('data:image/') ? 'image/jpeg' : 'video/mp4',
+          }
+        ] : undefined
+      }));
       
       const postRequest = {
-        targets: selectedAccounts.map(account => ({
+        targets: selectedAccounts.map((account: { platform: SupportedPlatform; userId: string }) => ({
           platform: account.platform,
           userId: account.userId,
         })),
-        content: [postContent],
+        content: postContents,
       };
       
-      const response = await createPost(postRequest);
+      const response = await apiClient.createPost(postRequest);
       
       if (response.success) {
         toast({
@@ -109,8 +139,8 @@ function EditorPage() {
         });
         
         // Clear form
-        setText("");
-        setMedia([]);
+        setPosts([{ text: "", mediaId: null, mediaPreview: null }]);
+        clearAutoSave();
       } else {
         throw new Error(response.error || "Failed to publish post");
       }
@@ -123,126 +153,81 @@ function EditorPage() {
     } finally {
       setIsPosting(false);
     }
-  };
-  
-  // Handle save as draft
-  const handleSaveAsDraft = () => {
-    if (!text.trim() && media.length === 0) {
-      toast({
-        title: "Error",
-        description: "Draft content cannot be empty",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    const postContent: PostContent = {
-      text,
-      media,
-    };
-    
-    addDraft([postContent]);
-    
-    toast({
-      title: "Draft Saved",
-      description: "Your draft has been saved successfully",
-    });
-  };
+  }, [posts, selectedAccounts, setPosts, clearAutoSave, setIsPosting]);
   
   // Handle load draft
-  const handleLoadDraft = (posts: PostContent[]) => {
-    if (posts.length > 0) {
-      setText(posts[0].text);
-      setMedia(posts[0].media || []);
+  const handleLoadDraft = useCallback((draftPosts: PostContent[]) => {
+    if (draftPosts.length > 0) {
+      // Convert to the format expected by the editor
+      const formattedPosts = draftPosts.map(post => {
+        return {
+          text: post.text,
+          mediaId: post.mediaId === undefined ? null : post.mediaId,
+          mediaPreview: post.media && post.media.length > 0 ? post.media[0].data : null,
+        } as EditorPost;
+      });
+      
+      setPosts(formattedPosts);
     }
-  };
-  
+  }, [setPosts]);
   
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">Compose Post</h1>
-        <p className="text-gray-500">
-          Your post will be published to {selectedAccounts.length} selected account{selectedAccounts.length !== 1 ? 's' : ''}
-        </p>
-      </div>
-      
-      <PlatformAccountsSelector />
-      
-      <div className="mt-6 space-y-4">
-        <Textarea
-          placeholder="What's on your mind?"
-          value={text}
-          onChange={handleTextChange}
-          className="min-h-[150px] resize-y"
-        />
-        
-        {media.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {media.map((item, index) => (
-              <div key={index} className="relative">
-                {item.mimeType.startsWith('image/') ? (
-                  <img 
-                    src={item.data} 
-                    alt={item.altText || "Uploaded media"} 
-                    className="w-24 h-24 object-cover rounded-md"
-                  />
-                ) : (
-                  <div className="w-24 h-24 bg-gray-200 flex items-center justify-center rounded-md">
-                    <span className="text-xs text-gray-600">{item.mimeType}</span>
-                  </div>
-                )}
-                <button
-                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
-                  onClick={() => handleRemoveMedia(index)}
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-        
-        <div className="flex items-center gap-2">
-          <label className="cursor-pointer">
-            <input
-              type="file"
-              accept="image/*,video/*"
-              onChange={handleMediaUpload}
-              className="hidden"
-              multiple
-            />
-            <div className="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50">
-              Add Media
-            </div>
-          </label>
-          
-          <div className="ml-auto flex items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setModalOpen(true)}
+      <div className="space-y-4 mb-4">
+        {/* Header Controls */}
+        <div className="flex justify-end items-center">
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => setModalOpen(true)} 
+              size="sm"
+              
             >
               Drafts
             </Button>
-            
-            <Button
-              variant="outline"
-              onClick={handleSaveAsDraft}
-            >
-              Save Draft
-            </Button>
-            
-            <Button
-              onClick={handleSubmit}
-              disabled={isPosting || (!text.trim() && media.length === 0) || selectedAccounts.length === 0}
-            >
-              {isPosting ? "Posting..." : "Post"}
-            </Button>
           </div>
+        </div>
+        
+        <PlatformAccountsSelector />
+      </div>
+
+      <PostEditorCore
+        posts={posts}
+        onPostsChange={handlePostsChange}
+        onTextChange={handleTextChange}
+        onMediaUpload={handleMediaUpload}
+        onMediaRemove={removeMedia}
+        onAddThread={addThread}
+        onRemoveThread={removeThread}
+        isConnected={true}
+      />
+
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mt-4">
+        <span className="text-sm text-gray-500 order-2 sm:order-1 text-center sm:text-left">
+          {`${posts.length} parts`}
+        </span>
+        <div className="flex gap-2 order-1 sm:order-2">
+          <Button
+            onClick={handleSaveDraft}
+            disabled={posts.every((p) => !p.text.trim())}
+            className="flex-1 sm:flex-auto"
+          >
+            Save Draft
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={
+              isPosting || 
+              posts.every((p) => !p.text.trim()) ||
+              selectedAccounts.length === 0
+            }
+            className="flex-1 sm:flex-auto"
+          >
+            {isPosting ? "Posting..." : "Post"}
+          </Button>
         </div>
       </div>
       
-      <DraftsModal onSelect={handleLoadDraft} />
+      {isModalOpen && <DraftsModal onSelect={handleLoadDraft} />}
     </div>
   );
 }

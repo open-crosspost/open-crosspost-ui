@@ -25,10 +25,10 @@ export function PlatformAccountsSelector() {
   
   if (isLoading) {
     return (
-      <div className="border-2 border-gray-200 rounded-md p-4">
+      <div className="border-2 border-gray-200 rounded-md p-3 sm:p-4 w-full">
         <div className="flex justify-between items-center mb-2">
           <h3 className="font-medium">Connected Accounts</h3>
-          <Button variant="outline" size="sm" onClick={handleConnectAccounts}>
+          <Button size="sm" onClick={handleConnectAccounts}>
             Manage
           </Button>
         </div>
@@ -41,10 +41,10 @@ export function PlatformAccountsSelector() {
   
   if (error) {
     return (
-      <div className="border-2 border-red-200 bg-red-50 rounded-md p-4">
+      <div className="border-2 border-red-200 bg-red-50 rounded-md p-3 sm:p-4 w-full">
         <div className="flex justify-between items-center mb-2">
           <h3 className="font-medium text-red-700">Error Loading Accounts</h3>
-          <Button variant="outline" size="sm" onClick={handleConnectAccounts}>
+          <Button size="sm" onClick={handleConnectAccounts}>
             Manage
           </Button>
         </div>
@@ -57,7 +57,7 @@ export function PlatformAccountsSelector() {
   
   if (accounts.length === 0) {
     return (
-      <div className="border-2 border-gray-200 rounded-md p-4">
+      <div className="border-2 border-gray-200 rounded-md p-3 sm:p-4 w-full">
         <div className="flex justify-between items-center mb-2">
           <h3 className="font-medium">Connected Accounts</h3>
         </div>
@@ -72,19 +72,19 @@ export function PlatformAccountsSelector() {
   }
   
   return (
-    <div className="border-2 border-gray-200 rounded-md p-4">
+    <div className="border-2 border-gray-200 rounded-md p-3 sm:p-4 w-full">
       <div className="flex justify-between items-center mb-2">
         <h3 className="font-medium">Post to</h3>
-        <Button variant="outline" size="sm" onClick={handleConnectAccounts}>
+        <Button size="sm" onClick={handleConnectAccounts}>
           Manage
         </Button>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 w-full">
         {accounts.map((account) => (
           <div
             key={account.userId}
-            className={`flex items-center p-2 rounded-md cursor-pointer transition-colors ${
+            className={`flex items-center p-3 sm:p-2 rounded-md cursor-pointer transition-colors touch-manipulation ${
               selectedAccountIds.includes(account.userId)
                 ? 'bg-blue-50 border-2 border-blue-200'
                 : 'border-2 border-gray-200 hover:bg-gray-50'
@@ -92,7 +92,7 @@ export function PlatformAccountsSelector() {
             onClick={() => handleAccountToggle(account.userId)}
           >
             <div className="flex-shrink-0 mr-3">
-              {account.platform === 'twitter' && (
+              {account.platform === 'Twitter' && (
                 <Twitter size={20} className="text-blue-400" />
               )}
             </div>
@@ -104,7 +104,7 @@ export function PlatformAccountsSelector() {
             
             <div className="flex-shrink-0 ml-2">
               <div
-                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                className={`w-6 h-6 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center ${
                   selectedAccountIds.includes(account.userId)
                     ? 'border-blue-500 bg-blue-500'
                     : 'border-gray-300'

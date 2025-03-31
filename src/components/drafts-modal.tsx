@@ -27,10 +27,10 @@ export function DraftsModal({ onSelect }: DraftsModalProps): React.ReactElement 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.2 }}
-          className="relative w-full max-w-2xl border-2 border-gray-800 bg-white shadow-[4px_4px_0_rgba(0,0,0,1)]"
+          className="relative w-[calc(100%-0.5rem)] sm:w-full max-w-2xl mx-auto border-2 border-gray-800 bg-white shadow-[2px_2px_0_rgba(0,0,0,1)] sm:shadow-[4px_4px_0_rgba(0,0,0,1)]"
         >
           <ModalWindowControls onClose={() => setModalOpen(false)} />
-          <div className="p-6">
+          <div className="p-3 sm:p-6">
             <DialogHeader>
               <VisuallyHidden.Root>
                 <DialogTitle className="font-mono text-2xl font-bold">
@@ -55,9 +55,9 @@ export function DraftsModal({ onSelect }: DraftsModalProps): React.ReactElement 
                   {drafts.map((draft) => (
                     <div
                       key={draft.id}
-                      className="border-2 border-gray-800 p-4 shadow-[2px_2px_0_rgba(0,0,0,1)] hover:bg-gray-50"
+                      className="border-2 border-gray-800 p-3 sm:p-4 shadow-[2px_2px_0_rgba(0,0,0,1)] hover:bg-gray-50"
                     >
-                      <div className="flex justify-between items-start mb-2">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
                         <span className="text-sm text-gray-600">
                           {formatDistanceToNow(new Date(draft.createdAt), {
                             addSuffix: true,
@@ -70,6 +70,7 @@ export function DraftsModal({ onSelect }: DraftsModalProps): React.ReactElement 
                               setModalOpen(false);
                             }}
                             size="sm"
+                            
                           >
                             Load
                           </Button>
@@ -77,6 +78,7 @@ export function DraftsModal({ onSelect }: DraftsModalProps): React.ReactElement 
                             onClick={() => deleteDraft(draft.id)}
                             variant="destructive"
                             size="sm"
+                            
                           >
                             Delete
                           </Button>

@@ -26,7 +26,6 @@ export function AuthButton({
     <>
       <Button 
         onClick={handleClick} 
-        variant={isAuthorized ? "default" : "outline"}
         {...props}
       >
         <Shield size={18} className="mr-2" />
