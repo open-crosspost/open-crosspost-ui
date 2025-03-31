@@ -1,13 +1,16 @@
 import React from 'react';
-import { useConnectedAccounts, usePlatformAccountsStore } from '../store/platform-accounts-store';
+import { useConnectedAccounts, useNearAccount, usePlatformAccountsStore, useAllAccounts } from '../store/platform-accounts-store';
 import { Button } from './ui/button';
 import { useNavigate } from '@tanstack/react-router';
 import { ProfileCard } from './profile-card';
 
 export function PlatformAccountsSelector() {
   const navigate = useNavigate();
-  const { data: accounts = [], isLoading, error } = useConnectedAccounts();
+  const allAccounts = useAllAccounts();
   const { selectedAccountIds, selectAccount, unselectAccount } = usePlatformAccountsStore();
+  
+  // Get loading and error states from the API accounts hook
+  const { isLoading, error } = useConnectedAccounts();
   
   // Handle connect accounts button click
   const handleConnectAccounts = () => {
@@ -55,7 +58,7 @@ export function PlatformAccountsSelector() {
     );
   }
   
-  if (accounts.length === 0) {
+  if (allAccounts.length === 0) {
     return (
       <div className="border-2 border-gray-200 rounded-md p-3 sm:p-4 w-full">
         <div className="flex justify-between items-center mb-2">
@@ -81,7 +84,7 @@ export function PlatformAccountsSelector() {
       </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 w-full">
-        {accounts.map((account) => (
+        {allAccounts.map((account) => (
           <div
             key={account.userId}
             className={`flex items-center p-3 sm:p-2 rounded-md cursor-pointer transition-colors touch-manipulation ${

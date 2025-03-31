@@ -32,7 +32,7 @@ export const OPEN_CROSSPOST_PROXY_API = process.env.NEXT_PUBLIC_OPEN_CROSSPOST_P
 
 // Supported platforms
 export type SupportedPlatform = 'Twitter' | 'Near Social';
-export const SUPPORTED_PLATFORMS: SupportedPlatform[] = ['Twitter', 'Near Social'];
+export const SUPPORTED_PLATFORMS: SupportedPlatform[] = ['Twitter'];
 
 // Authentication configuration
 export const AUTH_STORAGE_PREFIX = 'crosspost_auth_';

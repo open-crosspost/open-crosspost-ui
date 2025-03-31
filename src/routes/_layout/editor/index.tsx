@@ -6,6 +6,7 @@ import { useSelectedAccounts } from "../../../store/platform-accounts-store";
 import { useDraftsStore, PostContent } from "../../../store/drafts-store";
 import { apiClient } from "../../../lib/api-client";
 import { SupportedPlatform } from "../../../config";
+import { NearSocialService } from "../../../lib/near-social-service";
 import { Button } from "../../../components/ui/button";
 import { DraftsModal } from "../../../components/drafts-modal";
 import { PlatformAccountsSelector } from "../../../components/platform-accounts-selector";
@@ -126,29 +127,103 @@ function EditorPage() {
           : undefined,
       }));
 
-      const postRequest = {
-        targets: selectedAccounts.map(
-          (account: { platform: SupportedPlatform; userId: string }) => ({
-            platform: account.platform,
-            userId: account.userId,
-          }),
-        ),
-        content: postContents,
-      };
+      // Separate NEAR Social accounts from other platform accounts
+      const nearSocialAccounts = selectedAccounts.filter(
+        (account: { platform: SupportedPlatform }) => 
+          account.platform === "Near Social"
+      );
+      
+      const otherAccounts = selectedAccounts.filter(
+        (account: { platform: SupportedPlatform }) => 
+          account.platform !== "Near Social"
+      );
 
-      const response = await apiClient.createPost(postRequest);
+      let nearSocialSuccess = true;
+      let apiSuccess = true;
+      let nearSocialError = null;
+      let apiError = null;
 
-      if (response.success) {
+      // Post to NEAR Social if there are NEAR Social accounts
+      if (nearSocialAccounts.length > 0) {
+        try {
+          const { wallet } = useWalletSelector();
+          
+          if (wallet) {
+            const nearSocialService = new NearSocialService(wallet);
+            await nearSocialService.createPost(postContents);
+          }
+        } catch (error) {
+          nearSocialSuccess = false;
+          nearSocialError = error;
+          console.error("NEAR Social post error:", error);
+        }
+      }
+
+      // Post to other platforms if there are other accounts
+      if (otherAccounts.length > 0) {
+        try {
+          const postRequest = {
+            targets: otherAccounts.map(
+              (account: { platform: SupportedPlatform; userId: string }) => ({
+                platform: account.platform,
+                userId: account.userId,
+              }),
+            ),
+            content: postContents,
+          };
+
+          const response = await apiClient.createPost(postRequest);
+          
+          if (!response.success) {
+            apiSuccess = false;
+            apiError = new Error(response.error || "Failed to publish post to other platforms");
+          }
+        } catch (error) {
+          apiSuccess = false;
+          apiError = error;
+          console.error("API post error:", error);
+        }
+      }
+
+      // Handle success/failure cases
+      if (nearSocialSuccess && apiSuccess) {
         toast({
           title: "Success",
-          description: "Your post has been published successfully",
+          description: "Your post has been published successfully to all platforms",
         });
-
+        
         // Clear form
         setPosts([{ text: "", mediaId: null, mediaPreview: null }]);
         clearAutoSave();
+      } else if (!nearSocialSuccess && !apiSuccess) {
+        // Both failed
+        toast({
+          title: "Post Failed",
+          description: "Failed to publish post to any platform",
+          variant: "destructive",
+        });
+      } else if (!nearSocialSuccess) {
+        // Only NEAR Social failed
+        toast({
+          title: "Partial Success",
+          description: "Post published to other platforms, but NEAR Social posting failed",
+          variant: "destructive",
+        });
+        
+        // Clear form since we had partial success
+        setPosts([{ text: "", mediaId: null, mediaPreview: null }]);
+        clearAutoSave();
       } else {
-        throw new Error(response.error || "Failed to publish post");
+        // Only API failed
+        toast({
+          title: "Partial Success",
+          description: "Post published to NEAR Social, but other platforms failed",
+          variant: "destructive",
+        });
+        
+        // Clear form since we had partial success
+        setPosts([{ text: "", mediaId: null, mediaPreview: null }]);
+        clearAutoSave();
       }
     } catch (error) {
       toast({

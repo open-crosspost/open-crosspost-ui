@@ -4,6 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../lib/api-client';
 import { PlatformAccount } from '../lib/api-types';
 import { SupportedPlatform } from '../config';
+import { useWalletSelector } from '@near-wallet-selector/react-hook';
+import { NearSocialService } from '../lib/near-social-service';
 
 // Store for managing platform accounts
 interface PlatformAccountsState {
@@ -147,11 +149,39 @@ export function useCheckAccountStatus() {
   });
 }
 
+// Hook to get the current NEAR account
+export function useNearAccount() {
+  const { wallet } = useWalletSelector();
+  
+  return useQuery({
+    queryKey: ['nearAccount'],
+    queryFn: async () => {
+      try {
+        const nearSocialService = new NearSocialService(wallet);
+        const account = await nearSocialService.getCurrentAccountProfile();
+        console.log("accounttttt", account);
+        return account;
+      } catch (error) {
+        console.error("Error fetching NEAR account:", error);
+        return null;
+      }
+    },
+  });
+}
+
+// Hook to get all available accounts (API accounts + NEAR account)
+export function useAllAccounts() {
+  const { data: apiAccounts = [] } = useConnectedAccounts();
+  const { data: nearAccount } = useNearAccount();
+  
+  return [...apiAccounts, ...(nearAccount ? [nearAccount] : [])];
+}
+
 // Hook to get selected accounts
 export function useSelectedAccounts() {
-  const { data: accounts = [] } = useConnectedAccounts();
+  const allAccounts = useAllAccounts();
   const selectedAccountIds = usePlatformAccountsStore(state => state.selectedAccountIds);
   
   // Filter accounts to only include selected ones
-  return accounts.filter((account: PlatformAccount) => selectedAccountIds.includes(account.userId));
+  return allAccounts.filter((account: PlatformAccount) => selectedAccountIds.includes(account.userId));
 }

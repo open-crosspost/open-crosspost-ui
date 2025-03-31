@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import React, { useEffect } from "react";
 import { Button } from "../../../components/ui/button";
 import { PlatformAccountList } from "../../../components/platform-account-list";
+import { ProfileCard } from "../../../components/profile-card";
 import { SUPPORTED_PLATFORMS } from "../../../config";
 import { toast } from "../../../hooks/use-toast";
 import { requireAuthorization } from "../../../lib/auth/route-guards";
@@ -11,6 +12,7 @@ import {
   useConnectAccount,
   useConnectedAccounts,
   useDisconnectAccount,
+  useNearAccount,
   usePlatformAccountsStore,
   useRefreshAccount,
 } from "../../../store/platform-accounts-store";
@@ -26,6 +28,7 @@ export const Route = createFileRoute("/_layout/manage/")({
 function ManageAccountsPage() {
   const navigate = useNavigate();
   const { data: accounts = [], isLoading, refetch } = useConnectedAccounts();
+  const { data: nearAccount, isLoading: isLoadingNearAccount } = useNearAccount();
   const connectAccount = useConnectAccount();
   const disconnectAccount = useDisconnectAccount();
   const refreshAccount = useRefreshAccount();
@@ -155,6 +158,54 @@ function ManageAccountsPage() {
       </div>
 
       <div className="space-y-6">
+        {/* NEAR Account Section */}
+        <div className="space-y-4 w-full">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <h2 className="text-xl font-semibold">Near Social Account</h2>
+          </div>
+          
+          {isLoadingNearAccount ? (
+            <div className="flex justify-center py-8">
+              <div className="h-8 w-8 animate-spin text-gray-400">⟳</div>
+            </div>
+          ) : nearAccount ? (
+            <div className="space-y-4 w-full">
+              <div
+                className={`flex flex-col sm:flex-row sm:items-center sm:justify-between rounded-md border-2 p-3 sm:p-4 gap-3 ${
+                  selectedAccountIds.includes(nearAccount.userId)
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-gray-200"
+                }`}
+              >
+                <div className="flex items-center space-x-4">
+                  <ProfileCard account={nearAccount} size="md" />
+                </div>
+
+                <div className="flex items-center space-x-2 ml-0 sm:ml-auto">
+                  <Button
+                    size="sm"
+                    onClick={() => handleAccountSelection(nearAccount.userId)}
+                  >
+                    {selectedAccountIds.includes(nearAccount.userId)
+                      ? "Selected"
+                      : "Select"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-md border-2 border-dashed border-gray-200 p-4 sm:p-8 text-center">
+              <h3 className="mt-2 text-lg font-medium text-gray-900">
+                No NEAR account connected
+              </h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Please sign in with your NEAR wallet to use NEAR Social
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Other Platform Accounts */}
         {SUPPORTED_PLATFORMS.map((platform) => (
           <PlatformAccountList
             key={platform}

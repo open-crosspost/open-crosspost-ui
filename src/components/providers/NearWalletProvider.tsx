@@ -15,6 +15,7 @@ export function NearWalletProvider({ children }: NearWalletProviderProps) {
     <WalletSelectorProvider
       config={{
         network: NETWORK_ID,
+        createAccessKeyFor: "social.near",
         modules: [setupMyNearWallet(), setupMeteorWallet()],
       }}
     >
