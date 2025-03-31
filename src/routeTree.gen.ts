@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as LayoutImport } from './routes/_layout'
 import { Route as LayoutIndexImport } from './routes/_layout/index'
 import { Route as LayoutManageIndexImport } from './routes/_layout/manage/index'
+import { Route as LayoutLeaderboardIndexImport } from './routes/_layout/leaderboard/index'
 import { Route as LayoutEditorIndexImport } from './routes/_layout/editor/index'
 
 // Create/Update Routes
@@ -32,6 +33,12 @@ const LayoutIndexRoute = LayoutIndexImport.update({
 const LayoutManageIndexRoute = LayoutManageIndexImport.update({
   id: '/manage/',
   path: '/manage/',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutLeaderboardIndexRoute = LayoutLeaderboardIndexImport.update({
+  id: '/leaderboard/',
+  path: '/leaderboard/',
   getParentRoute: () => LayoutRoute,
 } as any)
 
@@ -66,6 +73,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutEditorIndexImport
       parentRoute: typeof LayoutImport
     }
+    '/_layout/leaderboard/': {
+      id: '/_layout/leaderboard/'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LayoutLeaderboardIndexImport
+      parentRoute: typeof LayoutImport
+    }
     '/_layout/manage/': {
       id: '/_layout/manage/'
       path: '/manage'
@@ -81,12 +95,14 @@ declare module '@tanstack/react-router' {
 interface LayoutRouteChildren {
   LayoutIndexRoute: typeof LayoutIndexRoute
   LayoutEditorIndexRoute: typeof LayoutEditorIndexRoute
+  LayoutLeaderboardIndexRoute: typeof LayoutLeaderboardIndexRoute
   LayoutManageIndexRoute: typeof LayoutManageIndexRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutIndexRoute: LayoutIndexRoute,
   LayoutEditorIndexRoute: LayoutEditorIndexRoute,
+  LayoutLeaderboardIndexRoute: LayoutLeaderboardIndexRoute,
   LayoutManageIndexRoute: LayoutManageIndexRoute,
 }
 
@@ -97,12 +113,14 @@ export interface FileRoutesByFullPath {
   '': typeof LayoutRouteWithChildren
   '/': typeof LayoutIndexRoute
   '/editor': typeof LayoutEditorIndexRoute
+  '/leaderboard': typeof LayoutLeaderboardIndexRoute
   '/manage': typeof LayoutManageIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof LayoutIndexRoute
   '/editor': typeof LayoutEditorIndexRoute
+  '/leaderboard': typeof LayoutLeaderboardIndexRoute
   '/manage': typeof LayoutManageIndexRoute
 }
 
@@ -111,19 +129,21 @@ export interface FileRoutesById {
   '/_layout': typeof LayoutRouteWithChildren
   '/_layout/': typeof LayoutIndexRoute
   '/_layout/editor/': typeof LayoutEditorIndexRoute
+  '/_layout/leaderboard/': typeof LayoutLeaderboardIndexRoute
   '/_layout/manage/': typeof LayoutManageIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/' | '/editor' | '/manage'
+  fullPaths: '' | '/' | '/editor' | '/leaderboard' | '/manage'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/editor' | '/manage'
+  to: '/' | '/editor' | '/leaderboard' | '/manage'
   id:
     | '__root__'
     | '/_layout'
     | '/_layout/'
     | '/_layout/editor/'
+    | '/_layout/leaderboard/'
     | '/_layout/manage/'
   fileRoutesById: FileRoutesById
 }
@@ -154,6 +174,7 @@ export const routeTree = rootRoute
       "children": [
         "/_layout/",
         "/_layout/editor/",
+        "/_layout/leaderboard/",
         "/_layout/manage/"
       ]
     },
@@ -163,6 +184,10 @@ export const routeTree = rootRoute
     },
     "/_layout/editor/": {
       "filePath": "_layout/editor/index.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/leaderboard/": {
+      "filePath": "_layout/leaderboard/index.tsx",
       "parent": "/_layout"
     },
     "/_layout/manage/": {

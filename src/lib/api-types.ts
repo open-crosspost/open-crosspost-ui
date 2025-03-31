@@ -1,6 +1,17 @@
 import { SupportedPlatform } from '../config';
 
 /**
+ * Time period for filtering leaderboard data
+ */
+export enum TimePeriod {
+  DAY = 'day',
+  WEEK = 'week',
+  MONTH = 'month',
+  YEAR = 'year',
+  ALL_TIME = 'all_time'
+}
+
+/**
  * Generic API response interface
  */
 export interface ApiResponse<T = any> {
@@ -66,4 +77,75 @@ export interface PostContent {
 export interface PostRequest {
   targets: PostTarget[];
   content: PostContent[];
+}
+
+/**
+ * Leaderboard entry interface
+ */
+export interface LeaderboardEntry {
+  signerId: string;
+  username?: string;
+  profileImageUrl?: string;
+  postCount: number;
+  platform?: string;
+  rank: number;
+}
+
+/**
+ * Leaderboard response interface
+ */
+export interface LeaderboardResponse {
+  entries: LeaderboardEntry[];
+  total: number;
+  timeframe: TimePeriod;
+  platform?: string;
+}
+
+/**
+ * Leaderboard error response interface
+ */
+export interface LeaderboardErrorResponse {
+  error: string;
+  message: string;
+  statusCode: number;
+}
+
+/**
+ * Account activity interface
+ */
+export interface AccountActivity {
+  signerId: string;
+  totalPosts: number;
+  firstPostTimestamp?: number;
+  lastPostTimestamp?: number;
+  platforms: {
+    [platform: string]: number;
+  };
+}
+
+/**
+ * Account activity response interface
+ */
+export interface AccountActivityResponse {
+  activity: AccountActivity;
+}
+
+/**
+ * Account post interface
+ */
+export interface AccountPost {
+  id: string;
+  signerId: string;
+  platform: string;
+  content: string;
+  timestamp: number;
+  url?: string;
+}
+
+/**
+ * Account posts response interface
+ */
+export interface AccountPostsResponse {
+  posts: AccountPost[];
+  total: number;
 }

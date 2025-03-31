@@ -5,6 +5,8 @@ import { PenSquare } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { ConnectToNearButton } from "./connect-to-near";
 import { ManageAccountsButton } from "./manage-accounts-button";
+import { Button } from "./ui/button";
+import { Trophy } from "lucide-react";
 
 export const WindowControls: React.FC = () => {
   // const [isOpen, setIsOpen] = useState(false);
@@ -26,7 +28,17 @@ export const WindowControls: React.FC = () => {
         </Link>
         <div className="flex flex-col items-center gap-4 sm:flex-row">
           <ConnectToNearButton />
-          {signedAccountId && <ManageAccountsButton />}
+          {signedAccountId && (
+            <>
+              <ManageAccountsButton />
+              <Link to="/leaderboard">
+                <Button size="sm" className="flex items-center gap-2">
+                  <Trophy size={16} />
+                  Leaderboard
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
       </div>
       {/* <div className="flex items-center justify-end">

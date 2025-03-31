@@ -1,6 +1,14 @@
 import { OPEN_CROSSPOST_PROXY_API, SupportedPlatform } from '../config';
 import { getCurrentAuthData } from './auth/near-auth';
-import { ApiResponse, PlatformAccount, PostRequest } from './api-types';
+import { 
+  AccountActivityResponse, 
+  AccountPostsResponse, 
+  ApiResponse, 
+  LeaderboardResponse, 
+  PlatformAccount, 
+  PostRequest, 
+  TimePeriod 
+} from './api-types';
 
 /**
  * CrosspostApiClient - A client for interacting with the Crosspost API
@@ -221,6 +229,151 @@ export class CrosspostApiClient {
       : '/api/rate-limit';
       
     return this.request(path, 'GET');
+  }
+
+  /**
+   * Get leaderboard data
+   * @param limit - Maximum number of entries to return
+   * @param offset - Number of entries to skip
+   * @param timeframe - Time period for filtering
+   * @param platform - Platform name for filtering
+   * @returns Promise resolving to the leaderboard data
+   */
+  async getLeaderboard(
+    limit: number = 10,
+    offset: number = 0,
+    timeframe: TimePeriod = TimePeriod.ALL_TIME,
+    platform?: string
+  ): Promise<ApiResponse<LeaderboardResponse>> {
+    const url = new URL(`${this.baseUrl}/api/leaderboard`);
+    url.searchParams.append('limit', limit.toString());
+    url.searchParams.append('offset', offset.toString());
+    url.searchParams.append('timeframe', timeframe);
+    
+    if (platform) {
+      url.searchParams.append('platform', platform);
+    }
+    
+    try {
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.error || `Error ${response.status}: ${response.statusText}`,
+        };
+      }
+
+      return {
+        success: true,
+        data,
+      };
+    } catch (error) {
+      console.error('Error fetching leaderboard:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  }
+
+  /**
+   * Get account activity
+   * @param signerId - NEAR account ID
+   * @param platform - Platform name for filtering
+   * @returns Promise resolving to the account activity data
+   */
+  async getAccountActivity(
+    signerId: string,
+    platform?: string
+  ): Promise<ApiResponse<AccountActivityResponse>> {
+    const url = new URL(`${this.baseUrl}/api/activity/${signerId}`);
+    
+    if (platform) {
+      url.searchParams.append('platform', platform);
+    }
+    
+    try {
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.error || `Error ${response.status}: ${response.statusText}`,
+        };
+      }
+
+      return {
+        success: true,
+        data,
+      };
+    } catch (error) {
+      console.error(`Error fetching account activity for ${signerId}:`, error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  }
+
+  /**
+   * Get account posts
+   * @param signerId - NEAR account ID
+   * @param platform - Platform name for filtering
+   * @param limit - Maximum number of posts to return
+   * @param offset - Number of posts to skip
+   * @returns Promise resolving to the account posts data
+   */
+  async getAccountPosts(
+    signerId: string,
+    platform?: string,
+    limit: number = 10,
+    offset: number = 0
+  ): Promise<ApiResponse<AccountPostsResponse>> {
+    const url = new URL(`${this.baseUrl}/api/activity/${signerId}/posts`);
+    url.searchParams.append('limit', limit.toString());
+    url.searchParams.append('offset', offset.toString());
+    
+    if (platform) {
+      url.searchParams.append('platform', platform);
+    }
+    
+    try {
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.error || `Error ${response.status}: ${response.statusText}`,
+        };
+      }
+
+      return {
+        success: true,
+        data,
+      };
+    } catch (error) {
+      console.error(`Error fetching posts for ${signerId}:`, error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
   }
 }
 
