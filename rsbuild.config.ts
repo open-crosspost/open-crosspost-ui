@@ -11,15 +11,22 @@ export default async () => {
   const profile = await getProfile(bosConfig.account);
   const image = getImageUrl(profile?.image);
   const metadataImage = getImageUrl(profile?.backgroundImage);
-
+  
   return defineConfig({
     html: {
       template: "./index.html",
       title: profile?.name,
       meta: {
         description: profile?.description || "",
-        "og:image": metadataImage,
-        "twitter:image": metadataImage,
+        // Facebook/Meta
+        "og:image": `${metadataImage}#og`,
+        "og:image:width": "1200",
+        "og:image:height": "630",
+        // Twitter
+        "twitter:image": `${metadataImage}#twitter`,
+        "twitter:card": "summary_large_image",
+        // LinkedIn
+        "linkedin:image": `${metadataImage}#linkedin`,
       },
       favicon: image,
       inject: "body",
@@ -80,8 +87,9 @@ export default async () => {
                 sizes: [80], // 80x80 for the w-20 h-20 logo div
               },
             },
+            // Facebook/Meta (1200x630)
             {
-              test: new RegExp(metadataImage),
+              test: new RegExp(`${metadataImage}#og`),
               type: "asset",
               parser: {
                 dataUrlCondition: {
@@ -90,7 +98,35 @@ export default async () => {
               },
               generator: {
                 filename: "og-image.[hash][ext]",
-                sizes: [1200], // 1200x630 is the recommended size for Open Graph images
+                sizes: [1200],
+              },
+            },
+            // Twitter (1200x675)
+            {
+              test: new RegExp(`${metadataImage}#twitter`),
+              type: "asset",
+              parser: {
+                dataUrlCondition: {
+                  maxSize: 256 * 1024,
+                },
+              },
+              generator: {
+                filename: "twitter-image.[hash][ext]",
+                sizes: [1200],
+              },
+            },
+            // LinkedIn (1200x627)
+            {
+              test: new RegExp(`${metadataImage}#linkedin`),
+              type: "asset",
+              parser: {
+                dataUrlCondition: {
+                  maxSize: 256 * 1024,
+                },
+              },
+              generator: {
+                filename: "linkedin-image.[hash][ext]",
+                sizes: [1200],
               },
             },
           ],
