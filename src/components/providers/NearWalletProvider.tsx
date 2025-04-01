@@ -21,7 +21,7 @@ export function NearWalletProvider({ children }: NearWalletProviderProps) {
         modules: [
           setupMyNearWallet(),
           setupMeteorWallet(),
-          setupHereWallet(),
+          // setupHereWallet(),
           setupNearMobileWallet(),
           // @ts-ignore
           setupBitteWallet({ contractId: SOCIAL_CONTRACT[NETWORK_ID] }),
