@@ -88,7 +88,18 @@ export interface LeaderboardEntry {
   profileImageUrl?: string;
   postCount: number;
   platform?: string;
-  rank: number;
+  rank?: number; // Added by the frontend
+  firstPostTimestamp?: number;
+  lastPostTimestamp?: number;
+}
+
+/**
+ * Leaderboard pagination interface
+ */
+export interface LeaderboardPagination {
+  total: number;
+  limit: number;
+  offset: number;
 }
 
 /**
@@ -96,9 +107,10 @@ export interface LeaderboardEntry {
  */
 export interface LeaderboardResponse {
   entries: LeaderboardEntry[];
-  total: number;
+  pagination: LeaderboardPagination;
   timeframe: TimePeriod;
   platform?: string;
+  total?: number; // For backward compatibility
 }
 
 /**

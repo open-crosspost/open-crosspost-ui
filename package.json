@@ -1,5 +1,5 @@
 {
-  "name": "project-profile",
+  "name": "open-crosspost",
   "version": "0.0.1",
   "homepage": "/",
   "type": "module",
@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "init": "bun run --bun scripts/init.ts",
-    "dev": "cat welcome.txt && rsbuild dev",
+    "dev": "rsbuild dev",
     "build": "rsbuild build",
     "preview": "rsbuild preview",
     "fmt": "prettier --write '**/*.{js,jsx,ts,tsx,json}'",

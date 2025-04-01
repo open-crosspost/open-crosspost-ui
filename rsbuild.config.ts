@@ -25,6 +25,9 @@ export default async () => {
       entry: {
         index: "./src/index.tsx",
       },
+      define: {
+        'process.env.OPEN_CROSSPOST_PROXY_API': JSON.stringify(process.env.OPEN_CROSSPOST_PROXY_API)
+      }
     },
     server: {
       port: 5170,

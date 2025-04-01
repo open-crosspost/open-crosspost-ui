@@ -1,84 +1,65 @@
+<!-- markdownlint-disable MD014 -->
+<!-- markdownlint-disable MD033 -->
+<!-- markdownlint-disable MD041 -->
+<!-- markdownlint-disable MD029 -->
+
 <div align="center">
-  <h1>every profile template</h1>
+
+<h1 style="font-size: 2.5rem; font-weight: bold;">crosspost</h1>
+
   <p>
-    <strong>A customizable web4 profile for easy integration with everything</strong>
+    <strong>user interface to crosspost across various platforms</strong>
   </p>
+
 </div>
 
-## Quick Start: Deploy Your Profile
+<details>
+  <summary>Table of Contents</summary>
 
-1. Install dependencies:
+- [Getting Started](#getting-started)
+  - [Installing dependencies](#installing-dependencies)
+  - [Running the app](#running-the-app)
+  - [Building for production](#building-for-production)
+  - [Running tests](#running-tests)
+- [Contributing](#contributing)
+
+</details>
+
+## Getting Started
+
+### Installing dependencies
 
 ```bash
 bun install
 ```
 
-2. Initialize your web4 configuration:
+### Running the app
 
-```bash
-bun run init
-```
-
-This will:
-
-- Prompt for network (mainnet/testnet) and account name
-- Create a web4 subaccount if needed
-- Save configuration to `bos.config.json`
-
-> **Important**: Your web4 account must be saved to the legacy keychain. If you need to add it later, you'll have to export and import it again to the legacy keychain.
-
-3. Build and deploy:
-
-```bash
-bun run build
-bun run deploy
-```
-
-> **Note**: The deploy script will fail because of some known bugs. You can modify and use `npx github:vgrichina/web4-deploy dist web4.every.near --deploy-contract --nearfs --network mainnet` with the correct account and network details.
-
-Your profile will be available at:
-
-- Testnet: `https://web4.ACCOUNT_NAME.testnet.page`
-- Mainnet: `https://web4.ACCOUNT_NAME.near.page`
-
-## Customize Your Profile
-
-This template includes:
-
-- [TanStack Router](https://tanstack.com/router) for type-safe routing
-- Landing page that links to your website
-- Donation page powered by [Potlock](https://potlock.org)
-
-1. Start the development server:
+First, run the development server:
 
 ```bash
 bun run dev
 ```
 
-2. Customize the app:
+### Building for production
 
-- `src/routes/_layout/index.tsx`: Main landing page
-- `src/routes/_layout/donate/`: Donation page with Potlock integration
-- `src/index.css`: Global styles (uses Tailwind)
+```bash
+bun run build
+```
 
-The app uses [shadcn/ui](https://ui.shadcn.com/) components for the UI, which you can customize in `src/components/ui/`.
+### Running tests
 
-## Technical Details: Module Federation
+```bash
+bun run test
+```
 
-This template uses [module federation](https://module-federation.io/) to integrate with other applications. Key points:
-
-- Exports an App module that can be imported by other applications
-- Shares dependencies with the host application to avoid duplication
-- Configuration is in `rsbuild.config.ts`
-
-Important rules:
-
-- Do not modify `src/App.tsx`
-- Feel free to add new routes, components, and features
+See the full [testing guide](./playwright-tests/README.md).
 
 ## Contributing
 
-We welcome contributions! Please read our [contribution guide](./CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+If you're interested in contributing to this project, please read the [contribution guide](./CONTRIBUTING).
 
 <div align="right">
 <a href="https://nearbuilders.org" target="_blank">
