@@ -159,10 +159,6 @@ function LeaderboardPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">
-        NEAR Account Posting Leaderboard
-      </h1>
-
       {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-6">
         <div>
@@ -180,7 +176,7 @@ function LeaderboardPage() {
           </select>
         </div>
 
-        <div>
+        {/* <div>
           <label className="block text-sm font-medium mb-1">Platform</label>
           <select
             value={platform || ""}
@@ -194,7 +190,7 @@ function LeaderboardPage() {
               </option>
             ))}
           </select>
-        </div>
+        </div> */}
       </div>
 
       {/* Error message */}
