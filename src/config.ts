@@ -29,7 +29,7 @@ export const EVMWalletChain = evmWalletChains[NETWORK_ID];
 
 // API Configuration
 export const OPEN_CROSSPOST_PROXY_API =
-  process.env.NEXT_PUBLIC_OPEN_CROSSPOST_PROXY_API || "http://0.0.0.0:3000";
+  process.env.OPEN_CROSSPOST_PROXY_API || "http://0.0.0.0:3000";
 
 // Supported platforms
 export type SupportedPlatform = "Twitter" | "Near Social";
