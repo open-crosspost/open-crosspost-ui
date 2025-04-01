@@ -10,6 +10,7 @@ import bosConfig from "./bos.config.json";
 export default async () => {
   const profile = await getProfile(bosConfig.account);
   const image = getImageUrl(profile?.image);
+  const metadataImage = getImageUrl(profile?.background);
 
   return defineConfig({
     html: {
@@ -17,6 +18,8 @@ export default async () => {
       title: profile?.name,
       meta: {
         description: profile?.description || "",
+        "og:image": metadataImage,
+        "twitter:image": metadataImage,
       },
       favicon: image,
       inject: "body",
@@ -73,6 +76,19 @@ export default async () => {
               generator: {
                 filename: "logo.[hash][ext]",
                 sizes: [80], // 80x80 for the w-20 h-20 logo div
+              },
+            },
+            {
+              test: new RegExp(metadataImage),
+              type: "asset",
+              parser: {
+                dataUrlCondition: {
+                  maxSize: 256 * 1024,
+                },
+              },
+              generator: {
+                filename: "og-image.[hash][ext]",
+                sizes: [1200], // 1200x630 is the recommended size for Open Graph images
               },
             },
           ],
