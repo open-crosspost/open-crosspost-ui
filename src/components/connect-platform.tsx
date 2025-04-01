@@ -8,7 +8,13 @@ import { toast } from "../hooks/use-toast";
 interface ConnectPlatformProps {
   platform: SupportedPlatform;
   className?: string;
-  variant?: "default" | "outline" | "secondary" | "ghost" | "link" | "destructive";
+  variant?:
+    | "default"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link"
+    | "destructive";
   size?: "default" | "sm" | "lg" | "icon";
   showIcon?: boolean;
 }
@@ -21,7 +27,7 @@ export function ConnectPlatform({
   showIcon = true,
 }: ConnectPlatformProps) {
   const connectAccount = useConnectAccount();
-  
+
   const handleConnect = async () => {
     try {
       // Use the current URL as the return URL
@@ -73,7 +79,9 @@ export function ConnectPlatform({
           )}
         </>
       )}
-      {connectAccount.isPending ? "Connecting..." : `Connect ${platform} Account`}
+      {connectAccount.isPending
+        ? "Connecting..."
+        : `Connect ${platform} Account`}
     </Button>
   );
 }

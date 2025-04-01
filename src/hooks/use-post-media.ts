@@ -5,27 +5,27 @@ import { toast as toastFunction } from "./use-toast";
 export function usePostMedia(
   setPosts: React.Dispatch<React.SetStateAction<PostContent[]>>,
   toast = toastFunction,
-  saveAutoSave?: (posts: PostContent[]) => void
+  saveAutoSave?: (posts: PostContent[]) => void,
 ) {
   // Debounce timer reference
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  
+
   // Helper function to debounce auto-save
   const debouncedSave = useCallback(
     (postsToSave: PostContent[]) => {
       if (!saveAutoSave) return;
-      
+
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
-      
+
       debounceTimerRef.current = setTimeout(() => {
         saveAutoSave(postsToSave);
       }, 500); // 500ms debounce delay
     },
-    [saveAutoSave]
+    [saveAutoSave],
   );
-  
+
   // Clear the debounce timer on cleanup
   useEffect(() => {
     return () => {
@@ -50,10 +50,7 @@ export function usePostMedia(
       }
 
       // Check file type
-      if (
-        !file.type.startsWith("image/") &&
-        !file.type.startsWith("video/")
-      ) {
+      if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) {
         toast({
           title: "Invalid File Type",
           description: "Only images and videos are supported",
@@ -82,7 +79,7 @@ export function usePostMedia(
       };
       reader.readAsDataURL(file);
     },
-    [setPosts, toast, debouncedSave]
+    [setPosts, toast, debouncedSave],
   );
 
   // Handle media removal
@@ -90,12 +87,16 @@ export function usePostMedia(
     (index: number) => {
       setPosts((currentPosts) => {
         const newPosts = [...currentPosts];
-        
+
         // If there's a mediaId that's a URL object, revoke it
-        if (newPosts[index].mediaId && typeof newPosts[index].mediaId === 'string' && newPosts[index].mediaId.startsWith('blob:')) {
+        if (
+          newPosts[index].mediaId &&
+          typeof newPosts[index].mediaId === "string" &&
+          newPosts[index].mediaId.startsWith("blob:")
+        ) {
           URL.revokeObjectURL(newPosts[index].mediaId as string);
         }
-        
+
         newPosts[index] = {
           ...newPosts[index],
           mediaId: null,
@@ -108,7 +109,7 @@ export function usePostMedia(
         return newPosts;
       });
     },
-    [setPosts, debouncedSave]
+    [setPosts, debouncedSave],
   );
 
   return {

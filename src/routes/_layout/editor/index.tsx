@@ -144,7 +144,8 @@ function EditorPage() {
         try {
           if (wallet) {
             const nearSocialService = new NearSocialService(wallet);
-            const transaction = await nearSocialService.createPost(postContents);
+            const transaction =
+              await nearSocialService.createPost(postContents);
 
             if (!transaction) {
               throw new Error("Failed to create post transaction");

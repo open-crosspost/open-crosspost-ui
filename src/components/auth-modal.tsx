@@ -20,11 +20,11 @@ interface AuthModalProps {
   message?: string;
 }
 
-export function AuthModal({ 
-  isOpen, 
-  onClose, 
-  onSuccess, 
-  message 
+export function AuthModal({
+  isOpen,
+  onClose,
+  onSuccess,
+  message,
 }: AuthModalProps) {
   const { authorize, isAuthorizing } = useNearAuth();
   const { wallet, signedAccountId } = useWalletSelector();
@@ -33,11 +33,11 @@ export function AuthModal({
     try {
       if (wallet && signedAccountId) {
         const success = await authorize(wallet, signedAccountId);
-        
+
         if (success) {
           // Call the success callback if provided
           onSuccess?.();
-          
+
           // Close the dialog
           onClose();
         }
@@ -56,7 +56,8 @@ export function AuthModal({
             Authorize {APP_NAME}
           </DialogTitle>
           <DialogDescription>
-            {message || "Before proceeding, you need to authorize this app to post on your behalf."}
+            {message ||
+              "Before proceeding, you need to authorize this app to post on your behalf."}
           </DialogDescription>
         </DialogHeader>
 
@@ -82,11 +83,7 @@ export function AuthModal({
         </div>
 
         <DialogFooter className="flex-col space-y-2 sm:flex-row sm:space-y-0 sm:justify-between">
-          <Button 
-            onClick={onClose}
-          >
-            Cancel
-          </Button>
+          <Button onClick={onClose}>Cancel</Button>
           <Button
             onClick={handleAuthorize}
             disabled={isAuthorizing}

@@ -42,17 +42,24 @@ export function ProfileCard({
   };
 
   return (
-    <div className={`flex items-center ${sizeClasses[size].container} ${className}`}>
+    <div
+      className={`flex items-center ${sizeClasses[size].container} ${className}`}
+    >
       <Avatar className={sizeClasses[size].avatar}>
         {profileImageUrl ? (
           <AvatarImage src={profileImageUrl} alt={username} />
         ) : (
           <AvatarFallback className="bg-gray-200">
-            {platform === "Twitter" && <Twitter size={size === "sm" ? 14 : size === "md" ? 18 : 22} className="text-gray-400" />}
+            {platform === "Twitter" && (
+              <Twitter
+                size={size === "sm" ? 14 : size === "md" ? 18 : 22}
+                className="text-gray-400"
+              />
+            )}
           </AvatarFallback>
         )}
       </Avatar>
-      
+
       <div className="flex flex-col">
         <span className={`font-medium ${sizeClasses[size].username}`}>
           @{username}

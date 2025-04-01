@@ -20,8 +20,8 @@ export function ConnectionCallback() {
       toast({
         title: "Connected Successful",
         description: "Select to begin posting with this account.",
-        variant: "default"
-      })
+        variant: "success",
+      });
     } else if (success === "false") {
       // Show error message
       toast({

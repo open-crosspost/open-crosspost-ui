@@ -41,11 +41,7 @@ function SortablePostComponent({
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="flex gap-2 w-full"
-    >
+    <div ref={setNodeRef} style={style} className="flex gap-2 w-full">
       <div className="flex-none w-8">
         <div
           {...attributes}
@@ -101,7 +97,6 @@ function SortablePostComponent({
                 }
                 size="sm"
                 disabled={post.mediaId !== null}
-                
               >
                 Add Media
               </Button>
@@ -131,11 +126,7 @@ function SortablePostComponent({
               >
                 {post.text.length}/280 characters
               </span>
-              <Button 
-                onClick={() => onTextChange(index, "")} 
-                size="sm"
-                
-              >
+              <Button onClick={() => onTextChange(index, "")} size="sm">
                 Clear
               </Button>
               {onRemove && (
@@ -143,7 +134,6 @@ function SortablePostComponent({
                   onClick={() => onRemove(index)}
                   variant="destructive"
                   size="sm"
-                  
                 >
                   Remove
                 </Button>

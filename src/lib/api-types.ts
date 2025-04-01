@@ -1,14 +1,14 @@
-import { SupportedPlatform } from '../config';
+import { SupportedPlatform } from "../config";
 
 /**
  * Time period for filtering leaderboard data
  */
 export enum TimePeriod {
-  DAY = 'day',
-  WEEK = 'week',
-  MONTH = 'month',
-  YEAR = 'year',
-  ALL_TIME = 'all_time'
+  DAY = "day",
+  WEEK = "week",
+  MONTH = "month",
+  YEAR = "year",
+  ALL_TIME = "all_time",
 }
 
 /**

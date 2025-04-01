@@ -5,11 +5,11 @@ import { PlatformAccount as PlatformAccountType } from "../lib/api-types";
 import { ProfileCard } from "./profile-card";
 import { Button } from "./ui/button";
 import { toast } from "../hooks/use-toast";
-import { 
-  useDisconnectAccount, 
+import {
+  useDisconnectAccount,
   useRefreshAccount,
   useCheckAccountStatus,
-  usePlatformAccountsStore
+  usePlatformAccountsStore,
 } from "../store/platform-accounts-store";
 
 interface PlatformAccountProps {
@@ -23,7 +23,7 @@ export function PlatformAccountItem({
 }: PlatformAccountProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
-  
+
   const disconnectAccount = useDisconnectAccount();
   const refreshAccount = useRefreshAccount();
   const checkAccountStatus = useCheckAccountStatus();
@@ -34,11 +34,11 @@ export function PlatformAccountItem({
     try {
       await refreshAccount.mutateAsync({
         platform: account.platform as SupportedPlatform,
-        userId: account.userId
+        userId: account.userId,
       });
       await checkAccountStatus.mutateAsync({
         platform: account.platform as SupportedPlatform,
-        userId: account.userId
+        userId: account.userId,
       });
     } catch (error) {
       toast({
@@ -59,7 +59,7 @@ export function PlatformAccountItem({
     try {
       await disconnectAccount.mutateAsync({
         platform: account.platform as SupportedPlatform,
-        userId: account.userId
+        userId: account.userId,
       });
     } catch (error) {
       toast({
@@ -74,7 +74,7 @@ export function PlatformAccountItem({
       setIsDisconnecting(false);
     }
   };
-  
+
   const handleSelect = () => {
     if (isSelected) {
       unselectAccount(account.userId);
@@ -100,10 +100,7 @@ export function PlatformAccountItem({
           title="Refresh token"
           disabled={isRefreshing}
         >
-          <RefreshCw
-            size={16}
-            className={isRefreshing ? "animate-spin" : ""}
-          />
+          <RefreshCw size={16} className={isRefreshing ? "animate-spin" : ""} />
         </Button>
         <Button
           size="sm"

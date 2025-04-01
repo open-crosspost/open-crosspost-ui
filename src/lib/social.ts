@@ -41,33 +41,37 @@ export function getSocialLink(platform: string, username: string): string {
  * @param fileOrData The file to upload or a data URL/base64 string
  * @returns Promise resolving to the IPFS CID
  */
-export async function uploadFileToIPFS(fileOrData: File | string): Promise<string> {
+export async function uploadFileToIPFS(
+  fileOrData: File | string,
+): Promise<string> {
   try {
     const formData = new FormData();
-    
-    if (typeof fileOrData === 'string') {
+
+    if (typeof fileOrData === "string") {
       // Handle data URL or base64 string
       // Convert data URL to blob
       let blob: Blob;
-      
-      if (fileOrData.startsWith('data:')) {
+
+      if (fileOrData.startsWith("data:")) {
         // It's a data URL
         const response = await fetch(fileOrData);
         blob = await response.blob();
       } else {
         // Assume it's base64 data
-        const byteString = atob(fileOrData.split(',')[1] || fileOrData);
-        const mimeType = fileOrData.split(',')[0]?.split(':')[1]?.split(';')[0] || 'image/jpeg';
+        const byteString = atob(fileOrData.split(",")[1] || fileOrData);
+        const mimeType =
+          fileOrData.split(",")[0]?.split(":")[1]?.split(";")[0] ||
+          "image/jpeg";
         const ab = new ArrayBuffer(byteString.length);
         const ia = new Uint8Array(ab);
-        
+
         for (let i = 0; i < byteString.length; i++) {
           ia[i] = byteString.charCodeAt(i);
         }
-        
+
         blob = new Blob([ab], { type: mimeType });
       }
-      
+
       // Create a File from the Blob
       const file = new File([blob], "image.jpg", { type: blob.type });
       formData.append("file", file);
@@ -75,11 +79,11 @@ export async function uploadFileToIPFS(fileOrData: File | string): Promise<strin
       // It's already a File object
       formData.append("file", fileOrData);
     }
-    
+
     const response = await fetch("https://ipfs.near.social/add", {
       method: "POST",
-      headers: { 
-        Accept: "application/json" 
+      headers: {
+        Accept: "application/json",
       },
       body: formData,
     });

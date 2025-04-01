@@ -4,27 +4,27 @@ import { PostContent } from "../store/drafts-store";
 export function usePostManagement(
   posts: PostContent[],
   setPosts: React.Dispatch<React.SetStateAction<PostContent[]>>,
-  saveAutoSave?: (posts: PostContent[]) => void
+  saveAutoSave?: (posts: PostContent[]) => void,
 ) {
   // Debounce timer reference
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  
+
   // Helper function to debounce auto-save
   const debouncedSave = useCallback(
     (postsToSave: PostContent[]) => {
       if (!saveAutoSave) return;
-      
+
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
-      
+
       debounceTimerRef.current = setTimeout(() => {
         saveAutoSave(postsToSave);
       }, 500); // 500ms debounce delay
     },
-    [saveAutoSave]
+    [saveAutoSave],
   );
-  
+
   // Handle text change in a post with debouncing
   const handleTextChange = useCallback(
     (index: number, text: string) => {
@@ -32,16 +32,16 @@ export function usePostManagement(
       setPosts((currentPosts) => {
         const newPosts = [...currentPosts];
         newPosts[index] = { ...newPosts[index], text };
-        
+
         // Use the debouncedSave helper
         debouncedSave(newPosts);
-        
+
         return newPosts;
       });
     },
-    [setPosts, debouncedSave]
+    [setPosts, debouncedSave],
   );
-  
+
   // Clear the debounce timer on cleanup
   useEffect(() => {
     return () => {
@@ -58,12 +58,12 @@ export function usePostManagement(
         ...currentPosts,
         { text: "", mediaId: null, mediaPreview: null },
       ];
-      
+
       // No need to debounce here as this is a user-initiated action
       if (saveAutoSave) {
         saveAutoSave(newPosts);
       }
-      
+
       return newPosts;
     });
   }, [setPosts, saveAutoSave]);
@@ -73,16 +73,16 @@ export function usePostManagement(
     (index: number) => {
       setPosts((currentPosts) => {
         const newPosts = currentPosts.filter((_, i) => i !== index);
-        
+
         // No need to debounce here as this is a user-initiated action
         if (saveAutoSave) {
           saveAutoSave(newPosts);
         }
-        
+
         return newPosts;
       });
     },
-    [setPosts, saveAutoSave]
+    [setPosts, saveAutoSave],
   );
 
   // Convert single post to thread
@@ -107,20 +107,18 @@ export function usePostManagement(
 
       setPosts(threadPosts);
     },
-    [setPosts]
+    [setPosts],
   );
 
   // Convert thread to single post
   const convertToSingle = useCallback(() => {
     setPosts((currentPosts) => {
       // Join all post texts with double newlines
-      const combinedText = currentPosts
-        .map((post) => post.text)
-        .join("\n\n");
+      const combinedText = currentPosts.map((post) => post.text).join("\n\n");
 
       // Keep the first media if any
       const firstMediaPost = currentPosts.find(
-        (post) => post.mediaId !== null || post.mediaPreview !== null
+        (post) => post.mediaId !== null || post.mediaPreview !== null,
       );
 
       return [

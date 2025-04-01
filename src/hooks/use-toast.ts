@@ -8,7 +8,10 @@ const TOAST_REMOVE_DELAY = 15000;
 
 // Use the interface defined in toaster.tsx or define a compatible one here
 // Let's redefine it here for clarity within the hook file, ensuring compatibility
-type ToasterToast = Omit<ToastProps, 'id' | 'title' | 'description' | 'action'> & {
+type ToasterToast = Omit<
+  ToastProps,
+  "id" | "title" | "description" | "action"
+> & {
   id: string;
   title?: React.ReactNode;
   description?: React.ReactNode;
@@ -16,7 +19,6 @@ type ToasterToast = Omit<ToastProps, 'id' | 'title' | 'description' | 'action'> 
   open?: boolean; // Add open state
   onOpenChange?: (open: boolean) => void; // Add callback
 };
-
 
 const actionTypes = {
   ADD_TOAST: "ADD_TOAST",
@@ -163,7 +165,8 @@ function toast(props: ToastFnProps): ToastReturn {
       type: actionTypes.UPDATE_TOAST,
       toast: { ...updateProps, id },
     });
-  const dismiss = () => dispatch({ type: actionTypes.DISMISS_TOAST, toastId: id });
+  const dismiss = () =>
+    dispatch({ type: actionTypes.DISMISS_TOAST, toastId: id });
 
   dispatch({
     type: actionTypes.ADD_TOAST,
@@ -206,7 +209,8 @@ function useToast(): UseToastReturn {
   return {
     ...state,
     toast,
-    dismiss: (toastId?: string) => dispatch({ type: actionTypes.DISMISS_TOAST, toastId }),
+    dismiss: (toastId?: string) =>
+      dispatch({ type: actionTypes.DISMISS_TOAST, toastId }),
   };
 }
 

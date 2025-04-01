@@ -1,5 +1,5 @@
-import { OPEN_CROSSPOST_PROXY_API } from '../../config';
-import { useNearAuth } from '../../store/near-auth-store';
+import { OPEN_CROSSPOST_PROXY_API } from "../../config";
+import { useNearAuth } from "../../store/near-auth-store";
 
 // Interface for NEAR auth data as expected by the proxy server
 export interface NearAuthData {
@@ -45,7 +45,10 @@ export interface NearAuthData {
  * @param message - Message to sign
  * @returns Auth object with signature, accountId, and publicKey
  */
-export async function signInWithNear(wallet: any, message: string): Promise<NearAuthData> {
+export async function signInWithNear(
+  wallet: any,
+  message: string,
+): Promise<NearAuthData> {
   if (!wallet) {
     throw new Error("Wallet is required");
   }
@@ -53,12 +56,12 @@ export async function signInWithNear(wallet: any, message: string): Promise<Near
   // Generate nonce based on current time in milliseconds
   const nonce = new String(Date.now());
   const nonceBuffer = Buffer.from(
-    new TextEncoder().encode(nonce.padStart(32, "0"))
+    new TextEncoder().encode(nonce.padStart(32, "0")),
   );
 
   const recipient = "crosspost.near";
   const callbackUrl = location.href;
-  
+
   // Sign the message with the wallet
   const signedMessage = await wallet.signMessage({
     message,
@@ -75,7 +78,7 @@ export async function signInWithNear(wallet: any, message: string): Promise<Near
     callback_url: callbackUrl,
     signature: signedMessage.signature,
     account_id: signedMessage.accountId,
-    public_key: signedMessage.publicKey
+    public_key: signedMessage.publicKey,
   };
 
   // No need to store in memory, it's stored in the Zustand store
@@ -89,19 +92,22 @@ export async function signInWithNear(wallet: any, message: string): Promise<Near
  * @param message - Message to sign
  * @returns Signature
  */
-export async function signMessage(wallet: any, message: string): Promise<string> {
+export async function signMessage(
+  wallet: any,
+  message: string,
+): Promise<string> {
   if (!wallet) {
     throw new Error("Wallet is required");
   }
-  
+
   // Generate nonce based on current time
   const nonce = new String(Date.now());
   const nonceBuffer = Buffer.from(
-    new TextEncoder().encode(nonce.padStart(32, "0"))
+    new TextEncoder().encode(nonce.padStart(32, "0")),
   );
 
   const recipient = "crosspost.near";
-  
+
   // Sign the message with the wallet
   const signedMessage = await wallet.signMessage({
     message,
@@ -118,22 +124,28 @@ export async function signMessage(wallet: any, message: string): Promise<string>
  * @param returnUrl - Optional return URL after authentication
  * @returns API response
  */
-export async function initWithNearAuth(authData: NearAuthData, returnUrl?: string): Promise<any> {
+export async function initWithNearAuth(
+  authData: NearAuthData,
+  returnUrl?: string,
+): Promise<any> {
   useNearAuth.getState().setAuthData(authData);
-  
+
   const body: any = {};
   if (returnUrl) {
     body.returnUrl = returnUrl;
   }
-  
-  const response = await fetch(`${OPEN_CROSSPOST_PROXY_API}/auth/authorize/near`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${JSON.stringify(authData)}`
+
+  const response = await fetch(
+    `${OPEN_CROSSPOST_PROXY_API}/auth/authorize/near`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${JSON.stringify(authData)}`,
+      },
+      body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined,
     },
-    body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined
-  });
+  );
 
   return response.json();
 }
@@ -171,13 +183,13 @@ export function getNearAuthHeader(): string | null {
  * @returns Promise resolving to the auth data
  */
 export async function createAuthData(
-  wallet: any, 
-  accountId: string, 
-  message: string
+  wallet: any,
+  accountId: string,
+  message: string,
 ): Promise<NearAuthData> {
   if (!wallet || !accountId) {
     throw new Error("Wallet and account ID are required");
   }
-  
+
   return signInWithNear(wallet, message);
 }

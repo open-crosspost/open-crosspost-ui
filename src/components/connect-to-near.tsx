@@ -24,15 +24,15 @@ export function ConnectToNearButton(): React.ReactElement {
   };
 
   return (
-    <Button 
+    <Button
       onClick={signedAccountId ? handleSignOut : handleSignIn}
       className="text-sm sm:text-base"
     >
       <Wallet size={18} className="mr-2" />
-      {signedAccountId 
-        ? (window.innerWidth < 640 
-            ? "Disconnect" 
-            : `Disconnect @${signedAccountId}`)
+      {signedAccountId
+        ? window.innerWidth < 640
+          ? "Disconnect"
+          : `Disconnect @${signedAccountId}`
         : "Connect NEAR"}
     </Button>
   );

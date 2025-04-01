@@ -9,9 +9,10 @@ interface NearAccountItemProps {
 }
 
 export function NearAccountItem({ account }: NearAccountItemProps) {
-  const { selectedAccountIds, selectAccount, unselectAccount } = usePlatformAccountsStore();
+  const { selectedAccountIds, selectAccount, unselectAccount } =
+    usePlatformAccountsStore();
   const isSelected = selectedAccountIds.includes(account.userId);
-  
+
   const handleSelect = () => {
     if (isSelected) {
       unselectAccount(account.userId);

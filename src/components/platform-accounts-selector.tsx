@@ -1,22 +1,28 @@
-import React from 'react';
-import { useConnectedAccounts, useNearAccount, usePlatformAccountsStore, useAllAccounts } from '../store/platform-accounts-store';
-import { Button } from './ui/button';
-import { useNavigate } from '@tanstack/react-router';
-import { ProfileCard } from './profile-card';
+import React from "react";
+import {
+  useConnectedAccounts,
+  useNearAccount,
+  usePlatformAccountsStore,
+  useAllAccounts,
+} from "../store/platform-accounts-store";
+import { Button } from "./ui/button";
+import { useNavigate } from "@tanstack/react-router";
+import { ProfileCard } from "./profile-card";
 
 export function PlatformAccountsSelector() {
   const navigate = useNavigate();
   const allAccounts = useAllAccounts();
-  const { selectedAccountIds, selectAccount, unselectAccount } = usePlatformAccountsStore();
-  
+  const { selectedAccountIds, selectAccount, unselectAccount } =
+    usePlatformAccountsStore();
+
   // Get loading and error states from the API accounts hook
   const { isLoading, error } = useConnectedAccounts();
-  
+
   // Handle connect accounts button click
   const handleConnectAccounts = () => {
-    navigate({ to: '/manage' });
+    navigate({ to: "/manage" });
   };
-  
+
   // Handle account selection toggle
   const handleAccountToggle = (userId: string) => {
     if (selectedAccountIds.includes(userId)) {
@@ -25,7 +31,7 @@ export function PlatformAccountsSelector() {
       selectAccount(userId);
     }
   };
-  
+
   if (isLoading) {
     return (
       <div className="border-2 border-gray-200 rounded-md p-3 sm:p-4 w-full">
@@ -41,7 +47,7 @@ export function PlatformAccountsSelector() {
       </div>
     );
   }
-  
+
   if (error) {
     return (
       <div className="border-2 border-red-200 bg-red-50 rounded-md p-3 sm:p-4 w-full">
@@ -52,12 +58,14 @@ export function PlatformAccountsSelector() {
           </Button>
         </div>
         <p className="text-sm text-red-600">
-          {error instanceof Error ? error.message : 'Failed to load connected accounts'}
+          {error instanceof Error
+            ? error.message
+            : "Failed to load connected accounts"}
         </p>
       </div>
     );
   }
-  
+
   if (allAccounts.length === 0) {
     return (
       <div className="border-2 border-gray-200 rounded-md p-3 sm:p-4 w-full">
@@ -66,14 +74,12 @@ export function PlatformAccountsSelector() {
         </div>
         <div className="text-center py-4">
           <p className="text-gray-500 mb-4">No accounts connected yet</p>
-          <Button onClick={handleConnectAccounts}>
-            Connect Accounts
-          </Button>
+          <Button onClick={handleConnectAccounts}>Connect Accounts</Button>
         </div>
       </div>
     );
   }
-  
+
   return (
     <div className="border-2 border-gray-200 rounded-md p-3 sm:p-4 w-full">
       <div className="flex justify-between items-center mb-2">
@@ -82,31 +88,28 @@ export function PlatformAccountsSelector() {
           Manage
         </Button>
       </div>
-      
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 w-full">
         {allAccounts.map((account) => (
           <div
             key={account.userId}
             className={`flex items-center p-3 sm:p-2 rounded-md cursor-pointer transition-colors touch-manipulation ${
               selectedAccountIds.includes(account.userId)
-                ? 'bg-blue-50 border-2 border-blue-200'
-                : 'border-2 border-gray-200 hover:bg-gray-50'
+                ? "bg-blue-50 border-2 border-blue-200"
+                : "border-2 border-gray-200 hover:bg-gray-50"
             }`}
             onClick={() => handleAccountToggle(account.userId)}
           >
             <div className="flex-grow">
-              <ProfileCard 
-                account={account}
-                size="sm"
-              />
+              <ProfileCard account={account} size="sm" />
             </div>
-            
+
             <div className="flex-shrink-0 ml-2">
               <div
                 className={`w-6 h-6 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center ${
                   selectedAccountIds.includes(account.userId)
-                    ? 'border-blue-500 bg-blue-500'
-                    : 'border-gray-300'
+                    ? "border-blue-500 bg-blue-500"
+                    : "border-gray-300"
                 }`}
               >
                 {selectedAccountIds.includes(account.userId) && (

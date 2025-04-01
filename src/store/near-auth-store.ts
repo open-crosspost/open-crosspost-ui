@@ -1,11 +1,11 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { APP_NAME } from '../config';
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import { APP_NAME } from "../config";
 import {
   initWithNearAuth,
   NearAuthData,
-  signInWithNear
-} from '../lib/auth/near-auth';
+  signInWithNear,
+} from "../lib/auth/near-auth";
 
 interface NearAuthState {
   // State
@@ -38,7 +38,7 @@ export const useNearAuth = create<NearAuthState>()(
        */
       authorize: async (wallet, accountId) => {
         if (!wallet || !accountId) {
-          set({ error: 'Wallet and account ID are required' });
+          set({ error: "Wallet and account ID are required" });
           return false;
         }
 
@@ -50,29 +50,37 @@ export const useNearAuth = create<NearAuthState>()(
 
           // Sign the message with the wallet
           const authData: NearAuthData = await signInWithNear(wallet, message);
-          
+
           // Store auth data in the store
           set({ authData });
 
           // Initialize with the proxy API
-          const returnUrl = window.location.origin + '/manage';
+          const returnUrl = window.location.origin + "/manage";
           const response = await initWithNearAuth(authData, returnUrl);
 
           // Check if the response indicates success
-          if (response && (response.success || (response.data && response.data.success))) {
+          if (
+            response &&
+            (response.success || (response.data && response.data.success))
+          ) {
             set({
               isAuthorized: true,
-              isAuthorizing: false
+              isAuthorizing: false,
             });
             return true;
           } else {
-            throw new Error((response.error || response.data?.error) || 'Authorization failed');
+            throw new Error(
+              response.error || response.data?.error || "Authorization failed",
+            );
           }
         } catch (error) {
-          console.error('App authorization error:', error);
+          console.error("App authorization error:", error);
           set({
             isAuthorizing: false,
-            error: error instanceof Error ? error.message : 'Unknown error during authorization',
+            error:
+              error instanceof Error
+                ? error.message
+                : "Unknown error during authorization",
           });
           return false;
         }
@@ -85,7 +93,7 @@ export const useNearAuth = create<NearAuthState>()(
       setAuthData: (authData) => {
         set({ authData });
       },
-      
+
       /**
        * Set the authorization status
        * This function is used to directly update the isAuthorized state
@@ -108,7 +116,7 @@ export const useNearAuth = create<NearAuthState>()(
       },
     }),
     {
-      name: 'near-auth-storage',
+      name: "near-auth-storage",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         isAuthorized: state.isAuthorized,
@@ -118,6 +126,6 @@ export const useNearAuth = create<NearAuthState>()(
         ...currentState,
         ...(persistedState as NearAuthState),
       }),
-    }
-  )
+    },
+  ),
 );

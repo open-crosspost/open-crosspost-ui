@@ -19,7 +19,7 @@ interface ToasterToast {
   action?: ToastActionElement;
   // Include other relevant props from ToastProps manually if needed for the hook's logic
   // For example:
-  variant?: ToastProps['variant'];
+  variant?: ToastProps["variant"];
   // Add other props from ToastProps that useToast might set or use
 }
 
@@ -30,7 +30,13 @@ export function Toaster() {
 
   return (
     <ToastProvider>
-      {toasts.map(function ({ id, title, description, action, ...props }: ToasterToast) {
+      {toasts.map(function ({
+        id,
+        title,
+        description,
+        action,
+        ...props
+      }: ToasterToast) {
         return (
           <Toast key={id} {...props}>
             <div className="grid gap-1">

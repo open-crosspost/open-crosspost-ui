@@ -50,7 +50,7 @@ export function PostEditorCore({
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   // Handle drag end for sortable posts
@@ -59,7 +59,7 @@ export function PostEditorCore({
     if (over && active.id !== over.id) {
       const oldIndex = parseInt(active.id.split("-")[1]);
       const newIndex = parseInt(over.id.split("-")[1]);
-      
+
       const newPosts = arrayMove(posts, oldIndex, newIndex);
       onPostsChange(newPosts);
     }
@@ -89,11 +89,7 @@ export function PostEditorCore({
           ))}
         </SortableContext>
       </DndContext>
-      <Button 
-        onClick={onAddThread} 
-        className="w-full" 
-        size="sm"
-      >
+      <Button onClick={onAddThread} className="w-full" size="sm">
         + Add Post
       </Button>
     </div>

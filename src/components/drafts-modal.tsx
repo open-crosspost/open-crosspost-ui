@@ -17,7 +17,9 @@ interface DraftsModalProps {
   onSelect: (posts: PostContent[]) => void;
 }
 
-export function DraftsModal({ onSelect }: DraftsModalProps): React.ReactElement {
+export function DraftsModal({
+  onSelect,
+}: DraftsModalProps): React.ReactElement {
   const { drafts, isModalOpen, setModalOpen, deleteDraft } = useDraftsStore();
 
   return (
@@ -70,7 +72,6 @@ export function DraftsModal({ onSelect }: DraftsModalProps): React.ReactElement 
                               setModalOpen(false);
                             }}
                             size="sm"
-                            
                           >
                             Load
                           </Button>
@@ -78,7 +79,6 @@ export function DraftsModal({ onSelect }: DraftsModalProps): React.ReactElement 
                             onClick={() => deleteDraft(draft.id)}
                             variant="destructive"
                             size="sm"
-                            
                           >
                             Delete
                           </Button>

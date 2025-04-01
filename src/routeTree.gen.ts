@@ -10,93 +10,93 @@
 
 // Import Routes
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as LayoutImport } from './routes/_layout'
-import { Route as LayoutIndexImport } from './routes/_layout/index'
-import { Route as LayoutManageIndexImport } from './routes/_layout/manage/index'
-import { Route as LayoutLeaderboardIndexImport } from './routes/_layout/leaderboard/index'
-import { Route as LayoutEditorIndexImport } from './routes/_layout/editor/index'
+import { Route as rootRoute } from "./routes/__root";
+import { Route as LayoutImport } from "./routes/_layout";
+import { Route as LayoutIndexImport } from "./routes/_layout/index";
+import { Route as LayoutManageIndexImport } from "./routes/_layout/manage/index";
+import { Route as LayoutLeaderboardIndexImport } from "./routes/_layout/leaderboard/index";
+import { Route as LayoutEditorIndexImport } from "./routes/_layout/editor/index";
 
 // Create/Update Routes
 
 const LayoutRoute = LayoutImport.update({
-  id: '/_layout',
+  id: "/_layout",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const LayoutIndexRoute = LayoutIndexImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => LayoutRoute,
-} as any)
+} as any);
 
 const LayoutManageIndexRoute = LayoutManageIndexImport.update({
-  id: '/manage/',
-  path: '/manage/',
+  id: "/manage/",
+  path: "/manage/",
   getParentRoute: () => LayoutRoute,
-} as any)
+} as any);
 
 const LayoutLeaderboardIndexRoute = LayoutLeaderboardIndexImport.update({
-  id: '/leaderboard/',
-  path: '/leaderboard/',
+  id: "/leaderboard/",
+  path: "/leaderboard/",
   getParentRoute: () => LayoutRoute,
-} as any)
+} as any);
 
 const LayoutEditorIndexRoute = LayoutEditorIndexImport.update({
-  id: '/editor/',
-  path: '/editor/',
+  id: "/editor/",
+  path: "/editor/",
   getParentRoute: () => LayoutRoute,
-} as any)
+} as any);
 
 // Populate the FileRoutesByPath interface
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/_layout': {
-      id: '/_layout'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof LayoutImport
-      parentRoute: typeof rootRoute
-    }
-    '/_layout/': {
-      id: '/_layout/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof LayoutIndexImport
-      parentRoute: typeof LayoutImport
-    }
-    '/_layout/editor/': {
-      id: '/_layout/editor/'
-      path: '/editor'
-      fullPath: '/editor'
-      preLoaderRoute: typeof LayoutEditorIndexImport
-      parentRoute: typeof LayoutImport
-    }
-    '/_layout/leaderboard/': {
-      id: '/_layout/leaderboard/'
-      path: '/leaderboard'
-      fullPath: '/leaderboard'
-      preLoaderRoute: typeof LayoutLeaderboardIndexImport
-      parentRoute: typeof LayoutImport
-    }
-    '/_layout/manage/': {
-      id: '/_layout/manage/'
-      path: '/manage'
-      fullPath: '/manage'
-      preLoaderRoute: typeof LayoutManageIndexImport
-      parentRoute: typeof LayoutImport
-    }
+    "/_layout": {
+      id: "/_layout";
+      path: "";
+      fullPath: "";
+      preLoaderRoute: typeof LayoutImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/_layout/": {
+      id: "/_layout/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof LayoutIndexImport;
+      parentRoute: typeof LayoutImport;
+    };
+    "/_layout/editor/": {
+      id: "/_layout/editor/";
+      path: "/editor";
+      fullPath: "/editor";
+      preLoaderRoute: typeof LayoutEditorIndexImport;
+      parentRoute: typeof LayoutImport;
+    };
+    "/_layout/leaderboard/": {
+      id: "/_layout/leaderboard/";
+      path: "/leaderboard";
+      fullPath: "/leaderboard";
+      preLoaderRoute: typeof LayoutLeaderboardIndexImport;
+      parentRoute: typeof LayoutImport;
+    };
+    "/_layout/manage/": {
+      id: "/_layout/manage/";
+      path: "/manage";
+      fullPath: "/manage";
+      preLoaderRoute: typeof LayoutManageIndexImport;
+      parentRoute: typeof LayoutImport;
+    };
   }
 }
 
 // Create and export the route tree
 
 interface LayoutRouteChildren {
-  LayoutIndexRoute: typeof LayoutIndexRoute
-  LayoutEditorIndexRoute: typeof LayoutEditorIndexRoute
-  LayoutLeaderboardIndexRoute: typeof LayoutLeaderboardIndexRoute
-  LayoutManageIndexRoute: typeof LayoutManageIndexRoute
+  LayoutIndexRoute: typeof LayoutIndexRoute;
+  LayoutEditorIndexRoute: typeof LayoutEditorIndexRoute;
+  LayoutLeaderboardIndexRoute: typeof LayoutLeaderboardIndexRoute;
+  LayoutManageIndexRoute: typeof LayoutManageIndexRoute;
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
@@ -104,61 +104,61 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutEditorIndexRoute: LayoutEditorIndexRoute,
   LayoutLeaderboardIndexRoute: LayoutLeaderboardIndexRoute,
   LayoutManageIndexRoute: LayoutManageIndexRoute,
-}
+};
 
 const LayoutRouteWithChildren =
-  LayoutRoute._addFileChildren(LayoutRouteChildren)
+  LayoutRoute._addFileChildren(LayoutRouteChildren);
 
 export interface FileRoutesByFullPath {
-  '': typeof LayoutRouteWithChildren
-  '/': typeof LayoutIndexRoute
-  '/editor': typeof LayoutEditorIndexRoute
-  '/leaderboard': typeof LayoutLeaderboardIndexRoute
-  '/manage': typeof LayoutManageIndexRoute
+  "": typeof LayoutRouteWithChildren;
+  "/": typeof LayoutIndexRoute;
+  "/editor": typeof LayoutEditorIndexRoute;
+  "/leaderboard": typeof LayoutLeaderboardIndexRoute;
+  "/manage": typeof LayoutManageIndexRoute;
 }
 
 export interface FileRoutesByTo {
-  '/': typeof LayoutIndexRoute
-  '/editor': typeof LayoutEditorIndexRoute
-  '/leaderboard': typeof LayoutLeaderboardIndexRoute
-  '/manage': typeof LayoutManageIndexRoute
+  "/": typeof LayoutIndexRoute;
+  "/editor": typeof LayoutEditorIndexRoute;
+  "/leaderboard": typeof LayoutLeaderboardIndexRoute;
+  "/manage": typeof LayoutManageIndexRoute;
 }
 
 export interface FileRoutesById {
-  __root__: typeof rootRoute
-  '/_layout': typeof LayoutRouteWithChildren
-  '/_layout/': typeof LayoutIndexRoute
-  '/_layout/editor/': typeof LayoutEditorIndexRoute
-  '/_layout/leaderboard/': typeof LayoutLeaderboardIndexRoute
-  '/_layout/manage/': typeof LayoutManageIndexRoute
+  __root__: typeof rootRoute;
+  "/_layout": typeof LayoutRouteWithChildren;
+  "/_layout/": typeof LayoutIndexRoute;
+  "/_layout/editor/": typeof LayoutEditorIndexRoute;
+  "/_layout/leaderboard/": typeof LayoutLeaderboardIndexRoute;
+  "/_layout/manage/": typeof LayoutManageIndexRoute;
 }
 
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/' | '/editor' | '/leaderboard' | '/manage'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/editor' | '/leaderboard' | '/manage'
+  fileRoutesByFullPath: FileRoutesByFullPath;
+  fullPaths: "" | "/" | "/editor" | "/leaderboard" | "/manage";
+  fileRoutesByTo: FileRoutesByTo;
+  to: "/" | "/editor" | "/leaderboard" | "/manage";
   id:
-    | '__root__'
-    | '/_layout'
-    | '/_layout/'
-    | '/_layout/editor/'
-    | '/_layout/leaderboard/'
-    | '/_layout/manage/'
-  fileRoutesById: FileRoutesById
+    | "__root__"
+    | "/_layout"
+    | "/_layout/"
+    | "/_layout/editor/"
+    | "/_layout/leaderboard/"
+    | "/_layout/manage/";
+  fileRoutesById: FileRoutesById;
 }
 
 export interface RootRouteChildren {
-  LayoutRoute: typeof LayoutRouteWithChildren
+  LayoutRoute: typeof LayoutRouteWithChildren;
 }
 
 const rootRouteChildren: RootRouteChildren = {
   LayoutRoute: LayoutRouteWithChildren,
-}
+};
 
 export const routeTree = rootRoute
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
 
 /* ROUTE_MANIFEST_START
 {

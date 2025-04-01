@@ -11,9 +11,9 @@ export function requireAuthorization() {
   // If not authorized, redirect to home with auth required parameter
   if (!isAuthorized) {
     throw redirect({
-      to: "/"
+      to: "/",
     });
   }
-  
+
   return true;
 }

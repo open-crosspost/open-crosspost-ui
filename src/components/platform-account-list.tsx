@@ -49,8 +49,8 @@ export function PlatformAccountList({
                 Connect your {platform} accounts to start crossposting
               </p>
               <div className="mt-6">
-                <ConnectPlatform 
-                  platform={platform} 
+                <ConnectPlatform
+                  platform={platform}
                   size="default"
                   showIcon={true}
                 />

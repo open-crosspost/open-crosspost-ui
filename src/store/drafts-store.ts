@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 export interface PostMedia {
   data: string; // Base64 encoded data or URL
@@ -40,7 +40,7 @@ export const useDraftsStore = create<DraftsState>()(
       drafts: [],
       isModalOpen: false,
       autosave: null,
-      
+
       addDraft: (posts) => {
         const newDraft: Draft = {
           id: crypto.randomUUID(),
@@ -48,11 +48,11 @@ export const useDraftsStore = create<DraftsState>()(
           updatedAt: new Date().toISOString(),
           posts,
         };
-        
+
         set((state) => ({
           drafts: [newDraft, ...state.drafts],
         }));
-        
+
         return newDraft.id;
       },
 
@@ -63,14 +63,14 @@ export const useDraftsStore = create<DraftsState>()(
           updatedAt: new Date().toISOString(),
           posts,
         };
-        
+
         set((state) => ({
           drafts: [newDraft, ...state.drafts],
         }));
-        
+
         return newDraft.id;
       },
-      
+
       updateDraft: (id, posts) => {
         set((state) => ({
           drafts: state.drafts.map((draft) =>
@@ -80,17 +80,17 @@ export const useDraftsStore = create<DraftsState>()(
                   posts,
                   updatedAt: new Date().toISOString(),
                 }
-              : draft
+              : draft,
           ),
         }));
       },
-      
+
       deleteDraft: (id) => {
         set((state) => ({
           drafts: state.drafts.filter((draft) => draft.id !== id),
         }));
       },
-      
+
       setModalOpen: (isOpen) => {
         set({ isModalOpen: isOpen });
       },
@@ -104,8 +104,8 @@ export const useDraftsStore = create<DraftsState>()(
       },
     }),
     {
-      name: 'crosspost-drafts',
+      name: "crosspost-drafts",
       storage: createJSONStorage(() => localStorage), // Use localStorage for persistence across browser sessions
-    }
-  )
+    },
+  ),
 );

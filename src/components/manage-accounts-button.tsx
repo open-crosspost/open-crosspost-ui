@@ -8,7 +8,7 @@ import { useRequireAuth } from "@/lib/auth/require-auth";
 export function ManageAccountsButton(): React.ReactElement {
   const navigate = useNavigate();
   const { requireAuth, AuthModal } = useRequireAuth();
-  
+
   const handleClick = useCallback(() => {
     requireAuth(() => {
       navigate({ to: "/manage" });
@@ -17,14 +17,11 @@ export function ManageAccountsButton(): React.ReactElement {
 
   return (
     <>
-      <Button 
-        onClick={handleClick}
-        className="text-sm sm:text-base"
-      >
+      <Button onClick={handleClick} className="text-sm sm:text-base">
         <Users size={18} className="mr-2" />
         <span className="sm:inline">Manage Accounts</span>
       </Button>
-      
+
       {/* Auth Modal - will only show when needed */}
       {AuthModal}
     </>

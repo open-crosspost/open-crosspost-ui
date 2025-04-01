@@ -30,6 +30,7 @@ const toastVariants = cva(
         default: "bg-white text-foreground", // Assuming 'foreground' is defined in Tailwind config
         destructive:
           "destructive group border-destructive bg-destructive text-destructive-foreground",
+        success: "success group border-green-600 bg-green-100 text-green-800",
       },
     },
     defaultVariants: {
@@ -63,7 +64,7 @@ const ToastAction = React.forwardRef<
   <ToastPrimitives.Action
     ref={ref}
     className={cn(
-      "inline-flex h-8 shrink-0 items-center justify-center px-3 text-sm font-medium transition-colors focus:outline-none disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:bg-destructive group-[.destructive]:text-destructive-foreground base-component base-component-hover",
+      "inline-flex h-8 shrink-0 items-center justify-center px-3 text-sm font-medium transition-colors focus:outline-none disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:bg-destructive group-[.destructive]:text-destructive-foreground group-[.success]:bg-green-600 group-[.success]:text-white base-component base-component-hover",
       className,
     )}
     {...props}

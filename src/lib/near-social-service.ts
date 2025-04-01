@@ -38,8 +38,8 @@ export class NearSocialService {
           username: profile?.name || accountId,
           profileImageUrl,
           platform: "Near Social",
-          lastUpdated: Date.now()
-        }
+          lastUpdated: Date.now(),
+        },
       };
     } catch (error) {
       console.error("Error getting NEAR account profile:", error);
@@ -53,7 +53,7 @@ export class NearSocialService {
    * @returns Promise resolving to the transaction object
    */
   async createPost(
-    posts: PostContent[]
+    posts: PostContent[],
   ): Promise<{ contractId: string; actions: any[] } | null> {
     if (!this.wallet) throw new Error("Wallet not connected");
 

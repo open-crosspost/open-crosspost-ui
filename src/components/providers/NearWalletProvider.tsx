@@ -1,8 +1,6 @@
 import { setupMeteorWallet } from "@near-wallet-selector/meteor-wallet";
 import { setupMyNearWallet } from "@near-wallet-selector/my-near-wallet";
-import {
-  WalletSelectorProvider
-} from "@near-wallet-selector/react-hook";
+import { WalletSelectorProvider } from "@near-wallet-selector/react-hook";
 import React, { ReactNode } from "react";
 import { NETWORK_ID } from "../../config";
 

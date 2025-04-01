@@ -104,7 +104,7 @@ function LeaderboardPage() {
           pagination.pageSize,
           pagination.pageIndex * pagination.pageSize,
           timeframe,
-          platform
+          platform,
         );
 
         if (response.success && response.data) {
@@ -128,7 +128,9 @@ function LeaderboardPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">NEAR Account Posting Leaderboard</h1>
+      <h1 className="text-2xl font-bold mb-6">
+        NEAR Account Posting Leaderboard
+      </h1>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-6">
@@ -193,7 +195,7 @@ function LeaderboardPage() {
                         <div className="flex items-center gap-1">
                           {flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                           {header.column.getIsSorted() === "asc" ? (
                             <span>▲</span>
@@ -217,7 +219,7 @@ function LeaderboardPage() {
                         >
                           {flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )}
                         </td>
                       ))}
