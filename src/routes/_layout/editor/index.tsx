@@ -1,23 +1,22 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import React, { useState, useEffect, useCallback } from "react";
 import { useWalletSelector } from "@near-wallet-selector/react-hook";
-import { useNearAuth } from "../../../store/near-auth-store";
-import { useSelectedAccounts } from "../../../store/platform-accounts-store";
-import { useDraftsStore, PostContent } from "../../../store/drafts-store";
-import { apiClient } from "../../../lib/api-client";
-import { SupportedPlatform } from "../../../config";
-import { NearSocialService } from "../../../lib/near-social-service";
-import { Button } from "../../../components/ui/button";
+import { createFileRoute } from "@tanstack/react-router";
+import React, { useCallback, useEffect, useState } from "react";
 import { DraftsModal } from "../../../components/drafts-modal";
 import { PlatformAccountsSelector } from "../../../components/platform-accounts-selector";
-import { toast } from "../../../hooks/use-toast";
-import { requireAuthorization } from "../../../lib/auth/route-guards";
+import {
+  EditorPost,
+  PostEditorCore,
+} from "../../../components/post-editor-core";
+import { Button } from "../../../components/ui/button";
+import { SupportedPlatform } from "../../../config";
 import { usePostManagement } from "../../../hooks/use-post-management";
 import { usePostMedia } from "../../../hooks/use-post-media";
-import {
-  PostEditorCore,
-  EditorPost,
-} from "../../../components/post-editor-core";
+import { toast } from "../../../hooks/use-toast";
+import { apiClient } from "../../../lib/api-client";
+import { requireAuthorization } from "../../../lib/auth/route-guards";
+import { NearSocialService } from "../../../lib/near-social-service";
+import { PostContent, useDraftsStore } from "../../../store/drafts-store";
+import { useSelectedAccounts } from "../../../store/platform-accounts-store";
 
 export const Route = createFileRoute("/_layout/editor/")({
   beforeLoad: () => {
@@ -28,9 +27,7 @@ export const Route = createFileRoute("/_layout/editor/")({
 });
 
 function EditorPage() {
-  const navigate = useNavigate();
-  const { signedAccountId } = useWalletSelector();
-  const { isAuthorized } = useNearAuth();
+  const { wallet } = useWalletSelector();
   const selectedAccounts = useSelectedAccounts();
   const {
     addDraft,
@@ -47,7 +44,6 @@ function EditorPage() {
   ]);
   const [isPosting, setIsPosting] = useState(false);
 
-  // Custom hooks
   const { handleMediaUpload, removeMedia } = usePostMedia(
     setPosts as any,
     toast,
@@ -129,13 +125,13 @@ function EditorPage() {
 
       // Separate NEAR Social accounts from other platform accounts
       const nearSocialAccounts = selectedAccounts.filter(
-        (account: { platform: SupportedPlatform }) => 
-          account.platform === "Near Social"
+        (account: { platform: SupportedPlatform }) =>
+          account.platform === "Near Social",
       );
-      
+
       const otherAccounts = selectedAccounts.filter(
-        (account: { platform: SupportedPlatform }) => 
-          account.platform !== "Near Social"
+        (account: { platform: SupportedPlatform }) =>
+          account.platform !== "Near Social",
       );
 
       let nearSocialSuccess = true;
@@ -146,11 +142,27 @@ function EditorPage() {
       // Post to NEAR Social if there are NEAR Social accounts
       if (nearSocialAccounts.length > 0) {
         try {
-          const { wallet } = useWalletSelector();
-          
           if (wallet) {
             const nearSocialService = new NearSocialService(wallet);
-            await nearSocialService.createPost(postContents);
+            const transaction = await nearSocialService.createPost(postContents);
+
+            if (!transaction) {
+              throw new Error("Failed to create post transaction");
+            }
+
+            try {
+              await wallet.signAndSendTransactions({
+                transactions: [
+                  {
+                    receiverId: transaction.contractId,
+                    actions: transaction.actions,
+                  },
+                ],
+              });
+            } catch (error) {
+              console.error("Error signing transaction:", error);
+              throw error;
+            }
           }
         } catch (error) {
           nearSocialSuccess = false;
@@ -173,10 +185,12 @@ function EditorPage() {
           };
 
           const response = await apiClient.createPost(postRequest);
-          
+
           if (!response.success) {
             apiSuccess = false;
-            apiError = new Error(response.error || "Failed to publish post to other platforms");
+            apiError = new Error(
+              response.error || "Failed to publish post to other platforms",
+            );
           }
         } catch (error) {
           apiSuccess = false;
@@ -189,9 +203,10 @@ function EditorPage() {
       if (nearSocialSuccess && apiSuccess) {
         toast({
           title: "Success",
-          description: "Your post has been published successfully to all platforms",
+          description:
+            "Your post has been published successfully to all platforms",
         });
-        
+
         // Clear form
         setPosts([{ text: "", mediaId: null, mediaPreview: null }]);
         clearAutoSave();
@@ -206,10 +221,11 @@ function EditorPage() {
         // Only NEAR Social failed
         toast({
           title: "Partial Success",
-          description: "Post published to other platforms, but NEAR Social posting failed",
+          description:
+            "Post published to other platforms, but NEAR Social posting failed",
           variant: "destructive",
         });
-        
+
         // Clear form since we had partial success
         setPosts([{ text: "", mediaId: null, mediaPreview: null }]);
         clearAutoSave();
@@ -217,10 +233,11 @@ function EditorPage() {
         // Only API failed
         toast({
           title: "Partial Success",
-          description: "Post published to NEAR Social, but other platforms failed",
+          description:
+            "Post published to NEAR Social, but other platforms failed",
           variant: "destructive",
         });
-        
+
         // Clear form since we had partial success
         setPosts([{ text: "", mediaId: null, mediaPreview: null }]);
         clearAutoSave();

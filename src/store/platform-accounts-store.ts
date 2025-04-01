@@ -6,6 +6,7 @@ import { PlatformAccount } from '../lib/api-types';
 import { SupportedPlatform } from '../config';
 import { useWalletSelector } from '@near-wallet-selector/react-hook';
 import { NearSocialService } from '../lib/near-social-service';
+import { useNearAuth } from './near-auth-store';
 
 // Store for managing platform accounts
 interface PlatformAccountsState {
@@ -47,6 +48,9 @@ export const usePlatformAccountsStore = create<PlatformAccountsState>()(
 
 // Fetch all connected accounts
 export function useConnectedAccounts() {
+  const { signedAccountId } = useWalletSelector();
+  const { isAuthorized } = useNearAuth();
+
   return useQuery({
     queryKey: ['connectedAccounts'],
     queryFn: async () => {
@@ -56,6 +60,7 @@ export function useConnectedAccounts() {
       }
       return response.data || [];
     },
+    enabled: (!!signedAccountId) && isAuthorized
   });
 }
 
@@ -159,7 +164,6 @@ export function useNearAccount() {
       try {
         const nearSocialService = new NearSocialService(wallet);
         const account = await nearSocialService.getCurrentAccountProfile();
-        console.log("accounttttt", account);
         return account;
       } catch (error) {
         console.error("Error fetching NEAR account:", error);

@@ -1,21 +1,14 @@
-import * as React from "react";
-import { useWalletSelector } from "@near-wallet-selector/react-hook";
-import { motion } from "framer-motion";
-import { PenSquare } from "lucide-react";
+import { useNearAuth } from "@/store/near-auth-store";
 import { Link } from "@tanstack/react-router";
+import { motion } from "framer-motion";
+import { PenSquare, Trophy } from "lucide-react";
+import * as React from "react";
 import { ConnectToNearButton } from "./connect-to-near";
 import { ManageAccountsButton } from "./manage-accounts-button";
 import { Button } from "./ui/button";
-import { Trophy } from "lucide-react";
 
 export const WindowControls: React.FC = () => {
-  // const [isOpen, setIsOpen] = useState(false);
-  // const router = useRouter();
-  // const { accountId, signOut } = useNearSocialStore();
-  const { signedAccountId } = useWalletSelector();
-  // const menuItems = [
-  //   { label: "Home", path: "/" },
-  // ];
+  const { isAuthorized } = useNearAuth();
 
   return (
     <div className="relative border-b-2 border-gray-800 p-4 sm:p-6">
@@ -28,11 +21,11 @@ export const WindowControls: React.FC = () => {
         </Link>
         <div className="flex flex-col items-center gap-4 sm:flex-row">
           <ConnectToNearButton />
-          {signedAccountId && (
+          {isAuthorized && (
             <>
               <ManageAccountsButton />
               <Link to="/leaderboard">
-                <Button size="sm" className="flex items-center gap-2">
+                <Button className="flex items-center gap-2">
                   <Trophy size={16} />
                   Leaderboard
                 </Button>
@@ -41,47 +34,6 @@ export const WindowControls: React.FC = () => {
           )}
         </div>
       </div>
-      {/* <div className="flex items-center justify-end">
-        <div
-          className="mx-4 my-3 h-4 w-4 cursor-pointer rounded-full bg-black transition-opacity hover:opacity-80"
-          onClick={() => setIsOpen(!isOpen)}
-        />
-      </div>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="absolute right-4 top-8 z-50 w-48 border-2 border-gray-800 bg-white shadow-[2px_2px_0_rgba(0,0,0,1)]"
-          >
-            {menuItems.map((item) => (
-              <button
-                key={item.path}
-                className="w-full px-4 py-2 text-left font-mono transition-colors hover:bg-gray-100"
-                onClick={() => {
-                  router.push(item.path);
-                  setIsOpen(false);
-                }}
-              >
-                {item.label}
-              </button>
-            ))}
-            {accountId ? (
-              <button
-                key="logout"
-                className="w-full px-4 py-2 text-left font-mono transition-colors hover:bg-gray-100"
-                onClick={() => {
-                  signOut();
-                  setIsOpen(false);
-                }}
-              >
-                Logout
-              </button>
-            ) : null}
-          </motion.div>
-        )}
-      </AnimatePresence> */}
     </div>
   );
 };
