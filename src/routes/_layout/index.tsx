@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_layout/")({
   beforeLoad: ({ context }) => {
     // Get auth state from the store
     const { isAuthorized } = useNearAuth.getState();
-    
+
     // If user is authorized, redirect to editor by default
     if (isAuthorized) {
       return redirect({ to: "/editor" });
@@ -29,7 +29,7 @@ function HomePage() {
   const { isAuthorized } = useNearAuth();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const { data: connectedAccounts = [], isLoading } = useConnectedAccounts();
-  
+
   // Redirect to editor if authorized and has connected accounts
   useEffect(() => {
     if (isAuthorized) {

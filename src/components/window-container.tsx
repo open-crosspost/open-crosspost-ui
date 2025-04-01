@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { PenSquare, Trophy } from "lucide-react";
 import * as React from "react";
 import { ConnectToNearButton } from "./connect-to-near";
-import { ManageAccountsButton } from "./manage-accounts-button";
 import { Button } from "./ui/button";
 
 export const WindowControls: React.FC = () => {
@@ -23,7 +22,6 @@ export const WindowControls: React.FC = () => {
           <ConnectToNearButton />
           {isAuthorized && (
             <>
-              <ManageAccountsButton />
               <Link to="/leaderboard">
                 <Button className="flex items-center gap-2">
                   <Trophy size={16} />

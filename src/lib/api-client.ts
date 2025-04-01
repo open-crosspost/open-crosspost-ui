@@ -161,7 +161,7 @@ export class CrosspostApiClient {
     userId: string
   ): Promise<ApiResponse> {
     return this.request(
-      `/auth/${platform.toLowerCase()}/refresh`,
+      `/auth/${platform.toLowerCase()}/refresh-profile`,
       'POST',
       { userId }
     );
