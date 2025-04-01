@@ -64,14 +64,14 @@ function LeaderboardPage() {
       cell: (info) => {
         const timestamp = info.getValue();
         if (!timestamp) return "N/A";
-        
+
         const date = new Date(timestamp);
         return date.toLocaleString(undefined, {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
         });
       },
     }),
@@ -80,14 +80,14 @@ function LeaderboardPage() {
       cell: (info) => {
         const timestamp = info.getValue();
         if (!timestamp) return "N/A";
-        
+
         const date = new Date(timestamp);
         return date.toLocaleString(undefined, {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
         });
       },
     }),
@@ -129,14 +129,16 @@ function LeaderboardPage() {
           // or it might be directly in response.data
           const responseData = response.data as any;
           const leaderboardData = responseData.data || responseData;
-          
+
           // Transform the entries to include rank
           const entries = leaderboardData.entries || [];
-          const transformedEntries = entries.map((entry: any, index: number) => ({
-            ...entry,
-            rank: pagination.pageIndex * pagination.pageSize + index + 1,
-          }));
-          
+          const transformedEntries = entries.map(
+            (entry: any, index: number) => ({
+              ...entry,
+              rank: pagination.pageIndex * pagination.pageSize + index + 1,
+            }),
+          );
+
           setData(transformedEntries);
           setTotalEntries(leaderboardData.pagination?.total || entries.length);
         } else {

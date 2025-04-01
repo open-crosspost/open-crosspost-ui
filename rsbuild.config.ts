@@ -11,7 +11,7 @@ export default async () => {
   const profile = await getProfile(bosConfig.account);
   const image = getImageUrl(profile?.image);
   const metadataImage = getImageUrl(profile?.backgroundImage);
-  
+
   return defineConfig({
     html: {
       template: "./index.html",
@@ -36,10 +36,11 @@ export default async () => {
         index: "./src/index.tsx",
       },
       define: {
-        'process.env.OPEN_CROSSPOST_PROXY_API': process.env.NODE_ENV === 'production' 
-          ? JSON.stringify('https://open-crosspost-proxy.deno.dev')
-          : JSON.stringify(process.env.OPEN_CROSSPOST_PROXY_API)
-      }
+        "process.env.OPEN_CROSSPOST_PROXY_API":
+          process.env.NODE_ENV === "production"
+            ? JSON.stringify("https://open-crosspost-proxy.deno.dev")
+            : JSON.stringify(process.env.OPEN_CROSSPOST_PROXY_API),
+      },
     },
     server: {
       port: 5170,
