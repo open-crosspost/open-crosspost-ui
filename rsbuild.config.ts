@@ -10,7 +10,7 @@ import bosConfig from "./bos.config.json";
 export default async () => {
   const profile = await getProfile(bosConfig.account);
   const image = getImageUrl(profile?.image);
-  const metadataImage = getImageUrl(profile?.background);
+  const metadataImage = getImageUrl(profile?.backgroundImage);
 
   return defineConfig({
     html: {
