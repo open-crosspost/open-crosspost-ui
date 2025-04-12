@@ -8,7 +8,7 @@ export enum TimePeriod {
   WEEK = "week",
   MONTH = "month",
   YEAR = "year",
-  ALL_TIME = "all_time",
+  ALL_TIME = "all",
 }
 
 /**
