@@ -141,21 +141,20 @@ function LeaderboardPage() {
 
         // Get client and authenticate before making the request
         const client = getClient();
-        const authData = await authenticate(
-          wallet,
-          signedAccountId,
-          "getLeaderboard",
-        );
-        client.setAuthentication(authData);
+        // const authData = await authenticate(
+        //   wallet,
+        //   signedAccountId,
+        //   "getLeaderboard",
+        // );
+        // client.setAuthentication(authData);
 
-        const { data } = await client.activity.getLeaderboard({
+        const { entries } = await client.activity.getLeaderboard({
           limit: pagination.pageSize,
           offset: pagination.pageIndex * pagination.pageSize,
           timeframe: timeframe,
         });
 
         // Transform the entries to include rank
-        const entries = data.entries || [];
         const transformedEntries = entries.map((entry: any, index: number) => ({
           ...entry,
           rank: pagination.pageIndex * pagination.pageSize + index + 1,
