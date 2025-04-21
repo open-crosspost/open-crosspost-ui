@@ -5,6 +5,7 @@ import {
   AUTHORIZATION_EVENTS,
   authorizationEvents,
 } from "./authorization-events";
+import { toast } from "../hooks/use-toast";
 
 let clientInstance: CrosspostClient | null = null;
 
@@ -69,6 +70,12 @@ export async function createAuthorizationPayload(
 export async function authorize(
   authorizationPayload: NearAuthData,
 ): Promise<boolean> {
+  toast({
+    title: "Authorizing...",
+    description: "that your wallet can call the server",
+    variant: "default",
+  });
+
   try {
     const client = getClient();
     // Note: Setting authentication here might be moved to the authentication-service later
@@ -82,8 +89,20 @@ export async function authorize(
     // Emit event
     authorizationEvents.emit(AUTHORIZATION_EVENTS.AUTHORIZED);
 
+    toast({
+      title: "Authorized",
+      variant: "success",
+    });
     return true;
   } catch (error) {
+    toast({
+      title: "Authorization Failed",
+      description:
+        error instanceof Error
+          ? error.message
+          : "Failed to authorize with the server",
+      variant: "destructive",
+    });
     console.error("Authorization error:", error);
     localStorage.removeItem("crosspost:authorized");
     authorizationEvents.emit(AUTHORIZATION_EVENTS.AUTHORIZATION_REVOKED);
@@ -98,22 +117,39 @@ export async function authorize(
  */
 // Add new unauthorize function
 export async function unauthorize(): Promise<void> {
+  toast({
+    title: "Revoking Authorization...",
+    description: "Removing your authorization from the server",
+    variant: "default",
+  });
+
   try {
     const client = getClient();
     // TODO: Check if client.unauthorizeNearAccount exists and call it
-    // await client.unauthorizeNearAccount(); // Assuming this method exists
+    // await client.unauthorizeNearAccount(); // TODO: expose method
 
     // Remove persisted state regardless of backend call success
     localStorage.removeItem("crosspost:authorized");
     // Emit event
     authorizationEvents.emit(AUTHORIZATION_EVENTS.AUTHORIZATION_REVOKED);
 
-    console.log("App unauthorized.");
+    toast({
+      title: "Authorization Revoked",
+      description: "Successfully removed your authorization",
+      variant: "success",
+    });
   } catch (error) {
+    toast({
+      title: "Revocation Failed",
+      description:
+        error instanceof Error
+          ? error.message
+          : "Failed to revoke authorization",
+      variant: "destructive",
+    });
     console.error("Unauthorization error:", error);
     // Even if backend call fails, ensure local state is cleared
     localStorage.removeItem("crosspost:authorized");
     authorizationEvents.emit(AUTHORIZATION_EVENTS.AUTHORIZATION_REVOKED);
-    // Decide if this error should be surfaced to the user
   }
 }

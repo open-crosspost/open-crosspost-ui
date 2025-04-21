@@ -1,4 +1,5 @@
 import { generateNonce, NearAuthData } from "near-sign-verify";
+import { toast } from "../hooks/use-toast";
 
 /**
  * Creates the ephemeral authentication data needed for a specific API request.
@@ -23,6 +24,12 @@ export async function authenticate(
   const nonce = generateNonce();
   const recipient = "crosspost.near";
   const callbackUrl = location.href;
+
+  toast({
+    title: "Authenticating...",
+    description: "Please sign the message in your wallet",
+    variant: "default",
+  });
 
   const signedMessage = await wallet.signMessage({
     message,

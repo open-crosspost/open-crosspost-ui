@@ -180,6 +180,22 @@ function EditorPage() {
             content: postContents,
           };
 
+          // Show crossposting toast
+          const uniquePlatforms = new Set([
+            ...postRequest.targets.map((t) => t.platform),
+            ...(nearSocialAccounts.length > 0
+              ? ["Near Social" as PlatformName]
+              : []),
+          ]);
+          const totalAccounts =
+            postRequest.targets.length + nearSocialAccounts.length;
+
+          toast({
+            title: "Crossposting...",
+            description: `Publishing to ${uniquePlatforms.size} platform${uniquePlatforms.size > 1 ? "s" : ""} and ${totalAccounts} account${totalAccounts > 1 ? "s" : ""}`,
+            variant: "default",
+          });
+
           // Get client and authenticate before making the request
           const client = getClient();
           const authData = await authenticate(
