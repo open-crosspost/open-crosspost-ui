@@ -1,12 +1,17 @@
-import React from "react";
-import { SupportedPlatform } from "../config";
-import { Button } from "./ui/button";
+import { capitalize } from "@/lib/utils/string";
+import { Platform, PlatformName } from "@crosspost/types";
 import { Twitter } from "lucide-react";
-import { useConnectAccount } from "../store/platform-accounts-store";
-import { toast } from "../hooks/use-toast";
+import React from "react";
+import { usePopupWindow } from "../hooks/use-popup-window";
+import { useToast } from "../hooks/use-toast";
+import {
+  useConnectAccount,
+  useConnectedAccounts,
+} from "../store/platform-accounts-store";
+import { Button } from "./ui/button";
 
 interface ConnectPlatformProps {
-  platform: SupportedPlatform;
+  platform: PlatformName;
   className?: string;
   variant?:
     | "default"
@@ -27,22 +32,68 @@ export function ConnectPlatform({
   showIcon = true,
 }: ConnectPlatformProps) {
   const connectAccount = useConnectAccount();
+  const { refetch } = useConnectedAccounts();
+
+  interface AuthCallbackData {
+    userId: string;
+    error?: string;
+  }
+
+  const { toast, dismiss } = useToast();
+
+  const { openPopup } = usePopupWindow<AuthCallbackData>({
+    type: "AUTH_CALLBACK",
+    onSuccess: (data) => {
+      // Dismiss all toasts (including connecting toast)
+      dismiss();
+
+      // Add small delay before refetch to ensure backend is ready
+      setTimeout(() => {
+        refetch();
+      }, 500);
+
+      toast({
+        title: `${capitalize(platform)} Account Connected!`,
+        description: "Your account is now linked and ready to use.",
+        variant: "success",
+      });
+    },
+    onError: (error) => {
+      // Dismiss all toasts (including connecting toast)
+      dismiss();
+
+      toast({
+        title: "Connection Failed",
+        description:
+          error?.error ||
+          `Failed to connect ${capitalize(platform)} account. Please try again.`,
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleConnect = async () => {
+    toast({
+      title: `Connecting to ${capitalize(platform)}...`,
+      description: "Please follow the instructions in the popup window.",
+      duration: Infinity,
+    });
+
     try {
-      // Use the current URL as the return URL
-      const returnUrl = `${window.location.origin}/manage`;
-      await connectAccount.mutateAsync({
+      const authUrl = await connectAccount.mutateAsync({
         platform: platform as any,
-        returnUrl,
       });
+
+      openPopup(authUrl);
     } catch (error) {
+      dismiss();
+
       toast({
         title: "Connection Error",
         description:
           error instanceof Error
             ? error.message
-            : `Failed to connect ${platform} account`,
+            : `Failed to connect ${capitalize(platform)} account`,
         variant: "destructive",
       });
     }
@@ -58,7 +109,7 @@ export function ConnectPlatform({
     >
       {showIcon && (
         <>
-          {platform === "Twitter" ? (
+          {platform === Platform.TWITTER ? (
             <Twitter size={size === "sm" ? 18 : 24} />
           ) : (
             <svg
@@ -81,7 +132,7 @@ export function ConnectPlatform({
       )}
       {connectAccount.isPending
         ? "Connecting..."
-        : `Connect ${platform} Account`}
+        : `Connect ${capitalize(platform)} Account`}
     </Button>
   );
 }

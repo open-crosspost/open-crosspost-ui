@@ -1,29 +1,23 @@
-import { useCallback, useRef, useEffect } from "react";
+import { useCallback } from "react";
 import { PostContent } from "../store/drafts-store";
+import { useDebounce } from "../lib/utils/debounce";
 
 export function usePostManagement(
   posts: PostContent[],
   setPosts: React.Dispatch<React.SetStateAction<PostContent[]>>,
   saveAutoSave?: (posts: PostContent[]) => void,
 ) {
-  // Debounce timer reference
-  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Helper function to debounce auto-save
-  const debouncedSave = useCallback(
+  // Use the shared debounce utility
+  const saveCallback = useCallback(
     (postsToSave: PostContent[]) => {
-      if (!saveAutoSave) return;
-
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-
-      debounceTimerRef.current = setTimeout(() => {
+      if (saveAutoSave) {
         saveAutoSave(postsToSave);
-      }, 500); // 500ms debounce delay
+      }
     },
     [saveAutoSave],
   );
+
+  const { debouncedFn: debouncedSave, cleanup } = useDebounce(saveCallback);
 
   // Handle text change in a post with debouncing
   const handleTextChange = useCallback(
@@ -41,15 +35,6 @@ export function usePostManagement(
     },
     [setPosts, debouncedSave],
   );
-
-  // Clear the debounce timer on cleanup
-  useEffect(() => {
-    return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-    };
-  }, []);
 
   // Add a new thread post
   const addThread = useCallback(() => {
@@ -130,13 +115,6 @@ export function usePostManagement(
       ];
     });
   }, [setPosts]);
-
-  // Cleanup function to clear debounce timer
-  const cleanup = useCallback(() => {
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-  }, []);
 
   return {
     handleTextChange,

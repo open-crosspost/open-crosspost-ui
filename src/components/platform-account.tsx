@@ -1,7 +1,5 @@
 import { RefreshCw, Trash2 } from "lucide-react";
 import React, { useState } from "react";
-import { SupportedPlatform } from "../config";
-import { PlatformAccount as PlatformAccountType } from "../lib/api-types";
 import { ProfileCard } from "./profile-card";
 import { Button } from "./ui/button";
 import { toast } from "../hooks/use-toast";
@@ -10,10 +8,13 @@ import {
   useRefreshAccount,
   useCheckAccountStatus,
   usePlatformAccountsStore,
+  PlatformAccount,
 } from "../store/platform-accounts-store";
+import { PlatformName } from "@crosspost/types";
+import { capitalize } from "@/lib/utils/string";
 
 interface PlatformAccountProps {
-  account: PlatformAccountType;
+  account: PlatformAccount;
   isSelected: boolean;
 }
 
@@ -33,12 +34,12 @@ export function PlatformAccountItem({
     setIsRefreshing(true);
     try {
       await refreshAccount.mutateAsync({
-        platform: account.platform as SupportedPlatform,
-        userId: account.userId,
+        platform: account.platform as PlatformName,
+        userId: account.profile.userId,
       });
       await checkAccountStatus.mutateAsync({
-        platform: account.platform as SupportedPlatform,
-        userId: account.userId,
+        platform: account.platform as PlatformName,
+        userId: account.profile.userId,
       });
     } catch (error) {
       toast({
@@ -46,7 +47,7 @@ export function PlatformAccountItem({
         description:
           error instanceof Error
             ? error.message
-            : `Failed to refresh ${account.platform} account`,
+            : `Failed to refresh ${capitalize(account.platform)} account`,
         variant: "destructive",
       });
     } finally {
@@ -58,8 +59,8 @@ export function PlatformAccountItem({
     setIsDisconnecting(true);
     try {
       await disconnectAccount.mutateAsync({
-        platform: account.platform as SupportedPlatform,
-        userId: account.userId,
+        platform: account.platform as PlatformName,
+        userId: account.profile.userId,
       });
     } catch (error) {
       toast({
@@ -67,7 +68,7 @@ export function PlatformAccountItem({
         description:
           error instanceof Error
             ? error.message
-            : `Failed to disconnect ${account.platform} account`,
+            : `Failed to disconnect ${capitalize(account.platform)} account`,
         variant: "destructive",
       });
     } finally {
@@ -77,9 +78,9 @@ export function PlatformAccountItem({
 
   const handleSelect = () => {
     if (isSelected) {
-      unselectAccount(account.userId);
+      unselectAccount(account.profile.userId);
     } else {
-      selectAccount(account.userId);
+      selectAccount(account.profile.userId);
     }
   };
 

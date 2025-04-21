@@ -21,7 +21,6 @@ export const ReactQueryDevtools =
         })),
       );
 
-// Define the auth context interface
 export interface AuthContext {
   userId: string;
 }

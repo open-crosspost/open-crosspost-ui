@@ -92,13 +92,13 @@ export function PlatformAccountsSelector() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 w-full">
         {allAccounts.map((account) => (
           <div
-            key={account.userId}
+            key={account.profile.userId}
             className={`flex items-center p-3 sm:p-2 rounded-md cursor-pointer transition-colors touch-manipulation ${
-              selectedAccountIds.includes(account.userId)
+              selectedAccountIds.includes(account.profile.userId)
                 ? "bg-blue-50 border-2 border-blue-200"
                 : "border-2 border-gray-200 hover:bg-gray-50"
             }`}
-            onClick={() => handleAccountToggle(account.userId)}
+            onClick={() => handleAccountToggle(account.profile.userId)}
           >
             <div className="flex-grow">
               <ProfileCard account={account} size="sm" />
@@ -107,12 +107,12 @@ export function PlatformAccountsSelector() {
             <div className="flex-shrink-0 ml-2">
               <div
                 className={`w-6 h-6 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center ${
-                  selectedAccountIds.includes(account.userId)
+                  selectedAccountIds.includes(account.profile.userId)
                     ? "border-blue-500 bg-blue-500"
                     : "border-gray-300"
                 }`}
               >
-                {selectedAccountIds.includes(account.userId) && (
+                {selectedAccountIds.includes(account.profile.userId) && (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"

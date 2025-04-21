@@ -25,7 +25,6 @@ interface DraftsState {
   drafts: Draft[];
   isModalOpen: boolean;
   autosave: { posts: PostContent[] } | null;
-  addDraft: (posts: PostContent[]) => void;
   updateDraft: (id: string, posts: PostContent[]) => void;
   deleteDraft: (id: string) => void;
   setModalOpen: (isOpen: boolean) => void;
@@ -40,21 +39,6 @@ export const useDraftsStore = create<DraftsState>()(
       drafts: [],
       isModalOpen: false,
       autosave: null,
-
-      addDraft: (posts) => {
-        const newDraft: Draft = {
-          id: crypto.randomUUID(),
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          posts,
-        };
-
-        set((state) => ({
-          drafts: [newDraft, ...state.drafts],
-        }));
-
-        return newDraft.id;
-      },
 
       saveDraft: (posts) => {
         const newDraft: Draft = {

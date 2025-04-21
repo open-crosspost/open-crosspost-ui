@@ -1,3 +1,5 @@
+import { getErrorMessage } from "@crosspost/sdk";
+
 export type SocialImage = {
   url?: string;
   ipfs_cid?: string;
@@ -95,8 +97,8 @@ export async function uploadFileToIPFS(
     const data = await response.json();
     return data.cid;
   } catch (error) {
-    console.error("Error uploading file to IPFS:", error);
-    throw error;
+    console.error("Error uploading file to IPFS:", getErrorMessage(error));
+    throw new Error(getErrorMessage(error));
   }
 }
 
@@ -126,7 +128,7 @@ export async function getProfile(accountId: string): Promise<Profile | null> {
       return null;
     }
   } catch (error) {
-    console.error("Error fetching profile:", error);
+    console.error("Error fetching profile:", getErrorMessage(error));
     return null;
   }
 }

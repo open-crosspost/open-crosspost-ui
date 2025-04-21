@@ -1,8 +1,10 @@
 import { Social, transformActions } from "@builddao/near-social-js";
-import { NETWORK_ID, SupportedPlatform } from "../config";
-import { PlatformAccount, PostContent } from "./api-types";
-import { getImageUrl, getProfile, uploadFileToIPFS } from "./social";
-import { NearSocialClient, SOCIAL_CONTRACT } from "./near-social";
+import { getErrorMessage, isPlatformError } from "@crosspost/sdk";
+import { PlatformName, PostContent } from "@crosspost/types";
+import { NETWORK_ID } from "../config";
+import { PlatformAccount } from "../store/platform-accounts-store";
+import { SOCIAL_CONTRACT } from "./near-social";
+import { getImageUrl, getProfile } from "./social";
 
 export class NearSocialService {
   private wallet: any;
@@ -29,20 +31,20 @@ export class NearSocialService {
       const profileImageUrl = profile?.image ? getImageUrl(profile.image) : "";
 
       return {
-        platform: "Near Social" as SupportedPlatform,
-        userId: accountId,
-        username: profile?.name || accountId,
-        profileImageUrl,
+        platform: "Near Social" as PlatformName,
         profile: {
           userId: accountId,
           username: profile?.name || accountId,
           profileImageUrl,
-          platform: "Near Social",
+          platform: "Near Social" as PlatformName,
           lastUpdated: Date.now(),
         },
       };
     } catch (error) {
-      console.error("Error getting NEAR account profile:", error);
+      console.error(
+        "Error getting NEAR account profile:",
+        getErrorMessage(error),
+      );
       return null;
     }
   }
@@ -70,21 +72,6 @@ export class NearSocialService {
         type: "md",
         text: combinedText,
       };
-
-      console.log("posts", posts);
-
-      // Try to get media data if available
-      if (posts[0].media && posts[0].media[0].data) {
-        const mediaData: string = posts[0].media[0].data;
-        try {
-          const cid = await uploadFileToIPFS(mediaData);
-          console.log("uploaded", cid);
-          (content as any).image = { ipfs_cid: cid };
-        } catch (error) {
-          console.error("Error uploading image:", error);
-          // Continue with post creation even if image upload fails
-        }
-      }
 
       const nearSocialClient = new Social({
         contractId: SOCIAL_CONTRACT[NETWORK_ID],
@@ -121,8 +108,13 @@ export class NearSocialService {
         actions: transformedActions,
       };
     } catch (error) {
-      console.error("Error creating post:", error);
-      throw error;
+      console.error("Error creating post:", getErrorMessage(error));
+
+      if (isPlatformError(error)) {
+        throw error;
+      }
+
+      throw new Error(getErrorMessage(error));
     }
   }
 }

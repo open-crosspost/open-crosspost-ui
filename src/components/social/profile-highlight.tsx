@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { getImageUrl, getProfile } from "../../lib/social";
+import { useNavigate } from "@tanstack/react-router";
+import React from "react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
-import { useNavigate } from "@tanstack/react-router";
 import { Avatar } from "./avatar";
 
 interface ProfileHighlightProps {

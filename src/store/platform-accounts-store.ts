@@ -1,12 +1,19 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "../lib/api-client";
-import { PlatformAccount } from "../lib/api-types";
-import { SupportedPlatform } from "../config";
+import { getClient } from "../lib/authorization-service";
+import { authenticate } from "../lib/authentication-service";
 import { useWalletSelector } from "@near-wallet-selector/react-hook";
 import { NearSocialService } from "../lib/near-social-service";
-import { useNearAuth } from "./near-auth-store";
+import { Platform, PlatformName, UserProfile } from "@crosspost/types";
+import { getErrorMessage } from "@crosspost/sdk";
+import { useAuthorizationStatus } from "../hooks/use-authorization-status";
+
+// Define PlatformAccount interface locally
+export interface PlatformAccount {
+  platform: PlatformName;
+  profile: UserProfile;
+}
 
 // Store for managing platform accounts
 interface PlatformAccountsState {
@@ -50,44 +57,68 @@ export const usePlatformAccountsStore = create<PlatformAccountsState>()(
 
 // Fetch all connected accounts
 export function useConnectedAccounts() {
-  const { signedAccountId } = useWalletSelector();
-  const { isAuthorized } = useNearAuth();
+  const { wallet, signedAccountId } = useWalletSelector();
+  const isAuthorized = useAuthorizationStatus();
 
   return useQuery({
     queryKey: ["connectedAccounts"],
     queryFn: async () => {
-      const response = await apiClient.fetchConnectedAccounts();
-      if (!response.success) {
-        throw new Error(response.error || "Failed to fetch connected accounts");
+      // Ensure wallet and accountId are available
+      if (!wallet || !signedAccountId) {
+        throw new Error("Wallet not connected or account ID unavailable.");
       }
-      return response.data || [];
+      try {
+        const client = getClient();
+
+        const { accounts } = await client.auth.getConnectedAccounts();
+
+        return accounts as PlatformAccount[];
+      } catch (error) {
+        console.error(
+          "Failed to fetch connected accounts:",
+          getErrorMessage(error),
+        );
+        throw error;
+      }
     },
-    enabled: !!signedAccountId && isAuthorized,
+    enabled: !!signedAccountId && isAuthorized === true && !!wallet,
   });
 }
 
 // Connect a platform account
 export function useConnectAccount() {
   const queryClient = useQueryClient();
+  const { wallet, signedAccountId } = useWalletSelector();
 
   return useMutation({
-    mutationFn: async ({
-      platform,
-      returnUrl,
-    }: {
-      platform: SupportedPlatform;
-      returnUrl: string;
-    }) => {
-      const response = await apiClient.connectPlatformAccount(
-        platform,
-        returnUrl,
-      );
-      if (!response.success) {
-        throw new Error(
-          response.error || `Failed to connect ${platform} account`,
-        );
+    mutationFn: async ({ platform }: { platform: Platform }) => {
+      if (!wallet || !signedAccountId) {
+        throw new Error("Wallet not connected or account ID unavailable.");
       }
-      return response.data;
+      try {
+        const client = getClient();
+        const authData = await authenticate(
+          wallet,
+          signedAccountId,
+          `loginToPlatform:${platform}`,
+        );
+        client.setAuthentication(authData);
+        const { url } = await client.auth.loginToPlatform(
+          platform.toLowerCase() as any,
+        );
+
+        if (!url) {
+          throw new Error("No authentication URL received from server");
+        }
+
+        return url;
+      } catch (error) {
+        console.error(
+          `Failed to connect ${platform} account:`,
+          getErrorMessage(error),
+        );
+        throw error;
+      }
     },
     onSuccess: () => {
       // Invalidate the connected accounts query to trigger a refetch
@@ -99,25 +130,39 @@ export function useConnectAccount() {
 // Disconnect a platform account
 export function useDisconnectAccount() {
   const queryClient = useQueryClient();
+  const { wallet, signedAccountId } = useWalletSelector();
 
   return useMutation({
     mutationFn: async ({
       platform,
       userId,
     }: {
-      platform: SupportedPlatform;
+      platform: Platform;
       userId: string;
     }) => {
-      const response = await apiClient.disconnectPlatformAccount(
-        platform,
-        userId,
-      );
-      if (!response.success) {
+      if (!wallet || !signedAccountId) {
         throw new Error(
-          response.error || `Failed to disconnect ${platform} account`,
+          "Wallet not connected or account ID unavailable for disconnect.",
         );
       }
-      return userId;
+      try {
+        const client = getClient();
+        const authData = await authenticate(
+          wallet,
+          signedAccountId,
+          `revokeAuth:${platform}:${userId}`,
+        );
+        client.setAuthentication(authData);
+
+        await client.auth.revokeAuth(platform.toLowerCase() as any, userId);
+        return userId;
+      } catch (error) {
+        console.error(
+          `Failed to disconnect ${platform} account:`,
+          getErrorMessage(error),
+        );
+        throw error;
+      }
     },
     onSuccess: (userId) => {
       // Invalidate the connected accounts query to trigger a refetch
@@ -135,22 +180,39 @@ export function useDisconnectAccount() {
 // Refresh a platform account's token
 export function useRefreshAccount() {
   const queryClient = useQueryClient();
+  const { wallet, signedAccountId } = useWalletSelector();
 
   return useMutation({
     mutationFn: async ({
       platform,
       userId,
     }: {
-      platform: SupportedPlatform;
+      platform: Platform;
       userId: string;
     }) => {
-      const response = await apiClient.refreshPlatformAccount(platform, userId);
-      if (!response.success) {
+      if (!wallet || !signedAccountId) {
         throw new Error(
-          response.error || `Failed to refresh ${platform} account`,
+          "Wallet not connected or account ID unavailable for refresh.",
         );
       }
-      return userId;
+      try {
+        const client = getClient();
+        const authData = await authenticate(
+          wallet,
+          signedAccountId,
+          `refreshProfile:${platform}:${userId}`,
+        );
+        client.setAuthentication(authData);
+
+        await client.auth.refreshProfile(platform.toLowerCase() as any, userId);
+        return userId;
+      } catch (error) {
+        console.error(
+          `Failed to refresh ${platform} account:`,
+          getErrorMessage(error),
+        );
+        throw error;
+      }
     },
     onSuccess: () => {
       // Invalidate the connected accounts query to trigger a refetch
@@ -162,25 +224,42 @@ export function useRefreshAccount() {
 // Check a platform account's status
 export function useCheckAccountStatus() {
   const queryClient = useQueryClient();
+  const { wallet, signedAccountId } = useWalletSelector();
 
   return useMutation({
     mutationFn: async ({
       platform,
       userId,
     }: {
-      platform: SupportedPlatform;
+      platform: Platform;
       userId: string;
     }) => {
-      const response = await apiClient.checkPlatformAccountStatus(
-        platform,
-        userId,
-      );
-      if (!response.success) {
+      if (!wallet || !signedAccountId) {
         throw new Error(
-          response.error || `Failed to check ${platform} account status`,
+          "Wallet not connected or account ID unavailable for status check.",
         );
       }
-      return { userId, isConnected: response.data?.isConnected || false };
+      try {
+        const client = getClient();
+        // const authData = await authenticate(wallet, signedAccountId, `getAuthStatus:${platform}:${userId}`);
+        // client.setAuthentication(authData);
+
+        const { authenticated, tokenStatus } = await client.auth.getAuthStatus(
+          platform.toLowerCase() as any,
+          userId,
+        );
+
+        // Check if the account is authenticated based on the response
+        const isConnected = authenticated && tokenStatus.valid;
+
+        return { userId, isConnected };
+      } catch (error) {
+        console.error(
+          `Failed to check ${platform} account status:`,
+          getErrorMessage(error),
+        );
+        throw error;
+      }
     },
     onSuccess: (data) => {
       // Update the account in the cache
@@ -190,8 +269,14 @@ export function useCheckAccountStatus() {
           if (!oldData) return oldData;
 
           return oldData.map((account: PlatformAccount) =>
-            account.userId === data.userId
-              ? { ...account, isConnected: data.isConnected }
+            account.profile.userId === data.userId
+              ? {
+                  ...account,
+                  profile: {
+                    ...account.profile,
+                    lastUpdated: Date.now(),
+                  },
+                }
               : account,
           );
         },
@@ -209,8 +294,7 @@ export function useNearAccount() {
     queryFn: async () => {
       try {
         const nearSocialService = new NearSocialService(wallet);
-        const account = await nearSocialService.getCurrentAccountProfile();
-        return account;
+        return await nearSocialService.getCurrentAccountProfile();
       } catch (error) {
         console.error("Error fetching NEAR account:", error);
         return null;
@@ -236,6 +320,6 @@ export function useSelectedAccounts() {
 
   // Filter accounts to only include selected ones
   return allAccounts.filter((account: PlatformAccount) =>
-    selectedAccountIds.includes(account.userId),
+    selectedAccountIds.includes(account.profile.userId),
   );
 }
