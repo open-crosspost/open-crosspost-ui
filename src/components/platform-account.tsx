@@ -1,20 +1,19 @@
+import { capitalize } from "@/lib/utils/string";
+import { ConnectedAccount, PlatformName } from "@crosspost/types";
 import { RefreshCw, Trash2 } from "lucide-react";
 import React, { useState } from "react";
-import { ProfileCard } from "./profile-card";
-import { Button } from "./ui/button";
 import { toast } from "../hooks/use-toast";
 import {
-  useDisconnectAccount,
-  useRefreshAccount,
   useCheckAccountStatus,
+  useDisconnectAccount,
   usePlatformAccountsStore,
-  PlatformAccount,
+  useRefreshAccount
 } from "../store/platform-accounts-store";
-import { PlatformName } from "@crosspost/types";
-import { capitalize } from "@/lib/utils/string";
+import { ProfileCard } from "./profile-card";
+import { Button } from "./ui/button";
 
 interface PlatformAccountProps {
-  account: PlatformAccount;
+  account: ConnectedAccount;
   isSelected: boolean;
 }
 
@@ -35,11 +34,11 @@ export function PlatformAccountItem({
     try {
       await refreshAccount.mutateAsync({
         platform: account.platform as PlatformName,
-        userId: account.profile.userId,
+        userId: account.userId,
       });
       await checkAccountStatus.mutateAsync({
         platform: account.platform as PlatformName,
-        userId: account.profile.userId,
+        userId: account.userId,
       });
     } catch (error) {
       toast({
@@ -60,7 +59,7 @@ export function PlatformAccountItem({
     try {
       await disconnectAccount.mutateAsync({
         platform: account.platform as PlatformName,
-        userId: account.profile.userId,
+        userId: account.userId,
       });
     } catch (error) {
       toast({
@@ -78,9 +77,9 @@ export function PlatformAccountItem({
 
   const handleSelect = () => {
     if (isSelected) {
-      unselectAccount(account.profile.userId);
+      unselectAccount(account.userId);
     } else {
-      selectAccount(account.profile.userId);
+      selectAccount(account.userId);
     }
   };
 

@@ -1,19 +1,13 @@
-import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getClient } from "../lib/authorization-service";
-import { authenticate } from "../lib/authentication-service";
-import { useWalletSelector } from "@near-wallet-selector/react-hook";
-import { NearSocialService } from "../lib/near-social-service";
-import { Platform, PlatformName, UserProfile } from "@crosspost/types";
 import { getErrorMessage } from "@crosspost/sdk";
+import { ConnectedAccount, Platform } from "@crosspost/types";
+import { useWalletSelector } from "@near-wallet-selector/react-hook";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 import { useAuthorizationStatus } from "../hooks/use-authorization-status";
-
-// Define PlatformAccount interface locally
-export interface PlatformAccount {
-  platform: PlatformName;
-  profile: UserProfile;
-}
+import { authenticate } from "../lib/authentication-service";
+import { getClient } from "../lib/authorization-service";
+import { NearSocialService } from "../lib/near-social-service";
 
 // Store for managing platform accounts
 interface PlatformAccountsState {
@@ -71,8 +65,7 @@ export function useConnectedAccounts() {
         const client = getClient();
 
         const { accounts } = await client.auth.getConnectedAccounts();
-
-        return accounts as PlatformAccount[];
+        return accounts;
       } catch (error) {
         console.error(
           "Failed to fetch connected accounts:",
@@ -103,15 +96,7 @@ export function useConnectAccount() {
           `loginToPlatform:${platform}`,
         );
         client.setAuthentication(authData);
-        const { url } = await client.auth.loginToPlatform(
-          platform.toLowerCase() as any,
-        );
-
-        if (!url) {
-          throw new Error("No authentication URL received from server");
-        }
-
-        return url;
+        await client.auth.loginToPlatform(platform.toLowerCase() as any);
       } catch (error) {
         console.error(
           `Failed to connect ${platform} account:`,
@@ -265,17 +250,16 @@ export function useCheckAccountStatus() {
       // Update the account in the cache
       queryClient.setQueryData(
         ["connectedAccounts"],
-        (oldData: PlatformAccount[] | undefined) => {
+        (oldData: ConnectedAccount[] | undefined) => {
           if (!oldData) return oldData;
 
-          return oldData.map((account: PlatformAccount) =>
-            account.profile.userId === data.userId
+          return oldData.map((account: ConnectedAccount) =>
+            account.userId === data.userId
               ? {
                   ...account,
-                  profile: {
-                    ...account.profile,
-                    lastUpdated: Date.now(),
-                  },
+                  profile: account.profile 
+                    ? { ...account.profile, lastUpdated: Date.now() }
+                    : null
                 }
               : account,
           );
@@ -319,7 +303,7 @@ export function useSelectedAccounts() {
   );
 
   // Filter accounts to only include selected ones
-  return allAccounts.filter((account: PlatformAccount) =>
-    selectedAccountIds.includes(account.profile.userId),
+  return allAccounts.filter((account: ConnectedAccount) =>
+    selectedAccountIds.includes(account.userId),
   );
 }

@@ -2,12 +2,11 @@ import { RefreshCw, Twitter } from "lucide-react";
 import React from "react";
 import { PlatformAccountItem } from "./platform-account";
 import { ConnectPlatform } from "./connect-platform";
-import { Platform, PlatformName } from "@crosspost/types";
-import { PlatformAccount } from "../store/platform-accounts-store";
+import { ConnectedAccount, Platform, PlatformName } from "@crosspost/types";
 
 interface PlatformAccountListProps {
   platform: PlatformName;
-  accounts: PlatformAccount[];
+  accounts: ConnectedAccount[];
   selectedAccountIds: string[];
   isLoading: boolean;
 }
@@ -60,10 +59,10 @@ export function PlatformAccountList({
             <div className="space-y-4 w-full">
               {filteredAccounts.map((account) => (
                 <PlatformAccountItem
-                  key={account.profile.userId}
+                  key={account.userId}
                   account={account}
                   isSelected={selectedAccountIds.includes(
-                    account.profile.userId,
+                    account.userId,
                   )}
                 />
               ))}

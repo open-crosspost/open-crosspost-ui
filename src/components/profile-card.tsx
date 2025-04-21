@@ -2,12 +2,11 @@ import React from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { Twitter } from "lucide-react";
 
-import { Platform } from "@crosspost/types";
-import { PlatformAccount } from "../store/platform-accounts-store";
+import { ConnectedAccount, Platform } from "@crosspost/types";
 import { capitalize } from "@/lib/utils/string";
 
 interface ProfileCardProps {
-  account: PlatformAccount;
+  account: ConnectedAccount;
   className?: string;
   size?: "sm" | "md" | "lg";
 }
@@ -17,8 +16,9 @@ export function ProfileCard({
   className = "",
   size = "md",
 }: ProfileCardProps) {
-  const { platform, profile } = account;
-  const { username, profileImageUrl } = profile;
+  const { platform, profile, userId } = account;
+  const username = profile?.username ?? userId;
+  const profileImageUrl = profile?.profileImageUrl;
   // Size classes for different components
   const sizeClasses = {
     sm: {
