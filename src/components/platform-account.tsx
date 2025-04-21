@@ -9,8 +9,8 @@ import {
   usePlatformAccountsStore,
   useRefreshAccount
 } from "../store/platform-accounts-store";
-import { ProfileCard } from "./profile-card";
 import { Button } from "./ui/button";
+import { AccountItem } from "./shared/account-item";
 
 interface PlatformAccountProps {
   account: ConnectedAccount;
@@ -83,37 +83,33 @@ export function PlatformAccountItem({
     }
   };
 
-  return (
-    <div
-      className={`flex flex-col sm:flex-row sm:items-center sm:justify-between rounded-md border-2 p-3 sm:p-4 gap-3 ${
-        isSelected ? "border-blue-500 bg-blue-50" : "border-gray-200"
-      }`}
-    >
-      <div className="flex items-center space-x-4">
-        <ProfileCard account={account} size="md" />
-      </div>
+  const actionButtons = (
+    <>
+      <Button
+        size="sm"
+        onClick={handleRefresh}
+        title="Refresh token"
+        disabled={isRefreshing}
+      >
+        <RefreshCw size={16} className={isRefreshing ? "animate-spin" : ""} />
+      </Button>
+      <Button
+        size="sm"
+        onClick={handleDisconnect}
+        title="Disconnect account"
+        disabled={isDisconnecting}
+      >
+        <Trash2 size={16} className={isDisconnecting ? "animate-spin" : ""} />
+      </Button>
+    </>
+  );
 
-      <div className="flex items-center space-x-2 ml-0 sm:ml-auto">
-        <Button
-          size="sm"
-          onClick={handleRefresh}
-          title="Refresh token"
-          disabled={isRefreshing}
-        >
-          <RefreshCw size={16} className={isRefreshing ? "animate-spin" : ""} />
-        </Button>
-        <Button
-          size="sm"
-          onClick={handleDisconnect}
-          title="Disconnect account"
-          disabled={isDisconnecting}
-        >
-          <Trash2 size={16} className={isDisconnecting ? "animate-spin" : ""} />
-        </Button>
-        <Button size="sm" onClick={handleSelect}>
-          {isSelected ? "Selected" : "Select"}
-        </Button>
-      </div>
-    </div>
+  return (
+    <AccountItem
+      account={account}
+      isSelected={isSelected}
+      onSelect={handleSelect}
+      actions={actionButtons}
+    />
   );
 }

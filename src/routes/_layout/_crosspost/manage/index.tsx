@@ -10,6 +10,7 @@ import {
   useNearAccount,
   usePlatformAccountsStore,
 } from "../../../../store/platform-accounts-store";
+import { RefreshCw } from "lucide-react";
 
 const SUPPORTED_PLATFORMS = [Platform.TWITTER];
 
@@ -50,7 +51,7 @@ function ManageAccountsPage() {
 
             {isLoadingNearAccount ? (
               <div className="flex justify-center py-8">
-                <div className="h-8 w-8 animate-spin text-gray-400">⟳</div>
+                <RefreshCw size={16} className={"animate-spin"} />
               </div>
             ) : nearAccount ? (
               <div className="space-y-4 w-full">

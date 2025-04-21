@@ -32,7 +32,7 @@ export function PlatformAccountList({
 
       {isLoading ? (
         <div className="flex justify-center py-8">
-          <RefreshCw className="h-8 w-8 animate-spin text-gray-400" />
+          <RefreshCw size={16} className={"animate-spin"} />
         </div>
       ) : (
         <>

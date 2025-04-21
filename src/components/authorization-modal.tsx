@@ -58,29 +58,16 @@ export function AuthorizationModal({
         wallet,
         signedAccountId,
       );
-      const success = await authorize(authorizationPayload);
+      await authorize(authorizationPayload);
+      
+      toast({
+        title: "Authorization successful",
+        description: "You can now post to connected platforms",
+      });
 
-      if (success) {
-        // Show success toast
-        toast({
-          title: "Authorization successful",
-          description: "You can now post to connected platforms",
-          variant: "success",
-        });
+      onSuccess?.();
 
-        // Call the success callback if provided
-        onSuccess?.();
-
-        // Close the dialog
-        onClose();
-      } else {
-        // Handle authorization failure
-        toast({
-          title: "Authorization failed",
-          description: "Unable to authorize your account. Please try again.",
-          variant: "destructive",
-        });
-      }
+      onClose();
     } catch (error) {
       // Use SDK error utilities to handle different error types
       if (isAuthError(error)) {

@@ -2,6 +2,8 @@ import { Platform, PlatformName } from "@crosspost/types";
 import { useWalletSelector } from "@near-wallet-selector/react-hook";
 import { createFileRoute } from "@tanstack/react-router";
 import React, { useCallback, useEffect, useState } from "react";
+import { Checkbox } from "../../../../components/ui/checkbox";
+import { Input } from "../../../../components/ui/input";
 import { DraftsModal } from "../../../../components/drafts-modal";
 import { PlatformAccountsSelector } from "../../../../components/platform-accounts-selector";
 import {
@@ -313,37 +315,32 @@ function EditorPage() {
     <div className="w-full max-w-2xl mx-auto">
       <div className="space-y-4 mb-4">
         <PlatformAccountsSelector />
-        {/* Reply Controls */}
-        <div className="flex items-center gap-2 mb-2">
+        {/* Controls Bar */}
+        <div className="flex justify-between items-center mb-2">
           <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="isReply"
-              checked={isReply}
-              onChange={(e) => setIsReply(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300"
-            />
-            <label htmlFor="isReply" className="text-sm">
-              Reply to post
-            </label>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="isReply"
+                checked={isReply}
+                onCheckedChange={(checked: boolean) => setIsReply(checked)}
+                className="border-2"
+              />
+              <label htmlFor="isReply" className="text-sm">
+                Reply to post
+              </label>
+            </div>
+            {isReply && (
+              <Input
+                value={replyUrl}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setReplyUrl(e.target.value)}
+                placeholder="Enter post URL to reply to (e.g., https://x.com/user/status/123)"
+                className="w-[400px] border-2"
+              />
+            )}
           </div>
-          {isReply && (
-            <input
-              type="text"
-              value={replyUrl}
-              onChange={(e) => setReplyUrl(e.target.value)}
-              placeholder="Enter post URL to reply to (e.g., https://x.com/user/status/123)"
-              className="flex-1 px-3 py-1 text-sm rounded-md border border-gray-300"
-            />
-          )}
-        </div>
-        {/* Header Controls */}
-        <div className="flex justify-end items-center">
-          <div className="flex gap-2">
-            <Button onClick={() => setModalOpen(true)} size="sm">
-              Drafts
-            </Button>
-          </div>
+          <Button onClick={() => setModalOpen(true)} size="sm">
+            Drafts
+          </Button>
         </div>
       </div>
 

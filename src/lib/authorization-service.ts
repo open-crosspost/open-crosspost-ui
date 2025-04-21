@@ -75,15 +75,14 @@ export async function authorize(
     client.setAuthentication(authorizationPayload);
 
     // Call the SDK method to verify with the backend
-    const { authorized } = await client.auth.authorizeNearAccount();
+    const response = await client.auth.authorizeNearAccount();
 
-    if (authorized) {
-      // Persist authorization state
-      localStorage.setItem("crosspost:authorized", "true");
-      // Emit event
-      authorizationEvents.emit(AUTHORIZATION_EVENTS.AUTHORIZED);
-    }
-    return authorized;
+    // Persist authorization state
+    localStorage.setItem("crosspost:authorized", "true");
+    // Emit event
+    authorizationEvents.emit(AUTHORIZATION_EVENTS.AUTHORIZED);
+    
+    return true;
   } catch (error) {
     console.error("Authorization error:", error);
     localStorage.removeItem("crosspost:authorized");
