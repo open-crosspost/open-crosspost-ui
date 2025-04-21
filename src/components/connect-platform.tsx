@@ -33,7 +33,7 @@ export function ConnectPlatform({
 
   const handleConnect = async () => {
     if (isConnecting) return;
-    
+
     setIsConnecting(true);
     const loadingToast = toast({
       title: `Connecting to ${capitalize(platform)}...`,
@@ -54,12 +54,14 @@ export function ConnectPlatform({
       });
     } catch (error) {
       let errorMessage = `Failed to connect ${capitalize(platform)} account`;
-      
+
       if (error instanceof Error) {
-        if (error.message === 'Popup blocked. Please allow popups for this site.') {
-          errorMessage = 'Please allow popups to connect your account';
-        } else if (error.message === 'Authentication cancelled by user.') {
-          errorMessage = 'Connection cancelled';
+        if (
+          error.message === "Popup blocked. Please allow popups for this site."
+        ) {
+          errorMessage = "Please allow popups to connect your account";
+        } else if (error.message === "Authentication cancelled by user.") {
+          errorMessage = "Connection cancelled";
         } else {
           errorMessage = error.message;
         }

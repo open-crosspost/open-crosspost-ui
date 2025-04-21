@@ -3,20 +3,20 @@ import React from "react";
 import { PlatformAccountItem } from "./platform-account";
 import { ConnectPlatform } from "./connect-platform";
 import { ConnectedAccount, Platform, PlatformName } from "@crosspost/types";
+import { usePlatformAccountsStore } from "../store/platform-accounts-store";
 
 interface PlatformAccountListProps {
   platform: PlatformName;
   accounts: ConnectedAccount[];
-  selectedAccountIds: string[];
   isLoading: boolean;
 }
 
 export function PlatformAccountList({
   platform,
   accounts,
-  selectedAccountIds,
   isLoading,
 }: PlatformAccountListProps) {
+  const { isAccountSelected } = usePlatformAccountsStore();
   const filteredAccounts = accounts.filter(
     (account) => account.platform === platform.toLowerCase(),
   );
@@ -58,13 +58,7 @@ export function PlatformAccountList({
           ) : (
             <div className="space-y-4 w-full">
               {filteredAccounts.map((account) => (
-                <PlatformAccountItem
-                  key={account.userId}
-                  account={account}
-                  isSelected={selectedAccountIds.includes(
-                    account.userId,
-                  )}
-                />
+                <PlatformAccountItem key={account.userId} account={account} />
               ))}
             </div>
           )}

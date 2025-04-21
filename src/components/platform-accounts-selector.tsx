@@ -1,18 +1,17 @@
+import { useNavigate } from "@tanstack/react-router";
 import React from "react";
 import {
-  useConnectedAccounts,
-  useNearAccount,
-  usePlatformAccountsStore,
   useAllAccounts,
+  useConnectedAccounts,
+  usePlatformAccountsStore,
 } from "../store/platform-accounts-store";
+import { AccountItem } from "./account-item";
 import { Button } from "./ui/button";
-import { useNavigate } from "@tanstack/react-router";
-import { ProfileCard } from "./profile-card";
 
 export function PlatformAccountsSelector() {
   const navigate = useNavigate();
   const allAccounts = useAllAccounts();
-  const { selectedAccountIds, selectAccount, unselectAccount } =
+  const { toggleAccountSelection, isAccountSelected } =
     usePlatformAccountsStore();
 
   // Get loading and error states from the API accounts hook
@@ -21,15 +20,6 @@ export function PlatformAccountsSelector() {
   // Handle connect accounts button click
   const handleConnectAccounts = () => {
     navigate({ to: "/manage" });
-  };
-
-  // Handle account selection toggle
-  const handleAccountToggle = (userId: string) => {
-    if (selectedAccountIds.includes(userId)) {
-      unselectAccount(userId);
-    } else {
-      selectAccount(userId);
-    }
   };
 
   if (isLoading) {
@@ -91,44 +81,13 @@ export function PlatformAccountsSelector() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 w-full">
         {allAccounts.map((account) => (
-          <div
-            key={account.profile.userId}
-            className={`flex items-center p-3 sm:p-2 rounded-md cursor-pointer transition-colors touch-manipulation ${
-              selectedAccountIds.includes(account.profile.userId)
-                ? "bg-blue-50 border-2 border-blue-200"
-                : "border-2 border-gray-200 hover:bg-gray-50"
-            }`}
-            onClick={() => handleAccountToggle(account.profile.userId)}
-          >
-            <div className="flex-grow">
-              <ProfileCard account={account} size="sm" />
-            </div>
-
-            <div className="flex-shrink-0 ml-2">
-              <div
-                className={`w-6 h-6 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center ${
-                  selectedAccountIds.includes(account.profile.userId)
-                    ? "border-blue-500 bg-blue-500"
-                    : "border-gray-300"
-                }`}
-              >
-                {selectedAccountIds.includes(account.profile.userId) && (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="w-3 h-3 text-white"
-                  >
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                )}
-              </div>
-            </div>
-          </div>
+          <AccountItem
+            key={account.userId}
+            account={account}
+            isSelected={isAccountSelected(account.userId)}
+            onSelect={() => toggleAccountSelection(account.userId)}
+            variant="compact"
+          />
         ))}
       </div>
     </div>

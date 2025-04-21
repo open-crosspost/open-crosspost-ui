@@ -7,19 +7,19 @@ import {
   useCheckAccountStatus,
   useDisconnectAccount,
   usePlatformAccountsStore,
-  useRefreshAccount
+  useRefreshAccount,
 } from "../store/platform-accounts-store";
 import { Button } from "./ui/button";
-import { AccountItem } from "./shared/account-item";
+import { AccountItem } from "./account-item";
 
 interface PlatformAccountProps {
   account: ConnectedAccount;
-  isSelected: boolean;
+  showActions?: boolean;
 }
 
 export function PlatformAccountItem({
   account,
-  isSelected,
+  showActions = true,
 }: PlatformAccountProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
@@ -27,9 +27,16 @@ export function PlatformAccountItem({
   const disconnectAccount = useDisconnectAccount();
   const refreshAccount = useRefreshAccount();
   const checkAccountStatus = useCheckAccountStatus();
-  const { selectAccount, unselectAccount } = usePlatformAccountsStore();
+  const { toggleAccountSelection, isAccountSelected } =
+    usePlatformAccountsStore();
+
+  const isNearSocial =
+    account.platform.toLowerCase() === ("near social" as PlatformName);
+  const isSelected = isAccountSelected(account.userId);
 
   const handleRefresh = async () => {
+    if (isNearSocial) return; // No refresh for NEAR accounts
+
     setIsRefreshing(true);
     try {
       await refreshAccount.mutateAsync({
@@ -55,6 +62,8 @@ export function PlatformAccountItem({
   };
 
   const handleDisconnect = async () => {
+    if (isNearSocial) return; // No disconnect for NEAR accounts
+
     setIsDisconnecting(true);
     try {
       await disconnectAccount.mutateAsync({
@@ -75,40 +84,34 @@ export function PlatformAccountItem({
     }
   };
 
-  const handleSelect = () => {
-    if (isSelected) {
-      unselectAccount(account.userId);
-    } else {
-      selectAccount(account.userId);
-    }
-  };
-
-  const actionButtons = (
-    <>
-      <Button
-        size="sm"
-        onClick={handleRefresh}
-        title="Refresh token"
-        disabled={isRefreshing}
-      >
-        <RefreshCw size={16} className={isRefreshing ? "animate-spin" : ""} />
-      </Button>
-      <Button
-        size="sm"
-        onClick={handleDisconnect}
-        title="Disconnect account"
-        disabled={isDisconnecting}
-      >
-        <Trash2 size={16} className={isDisconnecting ? "animate-spin" : ""} />
-      </Button>
-    </>
-  );
+  // Only show action buttons for non-NEAR accounts and if showActions is true
+  const actionButtons =
+    !isNearSocial && showActions ? (
+      <>
+        <Button
+          size="sm"
+          onClick={handleRefresh}
+          title="Refresh token"
+          disabled={isRefreshing}
+        >
+          <RefreshCw size={16} className={isRefreshing ? "animate-spin" : ""} />
+        </Button>
+        <Button
+          size="sm"
+          onClick={handleDisconnect}
+          title="Disconnect account"
+          disabled={isDisconnecting}
+        >
+          <Trash2 size={16} className={isDisconnecting ? "animate-spin" : ""} />
+        </Button>
+      </>
+    ) : null;
 
   return (
     <AccountItem
       account={account}
       isSelected={isSelected}
-      onSelect={handleSelect}
+      onSelect={() => toggleAccountSelection(account.userId)}
       actions={actionButtons}
     />
   );

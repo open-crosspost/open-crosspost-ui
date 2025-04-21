@@ -1,7 +1,7 @@
 import { Platform } from "@crosspost/types";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import React from "react";
-import { NearAccountItem } from "../../../../components/near-account-item";
+import { PlatformAccountItem } from "../../../../components/platform-account";
 import { PlatformAccountList } from "../../../../components/platform-account-list";
 import { BackButton } from "../../../../components/back-button";
 import { Button } from "../../../../components/ui/button";
@@ -55,7 +55,10 @@ function ManageAccountsPage() {
               </div>
             ) : nearAccount ? (
               <div className="space-y-4 w-full">
-                <NearAccountItem account={nearAccount} />
+                <PlatformAccountItem
+                  account={nearAccount}
+                  showActions={false}
+                />
               </div>
             ) : (
               <div className="rounded-md border-2 border-dashed border-gray-200 p-4 sm:p-8 text-center">
@@ -75,7 +78,6 @@ function ManageAccountsPage() {
               key={platform}
               platform={platform}
               accounts={accounts}
-              selectedAccountIds={selectedAccountIds}
               isLoading={isLoading}
             />
           ))}

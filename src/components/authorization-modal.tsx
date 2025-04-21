@@ -59,7 +59,7 @@ export function AuthorizationModal({
         signedAccountId,
       );
       await authorize(authorizationPayload);
-      
+
       toast({
         title: "Authorization successful",
         description: "You can now post to connected platforms",

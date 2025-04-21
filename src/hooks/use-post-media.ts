@@ -8,7 +8,6 @@ export function usePostMedia(
   toast = toastFunction,
   saveAutoSave?: (posts: PostContent[]) => void,
 ) {
-  
   // Use the shared debounce utility
   const saveCallback = useCallback(
     (postsToSave: PostContent[]) => {

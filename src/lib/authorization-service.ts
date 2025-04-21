@@ -81,7 +81,7 @@ export async function authorize(
     localStorage.setItem("crosspost:authorized", "true");
     // Emit event
     authorizationEvents.emit(AUTHORIZATION_EVENTS.AUTHORIZED);
-    
+
     return true;
   } catch (error) {
     console.error("Authorization error:", error);

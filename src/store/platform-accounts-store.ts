@@ -14,12 +14,14 @@ interface PlatformAccountsState {
   selectedAccountIds: string[];
   selectAccount: (userId: string) => void;
   unselectAccount: (userId: string) => void;
+  toggleAccountSelection: (userId: string) => void;
   clearSelectedAccounts: () => void;
+  isAccountSelected: (userId: string) => boolean;
 }
 
 export const usePlatformAccountsStore = create<PlatformAccountsState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       selectedAccountIds: [],
 
       selectAccount: (userId) => {
@@ -34,6 +36,19 @@ export const usePlatformAccountsStore = create<PlatformAccountsState>()(
             (id) => id !== userId,
           ),
         }));
+      },
+
+      toggleAccountSelection: (userId) => {
+        const state = get();
+        if (state.selectedAccountIds.includes(userId)) {
+          state.unselectAccount(userId);
+        } else {
+          state.selectAccount(userId);
+        }
+      },
+
+      isAccountSelected: (userId) => {
+        return get().selectedAccountIds.includes(userId);
       },
 
       clearSelectedAccounts: () => {
@@ -257,9 +272,9 @@ export function useCheckAccountStatus() {
             account.userId === data.userId
               ? {
                   ...account,
-                  profile: account.profile 
+                  profile: account.profile
                     ? { ...account.profile, lastUpdated: Date.now() }
-                    : null
+                    : null,
                 }
               : account,
           );

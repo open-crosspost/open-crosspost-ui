@@ -332,7 +332,9 @@ function EditorPage() {
             {isReply && (
               <Input
                 value={replyUrl}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setReplyUrl(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setReplyUrl(e.target.value)
+                }
                 placeholder="Enter post URL to reply to (e.g., https://x.com/user/status/123)"
                 className="w-[400px] border-2"
               />
