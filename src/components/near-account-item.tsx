@@ -1,8 +1,10 @@
 import React from "react";
-import { PlatformAccount } from "../lib/api-types";
 import { ProfileCard } from "./profile-card";
 import { Button } from "./ui/button";
-import { usePlatformAccountsStore } from "../store/platform-accounts-store";
+import {
+  PlatformAccount,
+  usePlatformAccountsStore,
+} from "../store/platform-accounts-store";
 
 interface NearAccountItemProps {
   account: PlatformAccount;
@@ -11,13 +13,13 @@ interface NearAccountItemProps {
 export function NearAccountItem({ account }: NearAccountItemProps) {
   const { selectedAccountIds, selectAccount, unselectAccount } =
     usePlatformAccountsStore();
-  const isSelected = selectedAccountIds.includes(account.userId);
+  const isSelected = selectedAccountIds.includes(account.profile.userId);
 
   const handleSelect = () => {
     if (isSelected) {
-      unselectAccount(account.userId);
+      unselectAccount(account.profile.userId);
     } else {
-      selectAccount(account.userId);
+      selectAccount(account.profile.userId);
     }
   };
 

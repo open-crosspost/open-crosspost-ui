@@ -51,6 +51,3 @@ yarn.lock
 package-lock.json
 pnpm-lock.yaml
 # bun.lockb
-
-.clinerules
-memory-bank

@@ -1,36 +1,31 @@
+import { Platform, PlatformName } from "@crosspost/types";
 import { useWalletSelector } from "@near-wallet-selector/react-hook";
 import { createFileRoute } from "@tanstack/react-router";
 import React, { useCallback, useEffect, useState } from "react";
-import { DraftsModal } from "../../../components/drafts-modal";
-import { PlatformAccountsSelector } from "../../../components/platform-accounts-selector";
+import { DraftsModal } from "../../../../components/drafts-modal";
+import { PlatformAccountsSelector } from "../../../../components/platform-accounts-selector";
 import {
   EditorPost,
   PostEditorCore,
-} from "../../../components/post-editor-core";
-import { Button } from "../../../components/ui/button";
-import { SupportedPlatform } from "../../../config";
-import { usePostManagement } from "../../../hooks/use-post-management";
-import { usePostMedia } from "../../../hooks/use-post-media";
-import { toast } from "../../../hooks/use-toast";
-import { apiClient } from "../../../lib/api-client";
-import { requireAuthorization } from "../../../lib/auth/route-guards";
-import { NearSocialService } from "../../../lib/near-social-service";
-import { PostContent, useDraftsStore } from "../../../store/drafts-store";
-import { useSelectedAccounts } from "../../../store/platform-accounts-store";
+} from "../../../../components/post-editor-core";
+import { Button } from "../../../../components/ui/button";
+import { usePostManagement } from "../../../../hooks/use-post-management";
+import { usePostMedia } from "../../../../hooks/use-post-media";
+import { toast } from "../../../../hooks/use-toast";
+import { NearSocialService } from "../../../../lib/near-social-service";
+import { PostContent, useDraftsStore } from "../../../../store/drafts-store";
+import { useSelectedAccounts } from "../../../../store/platform-accounts-store";
+import { getClient } from "../../../../lib/authorization-service";
+import { authenticate } from "../../../../lib/authentication-service";
 
-export const Route = createFileRoute("/_layout/editor/")({
-  beforeLoad: () => {
-    // Check if user is authorized before loading the route
-    requireAuthorization();
-  },
+export const Route = createFileRoute("/_layout/_crosspost/editor/")({
   component: EditorPage,
 });
 
 function EditorPage() {
-  const { wallet } = useWalletSelector();
+  const { wallet, signedAccountId } = useWalletSelector();
   const selectedAccounts = useSelectedAccounts();
   const {
-    addDraft,
     setModalOpen,
     autosave,
     saveAutoSave,
@@ -43,6 +38,8 @@ function EditorPage() {
     { text: "", mediaId: null, mediaPreview: null },
   ]);
   const [isPosting, setIsPosting] = useState(false);
+  const [isReply, setIsReply] = useState(false);
+  const [replyUrl, setReplyUrl] = useState("");
 
   const { handleMediaUpload, removeMedia } = usePostMedia(
     setPosts as any,
@@ -125,13 +122,11 @@ function EditorPage() {
 
       // Separate NEAR Social accounts from other platform accounts
       const nearSocialAccounts = selectedAccounts.filter(
-        (account: { platform: SupportedPlatform }) =>
-          account.platform === "Near Social",
+        (account) => account.platform === ("Near Social" as PlatformName),
       );
 
       const otherAccounts = selectedAccounts.filter(
-        (account: { platform: SupportedPlatform }) =>
-          account.platform !== "Near Social",
+        (account) => account.platform !== ("Near Social" as PlatformName),
       );
 
       let nearSocialSuccess = true;
@@ -176,26 +171,65 @@ function EditorPage() {
       if (otherAccounts.length > 0) {
         try {
           const postRequest = {
-            targets: otherAccounts.map(
-              (account: { platform: SupportedPlatform; userId: string }) => ({
-                platform: account.platform,
-                userId: account.userId,
-              }),
-            ),
+            targets: otherAccounts.map((account) => ({
+              platform: account.platform,
+              userId: account.profile.userId,
+            })),
             content: postContents,
           };
 
-          const response = await apiClient.createPost(postRequest);
+          // Get client and authenticate before making the request
+          const client = getClient();
+          const authData = await authenticate(
+            wallet,
+            signedAccountId!,
+            isReply ? "replyToPost" : "createPost",
+          );
+          client.setAuthentication(authData);
 
-          if (!response.success) {
-            apiSuccess = false;
-            apiError = new Error(
-              response.error || "Failed to publish post to other platforms",
-            );
+          if (isReply && replyUrl) {
+            // Extract platform and postId from URL
+            let platform: PlatformName;
+            let postId: string;
+
+            if (
+              replyUrl.includes("x.com") ||
+              replyUrl.includes("twitter.com")
+            ) {
+              platform = Platform.TWITTER;
+              postId = replyUrl.split("/").pop() || "";
+            } else {
+              throw new Error("Unsupported platform URL format");
+            }
+
+            if (!postId) {
+              throw new Error("Invalid reply URL format");
+            }
+
+            await client.post.replyToPost({
+              ...postRequest,
+              platform,
+              postId,
+            });
+          } else {
+            await client.post.createPost(postRequest);
           }
         } catch (error) {
           apiSuccess = false;
           apiError = error;
+
+          // Use SDK error utilities
+          let errorMessage = "Failed to publish post to other platforms";
+          if (error instanceof Error) {
+            errorMessage = error.message;
+          }
+
+          toast({
+            title: "Post Error",
+            description: errorMessage,
+            variant: "destructive",
+          });
+
           console.error("API post error:", error);
         }
       }
@@ -279,6 +313,30 @@ function EditorPage() {
     <div className="w-full max-w-2xl mx-auto">
       <div className="space-y-4 mb-4">
         <PlatformAccountsSelector />
+        {/* Reply Controls */}
+        <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="isReply"
+              checked={isReply}
+              onChange={(e) => setIsReply(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300"
+            />
+            <label htmlFor="isReply" className="text-sm">
+              Reply to post
+            </label>
+          </div>
+          {isReply && (
+            <input
+              type="text"
+              value={replyUrl}
+              onChange={(e) => setReplyUrl(e.target.value)}
+              placeholder="Enter post URL to reply to (e.g., https://x.com/user/status/123)"
+              className="flex-1 px-3 py-1 text-sm rounded-md border border-gray-300"
+            />
+          )}
+        </div>
         {/* Header Controls */}
         <div className="flex justify-end items-center">
           <div className="flex gap-2">

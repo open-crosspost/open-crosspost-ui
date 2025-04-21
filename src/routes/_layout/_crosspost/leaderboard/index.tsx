@@ -1,24 +1,42 @@
+import { getClient } from "../../../../lib/authorization-service";
+import { authenticate } from "../../../../lib/authentication-service";
+import { getErrorMessage } from "@crosspost/sdk";
+import { TimePeriod } from "@crosspost/types";
 import { createFileRoute } from "@tanstack/react-router";
-import React, { useState, useEffect } from "react";
+import { BackButton } from "../../../../components/back-button";
+import { useWalletSelector } from "@near-wallet-selector/react-hook";
 import {
-  useReactTable,
+  createColumnHelper,
+  flexRender,
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  flexRender,
-  createColumnHelper,
-  SortingState,
   PaginationState,
+  SortingState,
+  useReactTable,
 } from "@tanstack/react-table";
-import { apiClient } from "../../../lib/api-client";
-import { LeaderboardEntry, TimePeriod } from "../../../lib/api-types";
-import { SUPPORTED_PLATFORMS } from "../../../config";
+import React, { useEffect, useState } from "react";
 
-export const Route = createFileRoute("/_layout/leaderboard/")({
+/**
+ * Leaderboard entry interface
+ */
+export interface LeaderboardEntry {
+  signerId: string;
+  username?: string;
+  profileImageUrl?: string;
+  postCount: number;
+  platform?: string;
+  rank?: number; // Added by the frontend
+  firstPostTimestamp?: number;
+  lastPostTimestamp?: number;
+}
+
+export const Route = createFileRoute("/_layout/_crosspost/leaderboard/")({
   component: LeaderboardPage,
 });
 
 function LeaderboardPage() {
+  const { wallet, signedAccountId } = useWalletSelector();
   // State for table data and loading
   const [data, setData] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,7 +44,7 @@ function LeaderboardPage() {
   const [totalEntries, setTotalEntries] = useState(0);
 
   // State for filters
-  const [timeframe, setTimeframe] = useState<TimePeriod>(TimePeriod.ALL_TIME);
+  const [timeframe, setTimeframe] = useState<TimePeriod>(TimePeriod.ALL);
   const [platform, setPlatform] = useState<string | undefined>(undefined);
 
   // State for sorting
@@ -117,36 +135,40 @@ function LeaderboardPage() {
       setError(null);
 
       try {
-        const response = await apiClient.getLeaderboard(
-          pagination.pageSize,
-          pagination.pageIndex * pagination.pageSize,
-          timeframe,
-          platform,
-        );
-
-        if (response.success && response.data) {
-          // The API response might be nested inside a data property
-          // or it might be directly in response.data
-          const responseData = response.data as any;
-          const leaderboardData = responseData.data || responseData;
-
-          // Transform the entries to include rank
-          const entries = leaderboardData.entries || [];
-          const transformedEntries = entries.map(
-            (entry: any, index: number) => ({
-              ...entry,
-              rank: pagination.pageIndex * pagination.pageSize + index + 1,
-            }),
-          );
-
-          setData(transformedEntries);
-          setTotalEntries(leaderboardData.pagination?.total || entries.length);
-        } else {
-          setError(response.error || "Failed to fetch leaderboard data");
-          setData([]);
+        if (!wallet || !signedAccountId) {
+          throw new Error("Wallet not connected");
         }
+
+        // Get client and authenticate before making the request
+        const client = getClient();
+        const authData = await authenticate(
+          wallet,
+          signedAccountId,
+          "getLeaderboard",
+        );
+        client.setAuthentication(authData);
+
+        const { data } = await client.activity.getLeaderboard({
+          limit: pagination.pageSize,
+          offset: pagination.pageIndex * pagination.pageSize,
+          timeframe: timeframe,
+        });
+
+        // Transform the entries to include rank
+        const entries = data.entries || [];
+        const transformedEntries = entries.map((entry: any, index: number) => ({
+          ...entry,
+          rank: pagination.pageIndex * pagination.pageSize + index + 1,
+        }));
+
+        setData(transformedEntries);
+        setTotalEntries(entries.length);
       } catch (err) {
-        setError("An error occurred while fetching leaderboard data");
+        const errMessage = getErrorMessage(
+          err,
+          "Failed to fetch leaderboard data",
+        );
+        setError(errMessage);
         console.error("Leaderboard fetch error:", err);
         setData([]);
       } finally {
@@ -159,6 +181,10 @@ function LeaderboardPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <div className="flex items-center mb-4">
+        <BackButton />
+      </div>
+
       {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-6">
         <div>
@@ -168,11 +194,11 @@ function LeaderboardPage() {
             onChange={(e) => setTimeframe(e.target.value as TimePeriod)}
             className="border rounded px-3 py-2 w-full"
           >
-            <option value={TimePeriod.DAY}>Last 24 Hours</option>
-            <option value={TimePeriod.WEEK}>Last Week</option>
-            <option value={TimePeriod.MONTH}>Last Month</option>
-            <option value={TimePeriod.YEAR}>Last Year</option>
-            <option value={TimePeriod.ALL_TIME}>All Time</option>
+            <option value={TimePeriod.DAILY}>Last 24 Hours</option>
+            <option value={TimePeriod.WEEKLY}>Last Week</option>
+            <option value={TimePeriod.MONTHLY}>Last Month</option>
+            <option value={TimePeriod.YEARLY}>Last Year</option>
+            <option value={TimePeriod.ALL}>All Time</option>
           </select>
         </div>
 

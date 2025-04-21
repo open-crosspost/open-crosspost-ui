@@ -1,23 +1,19 @@
+import { Platform } from "@crosspost/types";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
 import React from "react";
-import { Button } from "../../../components/ui/button";
-import { ConnectionCallback } from "../../../components/connection-callback";
-import { NearAccountItem } from "../../../components/near-account-item";
-import { PlatformAccountList } from "../../../components/platform-account-list";
-import { SUPPORTED_PLATFORMS } from "../../../config";
-import { requireAuthorization } from "../../../lib/auth/route-guards";
+import { NearAccountItem } from "../../../../components/near-account-item";
+import { PlatformAccountList } from "../../../../components/platform-account-list";
+import { BackButton } from "../../../../components/back-button";
+import { Button } from "../../../../components/ui/button";
 import {
   useConnectedAccounts,
   useNearAccount,
   usePlatformAccountsStore,
-} from "../../../store/platform-accounts-store";
+} from "../../../../store/platform-accounts-store";
 
-export const Route = createFileRoute("/_layout/manage/")({
-  beforeLoad: () => {
-    // Check if user is authorized before loading the route
-    requireAuthorization();
-  },
+const SUPPORTED_PLATFORMS = [Platform.TWITTER];
+
+export const Route = createFileRoute("/_layout/_crosspost/manage/")({
   component: ManageAccountsPage,
 });
 
@@ -28,25 +24,16 @@ function ManageAccountsPage() {
     useNearAccount();
   const { selectedAccountIds } = usePlatformAccountsStore();
 
-  // Handle continue to editor
   const handleContinue = () => {
     navigate({ to: "/editor" });
   };
 
   return (
     <>
-      <ConnectionCallback />
       <div className="w-full max-w-2xl mx-auto">
         <div className="border-b pb-4 mb-6">
           <div className="flex items-center mb-4">
-            <Button
-              size="sm"
-              className="mr-2"
-              onClick={() => window.history.back()}
-            >
-              <ArrowLeft size={16} className="mr-1" />
-              Back
-            </Button>
+            <BackButton />
           </div>
           <h1 className="text-2xl font-bold">Manage Social Accounts</h1>
           <p className="text-gray-500">

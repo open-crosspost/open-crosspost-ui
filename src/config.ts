@@ -28,12 +28,7 @@ export const NETWORK_ID = "mainnet";
 export const EVMWalletChain = evmWalletChains[NETWORK_ID];
 
 // API Configuration
-export const OPEN_CROSSPOST_PROXY_API =
-  "https://open-crosspost-proxy.deno.dev" || "http://0.0.0.0:3000";
-
-// Supported platforms
-export type SupportedPlatform = "Twitter" | "Near Social";
-export const SUPPORTED_PLATFORMS: SupportedPlatform[] = ["Twitter"];
+export const OPEN_CROSSPOST_PROXY_API = "http://0.0.0.0:3000";
 
 // Authentication configuration
 export const AUTH_STORAGE_PREFIX = "crosspost_auth_";

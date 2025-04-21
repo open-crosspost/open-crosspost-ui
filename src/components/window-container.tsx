@@ -1,13 +1,13 @@
-import { useNearAuth } from "@/store/near-auth-store";
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { PenSquare, Trophy } from "lucide-react";
 import * as React from "react";
 import { ConnectToNearButton } from "./connect-to-near";
 import { Button } from "./ui/button";
+import { useAuthorizationStatus } from "../hooks/use-authorization-status";
 
 export const WindowControls: React.FC = () => {
-  const { isAuthorized } = useNearAuth();
+  const isAuthorized = useAuthorizationStatus();
 
   return (
     <div className="relative border-b-2 border-gray-800 p-4 sm:p-6">

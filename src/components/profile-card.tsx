@@ -1,9 +1,10 @@
 import React from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { Twitter } from "lucide-react";
-import { SupportedPlatform } from "../config";
 
-import { PlatformAccount } from "../lib/api-types";
+import { Platform } from "@crosspost/types";
+import { PlatformAccount } from "../store/platform-accounts-store";
+import { capitalize } from "@/lib/utils/string";
 
 interface ProfileCardProps {
   account: PlatformAccount;
@@ -16,9 +17,8 @@ export function ProfileCard({
   className = "",
   size = "md",
 }: ProfileCardProps) {
-  const { platform } = account;
-  const username = account.profile?.username || account.username;
-  const profileImageUrl = account.profile?.profileImageUrl;
+  const { platform, profile } = account;
+  const { username, profileImageUrl } = profile;
   // Size classes for different components
   const sizeClasses = {
     sm: {
@@ -50,7 +50,7 @@ export function ProfileCard({
           <AvatarImage src={profileImageUrl} alt={username} />
         ) : (
           <AvatarFallback className="bg-gray-200">
-            {platform === "Twitter" && (
+            {platform === Platform.TWITTER && (
               <Twitter
                 size={size === "sm" ? 14 : size === "md" ? 18 : 22}
                 className="text-gray-400"
@@ -65,7 +65,7 @@ export function ProfileCard({
           @{username}
         </span>
         <span className={`text-gray-500 ${sizeClasses[size].platform}`}>
-          {platform}
+          {capitalize(platform)}
         </span>
       </div>
     </div>

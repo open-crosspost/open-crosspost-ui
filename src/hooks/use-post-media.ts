@@ -1,39 +1,24 @@
-import { useCallback, useRef, useEffect } from "react";
+import { useCallback } from "react";
 import { PostContent } from "../store/drafts-store";
 import { toast as toastFunction } from "./use-toast";
+import { useDebounce } from "../lib/utils/debounce";
 
 export function usePostMedia(
   setPosts: React.Dispatch<React.SetStateAction<PostContent[]>>,
   toast = toastFunction,
   saveAutoSave?: (posts: PostContent[]) => void,
 ) {
-  // Debounce timer reference
-  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Helper function to debounce auto-save
-  const debouncedSave = useCallback(
+  // Use the shared debounce utility
+  const saveCallback = useCallback(
     (postsToSave: PostContent[]) => {
-      if (!saveAutoSave) return;
-
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-
-      debounceTimerRef.current = setTimeout(() => {
+      if (saveAutoSave) {
         saveAutoSave(postsToSave);
-      }, 500); // 500ms debounce delay
+      }
     },
     [saveAutoSave],
   );
 
-  // Clear the debounce timer on cleanup
-  useEffect(() => {
-    return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-    };
-  }, []);
+  const { debouncedFn: debouncedSave, cleanup } = useDebounce(saveCallback);
   // Handle media upload
   const handleMediaUpload = useCallback(
     (index: number, file: File) => {
@@ -115,5 +100,6 @@ export function usePostMedia(
   return {
     handleMediaUpload,
     removeMedia,
+    cleanup,
   };
 }

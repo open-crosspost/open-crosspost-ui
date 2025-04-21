@@ -1,0 +1,110 @@
+# Cline Rules for Open Crosspost
+
+## Project Patterns
+
+### Code Organization
+- Use Bun as the package manager and build tool
+- Follow TypeScript best practices with proper typing
+- Organize components by feature/domain when possible
+- Keep UI components separate from business logic
+
+### Component Structure
+- Use functional components with hooks
+- Prefer composition over inheritance
+- Extract reusable logic into custom hooks
+- Use context for sharing state across component trees
+- Avoid prop drilling by using context or custom hooks
+
+### State Management
+- Use React's built-in state management (useState, useReducer)
+- Create dedicated stores for global state
+- Keep state as close as possible to where it's used
+- Use context providers for sharing state across components
+
+### Error Handling
+- Use SDK error utilities (isAuthError, isPlatformError, etc.) for error type checking
+- Use toast notifications for immediate feedback
+- Provide detailed error information when needed
+- Implement retry mechanisms for recoverable errors
+- Use consistent error patterns across the application
+
+## User Preferences
+
+### UI/UX
+- Clean, minimal interface
+- Clear feedback for user actions
+- Progressive disclosure for complex information
+- Mobile-friendly responsive design
+
+### Error Messaging
+- Concise, actionable error messages
+- Different visual treatments for different error types
+- Provide ways to investigate and resolve errors
+- Balance between simplicity and detail
+
+## Implementation Paths
+
+### Authentication Flow
+- Use `@crosspost/sdk` as the source of truth for authentication state
+- Centralize auth checks in layout components that act as gatekeepers
+- Use local component state for UI rendering decisions based on auth status
+- Implement event-based system for auth invalidation across the app
+- Handle auth errors by clearing cookies and forcing re-authentication
+- Use SDK's isAuthError utility for consistent auth error detection
+
+### Error Handling
+- Use SDK client methods directly for API calls
+- Use SDK error utilities for error type checking and handling
+- Handle errors at the component level with try/catch blocks
+- Use toast notifications for immediate feedback
+- Implement detailed error UI for complex error scenarios
+- Use isRecoverableError to determine if errors can be retried
+
+### Toast Notifications
+- Use existing toast system with enhanced variants
+- Success toasts: Green, auto-dismiss
+- Warning toasts: Yellow/amber, with action button
+- Error toasts: Red, with action button
+- Keep messages concise but informative
+
+### Error Details Dialog
+- Modal dialog for detailed error information
+- Summary section with counts of successes/failures
+- Success section with platform icons and links
+- Error section with expandable details
+- Retry buttons for recoverable errors
+
+### API Response Handling
+- Use SDK client methods which handle response parsing
+- Check for platform-specific errors in multi-platform responses
+- Use SDK's error utilities to extract error details
+- Track which errors are recoverable using isRecoverableError
+- Provide detailed error information to users
+
+## Known Challenges
+
+### Platform-Specific Issues
+- Each platform has different rate limits
+- Error codes and messages vary by platform
+- Some platforms have specific content restrictions
+- Authentication tokens can expire at different times
+
+### Error Recovery
+- Some errors are temporary and can be retried
+- Others require user intervention (e.g., content changes)
+- Rate limiting requires waiting before retry
+- Authentication errors may require reconnecting accounts
+
+## Tool Usage Patterns
+
+### Development Workflow
+- Use Bun for package management and running scripts
+- Leverage TypeScript for type safety
+- Use ESLint/Prettier for code quality
+- Test components in isolation when possible
+
+### Debugging
+- Check browser console for errors
+- Use React DevTools for component inspection
+- Monitor network requests for API issues
+- Test different error scenarios

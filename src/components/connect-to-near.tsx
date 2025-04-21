@@ -1,18 +1,16 @@
 import { toast } from "../hooks/use-toast";
-import { useNearAuth } from "../store/near-auth-store";
 import { usePlatformAccountsStore } from "../store/platform-accounts-store";
 import { useDraftsStore } from "../store/drafts-store";
 import { useWalletSelector } from "@near-wallet-selector/react-hook";
 import { Wallet } from "lucide-react";
 import * as React from "react";
 import { Button } from "./ui/button";
+import { signalAuthorizationRevoked } from "../lib/authorization-events";
 
 export function ConnectToNearButton(): React.ReactElement {
   const { signedAccountId, signIn, signOut } = useWalletSelector();
-  const { reset: resetAuthState } = useNearAuth();
   const { clearSelectedAccounts } = usePlatformAccountsStore();
-  const { drafts, addDraft, updateDraft, deleteDraft, clearAutoSave } =
-    useDraftsStore();
+  const { drafts, updateDraft, deleteDraft, clearAutoSave } = useDraftsStore();
 
   const handleSignIn = async (): Promise<void> => {
     signIn();
@@ -20,8 +18,9 @@ export function ConnectToNearButton(): React.ReactElement {
 
   const handleSignOut = (): void => {
     signOut().then(() => {
-      // Reset auth state
-      resetAuthState();
+      // Reset auth state by signaling auth invalidation
+      // This will clear the auth cookie and update any components listening for auth events
+      signalAuthorizationRevoked();
 
       // Clear platform accounts
       clearSelectedAccounts();
