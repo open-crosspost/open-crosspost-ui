@@ -43,10 +43,10 @@ export function PlatformAccountItem({
         platform: account.platform as PlatformName,
         userId: account.userId,
       });
-      await checkAccountStatus.mutateAsync({
-        platform: account.platform as PlatformName,
-        userId: account.userId,
-      });
+      // await checkAccountStatus.mutateAsync({
+      //   platform: account.platform as PlatformName,
+      //   userId: account.userId,
+      // });
     } catch (error) {
       toast({
         title: "Refresh Error",
