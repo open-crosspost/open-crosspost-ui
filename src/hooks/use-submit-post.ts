@@ -42,7 +42,7 @@ export function useSubmitPost() {
     selectedAccounts: ConnectedAccount[],
     isReply: boolean = false,
     replyUrl: string = "",
-  ) => {
+  ): Promise<SubmitStatus> => {
     if (!wallet || !signedAccountId) {
       toast({
         title: "Error",
@@ -51,7 +51,7 @@ export function useSubmitPost() {
       });
       setStatus("failure");
       setResult({ status: "failure" });
-      return;
+      return "failure";
     }
 
     const nonEmptyPosts = posts.filter((p) => p.text.trim());
@@ -62,7 +62,7 @@ export function useSubmitPost() {
         variant: "destructive",
       });
       setStatus("idle");
-      return;
+      return "idle";
     }
 
     if (selectedAccounts.length === 0) {
@@ -72,7 +72,7 @@ export function useSubmitPost() {
         variant: "destructive",
       });
       setStatus("idle");
-      return;
+      return "idle";
     }
 
     setStatus("posting");
@@ -296,6 +296,8 @@ export function useSubmitPost() {
         variant: "destructive",
       });
     }
+
+    return finalStatus;
   };
 
   return {

@@ -4,7 +4,7 @@ import * as React from "react";
 import type { ToastActionElement, ToastProps } from "@/components/ui/toast"; // Import types
 
 const TOAST_LIMIT = 3;
-const TOAST_REMOVE_DELAY = 15000;
+const TOAST_REMOVE_DELAY = 3000;
 
 // Use the interface defined in toaster.tsx or define a compatible one here
 // Let's redefine it here for clarity within the hook file, ensuring compatibility

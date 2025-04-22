@@ -1,8 +1,5 @@
-import { PlatformName } from "@crosspost/types";
 import { createFileRoute } from "@tanstack/react-router";
 import React, { useCallback, useEffect, useState } from "react";
-import { Checkbox } from "../../../../components/ui/checkbox";
-import { Input } from "../../../../components/ui/input";
 import { DraftsModal } from "../../../../components/drafts-modal";
 import { PlatformAccountsSelector } from "../../../../components/platform-accounts-selector";
 import {
@@ -10,12 +7,14 @@ import {
   PostEditorCore,
 } from "../../../../components/post-editor-core";
 import { Button } from "../../../../components/ui/button";
+import { Checkbox } from "../../../../components/ui/checkbox";
+import { Input } from "../../../../components/ui/input";
 import { usePostManagement } from "../../../../hooks/use-post-management";
 import { usePostMedia } from "../../../../hooks/use-post-media";
+import { useSubmitPost } from "../../../../hooks/use-submit-post";
 import { toast } from "../../../../hooks/use-toast";
 import { PostContent, useDraftsStore } from "../../../../store/drafts-store";
 import { useSelectedAccounts } from "../../../../store/platform-accounts-store";
-import { useSubmitPost } from "../../../../hooks/use-submit-post";
 
 export const Route = createFileRoute("/_layout/_crosspost/editor/")({
   component: EditorPage,
@@ -97,13 +96,19 @@ function EditorPage() {
     }));
 
     // Submit the post
-    await submitPost(postContents, selectedAccounts, isReply, replyUrl);
+    const postStatus = await submitPost(
+      postContents,
+      selectedAccounts,
+      isReply,
+      replyUrl,
+    );
 
-    // Clear form on success
-    if (postContents.length > 0) {
+    // Only clear form on complete success
+    if (postStatus === "success" && postContents.length > 0) {
       setPosts([{ text: "", mediaId: null, mediaPreview: null }]);
       clearAutoSave();
     }
+    // Keep the editor content for partial success or failure
   }, [
     posts,
     selectedAccounts,
