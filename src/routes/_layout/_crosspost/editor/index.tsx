@@ -1,5 +1,4 @@
-import { Platform, PlatformName } from "@crosspost/types";
-import { useWalletSelector } from "@near-wallet-selector/react-hook";
+import { PlatformName } from "@crosspost/types";
 import { createFileRoute } from "@tanstack/react-router";
 import React, { useCallback, useEffect, useState } from "react";
 import { Checkbox } from "../../../../components/ui/checkbox";
@@ -14,19 +13,17 @@ import { Button } from "../../../../components/ui/button";
 import { usePostManagement } from "../../../../hooks/use-post-management";
 import { usePostMedia } from "../../../../hooks/use-post-media";
 import { toast } from "../../../../hooks/use-toast";
-import { NearSocialService } from "../../../../lib/near-social-service";
 import { PostContent, useDraftsStore } from "../../../../store/drafts-store";
 import { useSelectedAccounts } from "../../../../store/platform-accounts-store";
-import { getClient } from "../../../../lib/authorization-service";
-import { authenticate } from "../../../../lib/authentication-service";
+import { useSubmitPost } from "../../../../hooks/use-submit-post";
 
 export const Route = createFileRoute("/_layout/_crosspost/editor/")({
   component: EditorPage,
 });
 
 function EditorPage() {
-  const { wallet, signedAccountId } = useWalletSelector();
   const selectedAccounts = useSelectedAccounts();
+  const { submitPost, isPosting } = useSubmitPost();
   const {
     setModalOpen,
     autosave,
@@ -39,7 +36,6 @@ function EditorPage() {
   const [posts, setPosts] = useState<EditorPost[]>([
     { text: "", mediaId: null, mediaPreview: null },
   ]);
-  const [isPosting, setIsPosting] = useState(false);
   const [isReply, setIsReply] = useState(false);
   const [replyUrl, setReplyUrl] = useState("");
 
@@ -85,227 +81,38 @@ function EditorPage() {
 
   // Handle post submission
   const handleSubmit = useCallback(async () => {
-    const nonEmptyPosts = posts.filter((p) => p.text.trim());
-    if (nonEmptyPosts.length === 0) {
-      toast({
-        title: "Empty Post",
-        description: "Please enter your post text",
-        variant: "destructive",
-      });
-      return;
+    // Convert posts to PostContent format
+    const postContents: PostContent[] = posts.map((post) => ({
+      text: post.text,
+      media: post.mediaPreview
+        ? [
+            {
+              data: post.mediaPreview,
+              mimeType: post.mediaPreview.startsWith("data:image/")
+                ? "image/jpeg"
+                : "video/mp4",
+            },
+          ]
+        : undefined,
+    }));
+
+    // Submit the post
+    await submitPost(postContents, selectedAccounts, isReply, replyUrl);
+
+    // Clear form on success
+    if (postContents.length > 0) {
+      setPosts([{ text: "", mediaId: null, mediaPreview: null }]);
+      clearAutoSave();
     }
-
-    if (selectedAccounts.length === 0) {
-      toast({
-        title: "Error",
-        description: "Please select at least one account to post to",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsPosting(true);
-
-    try {
-      // Convert posts to PostContent format
-      const postContents: PostContent[] = posts.map((post) => ({
-        text: post.text,
-        media: post.mediaPreview
-          ? [
-              {
-                data: post.mediaPreview,
-                mimeType: post.mediaPreview.startsWith("data:image/")
-                  ? "image/jpeg"
-                  : "video/mp4",
-              },
-            ]
-          : undefined,
-      }));
-
-      // Separate NEAR Social accounts from other platform accounts
-      const nearSocialAccounts = selectedAccounts.filter(
-        (account) => account.platform === ("Near Social" as PlatformName),
-      );
-
-      const otherAccounts = selectedAccounts.filter(
-        (account) => account.platform !== ("Near Social" as PlatformName),
-      );
-
-      let nearSocialSuccess = true;
-      let apiSuccess = true;
-      let nearSocialError = null;
-      let apiError = null;
-
-      // Post to NEAR Social if there are NEAR Social accounts
-      if (nearSocialAccounts.length > 0) {
-        try {
-          if (wallet) {
-            const nearSocialService = new NearSocialService(wallet);
-            const transaction =
-              await nearSocialService.createPost(postContents);
-
-            if (!transaction) {
-              throw new Error("Failed to create post transaction");
-            }
-
-            try {
-              await wallet.signAndSendTransactions({
-                transactions: [
-                  {
-                    receiverId: transaction.contractId,
-                    actions: transaction.actions,
-                  },
-                ],
-              });
-            } catch (error) {
-              console.error("Error signing transaction:", error);
-              throw error;
-            }
-          }
-        } catch (error) {
-          nearSocialSuccess = false;
-          nearSocialError = error;
-          console.error("NEAR Social post error:", error);
-        }
-      }
-
-      // Post to other platforms if there are other accounts
-      if (otherAccounts.length > 0) {
-        try {
-          const postRequest = {
-            targets: otherAccounts.map((account) => ({
-              platform: account.platform,
-              userId: account.profile.userId,
-            })),
-            content: postContents,
-          };
-
-          // Show crossposting toast
-          const uniquePlatforms = new Set([
-            ...postRequest.targets.map((t) => t.platform),
-            ...(nearSocialAccounts.length > 0
-              ? ["Near Social" as PlatformName]
-              : []),
-          ]);
-          const totalAccounts =
-            postRequest.targets.length + nearSocialAccounts.length;
-
-          toast({
-            title: "Crossposting...",
-            description: `Publishing to ${uniquePlatforms.size} platform${uniquePlatforms.size > 1 ? "s" : ""} and ${totalAccounts} account${totalAccounts > 1 ? "s" : ""}`,
-            variant: "default",
-          });
-
-          // Get client and authenticate before making the request
-          const client = getClient();
-          const authData = await authenticate(
-            wallet,
-            signedAccountId!,
-            isReply ? "replyToPost" : "createPost",
-          );
-          client.setAuthentication(authData);
-
-          if (isReply && replyUrl) {
-            // Extract platform and postId from URL
-            let platform: PlatformName;
-            let postId: string;
-
-            if (
-              replyUrl.includes("x.com") ||
-              replyUrl.includes("twitter.com")
-            ) {
-              platform = Platform.TWITTER;
-              postId = replyUrl.split("/").pop() || "";
-            } else {
-              throw new Error("Unsupported platform URL format");
-            }
-
-            if (!postId) {
-              throw new Error("Invalid reply URL format");
-            }
-
-            await client.post.replyToPost({
-              ...postRequest,
-              platform,
-              postId,
-            });
-          } else {
-            await client.post.createPost(postRequest);
-          }
-        } catch (error) {
-          apiSuccess = false;
-          apiError = error;
-
-          // Use SDK error utilities
-          let errorMessage = "Failed to publish post to other platforms";
-          if (error instanceof Error) {
-            errorMessage = error.message;
-          }
-
-          toast({
-            title: "Post Error",
-            description: errorMessage,
-            variant: "destructive",
-          });
-
-          console.error("API post error:", error);
-        }
-      }
-
-      // Handle success/failure cases
-      if (nearSocialSuccess && apiSuccess) {
-        toast({
-          title: "Success",
-          description:
-            "Your post has been published successfully to all platforms",
-        });
-
-        // Clear form
-        setPosts([{ text: "", mediaId: null, mediaPreview: null }]);
-        clearAutoSave();
-      } else if (!nearSocialSuccess && !apiSuccess) {
-        // Both failed
-        toast({
-          title: "Post Failed",
-          description: "Failed to publish post to any platform",
-          variant: "destructive",
-        });
-      } else if (!nearSocialSuccess) {
-        // Only NEAR Social failed
-        toast({
-          title: "Partial Success",
-          description:
-            "Post published to other platforms, but NEAR Social posting failed",
-          variant: "destructive",
-        });
-
-        // Clear form since we had partial success
-        setPosts([{ text: "", mediaId: null, mediaPreview: null }]);
-        clearAutoSave();
-      } else {
-        // Only API failed
-        toast({
-          title: "Partial Success",
-          description:
-            "Post published to NEAR Social, but other platforms failed",
-          variant: "destructive",
-        });
-
-        // Clear form since we had partial success
-        setPosts([{ text: "", mediaId: null, mediaPreview: null }]);
-        clearAutoSave();
-      }
-    } catch (error) {
-      toast({
-        title: "Post Failed",
-        description:
-          error instanceof Error ? error.message : "Failed to publish post",
-        variant: "destructive",
-      });
-    } finally {
-      setIsPosting(false);
-    }
-  }, [posts, selectedAccounts, setPosts, clearAutoSave, setIsPosting]);
+  }, [
+    posts,
+    selectedAccounts,
+    isReply,
+    replyUrl,
+    submitPost,
+    setPosts,
+    clearAutoSave,
+  ]);
 
   // Handle load draft
   const handleLoadDraft = useCallback(

@@ -14,7 +14,7 @@ function LayoutComponent() {
       <WindowContainer>
         <Outlet />
       </WindowContainer>
-      <HelperBuddy />
+      {/* <HelperBuddy /> */}
       <Footer />
     </>
   );

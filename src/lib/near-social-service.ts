@@ -1,8 +1,12 @@
 import { Social, transformActions } from "@builddao/near-social-js";
 import { getErrorMessage, isPlatformError } from "@crosspost/sdk";
-import { PlatformName, PostContent } from "@crosspost/types";
+import {
+  ConnectedAccount,
+  Platform,
+  PlatformName,
+  PostContent,
+} from "@crosspost/types";
 import { NETWORK_ID } from "../config";
-import { PlatformAccount } from "../store/platform-accounts-store";
 import { SOCIAL_CONTRACT } from "./near-social";
 import { getImageUrl, getProfile } from "./social";
 
@@ -17,7 +21,7 @@ export class NearSocialService {
    * Get the current NEAR account profile
    * @returns Promise resolving to the platform account or null if not connected
    */
-  async getCurrentAccountProfile(): Promise<PlatformAccount | null> {
+  async getCurrentAccountProfile(): Promise<ConnectedAccount | null> {
     if (!this.wallet) return null;
 
     try {
@@ -32,11 +36,13 @@ export class NearSocialService {
 
       return {
         platform: "Near Social" as PlatformName,
+        userId: accountId,
+        connectedAt: "",
         profile: {
           userId: accountId,
           username: profile?.name || accountId,
           profileImageUrl,
-          platform: "Near Social" as PlatformName,
+          platform: "Near Social" as Platform,
           lastUpdated: Date.now(),
         },
       };

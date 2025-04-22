@@ -15,7 +15,6 @@ import {
 } from "@dnd-kit/sortable";
 import { SortablePost } from "./sortable-post";
 import { Button } from "./ui/button";
-// Define the post type that matches SortablePost requirements
 export interface EditorPost {
   text: string;
   mediaId: string | null;
