@@ -9,7 +9,6 @@ import { createAuthenticatedMutation } from "../lib/authentication-service";
 import { getClient } from "../lib/authorization-service";
 import { NearSocialService } from "../lib/near-social-service";
 
-// Store for managing platform accounts
 interface PlatformAccountsState {
   selectedAccountIds: string[];
   selectAccount: (userId: string) => void;
@@ -62,9 +61,6 @@ export const usePlatformAccountsStore = create<PlatformAccountsState>()(
   ),
 );
 
-// React Query hooks for platform accounts
-
-// Fetch all connected accounts
 export function useConnectedAccounts() {
   const { wallet, signedAccountId } = useWalletSelector();
   const isAuthorized = useAuthorizationStatus();
