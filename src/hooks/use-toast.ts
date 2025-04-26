@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import type { ToastActionElement, ToastProps, } from "@/components/ui/toast";
+import type { ToastActionElement, ToastProps } from "@/components/ui/toast";
 
 const TOAST_LIMIT = 3;
 const TOAST_REMOVE_DELAY = 3000;
@@ -22,7 +22,7 @@ const actionTypes = {
   UPDATE_TOAST: "UPDATE_TOAST",
   DISMISS_TOAST: "DISMISS_TOAST",
   REMOVE_TOAST: "REMOVE_TOAST",
-} as const; 
+} as const;
 
 type Action =
   | {
@@ -31,7 +31,7 @@ type Action =
     }
   | {
       type: typeof actionTypes.UPDATE_TOAST;
-      toast: Partial<ToasterToast>; 
+      toast: Partial<ToasterToast>;
     }
   | {
       type: typeof actionTypes.DISMISS_TOAST;

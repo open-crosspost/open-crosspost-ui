@@ -8,7 +8,6 @@ import {
   DialogTitle,
 } from "../components/ui/dialog";
 import { APP_NAME } from "../config";
-// Update imports to use renamed service and functions
 import {
   createAuthorizationPayload,
   authorize,
@@ -25,7 +24,6 @@ import {
   getErrorMessage,
 } from "@crosspost/sdk";
 
-// Rename interface
 interface AuthorizationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -33,18 +31,15 @@ interface AuthorizationModalProps {
   message?: string;
 }
 
-// Rename component
 export function AuthorizationModal({
   isOpen,
   onClose,
   onSuccess,
   message,
 }: AuthorizationModalProps) {
-  // Use renamed interface
   const [isAuthorizing, setIsAuthorizing] = useState(false);
   const { wallet, signedAccountId } = useWalletSelector();
 
-  // Rename handler function for clarity
   const handleRequestAuthorization = async () => {
     if (!wallet || !signedAccountId) {
       console.error("Wallet not connected");
@@ -53,7 +48,6 @@ export function AuthorizationModal({
 
     setIsAuthorizing(true);
     try {
-      // Use renamed functions
       const authorizationPayload = await createAuthorizationPayload(
         wallet,
         signedAccountId,
@@ -149,7 +143,7 @@ export function AuthorizationModal({
         <DialogFooter className="flex-col space-y-2 sm:flex-row sm:space-y-0 sm:justify-between">
           <Button onClick={onClose}>Cancel</Button>
           <Button
-            onClick={handleRequestAuthorization} // Use renamed handler
+            onClick={handleRequestAuthorization}
             disabled={isAuthorizing}
             className="gap-2"
           >

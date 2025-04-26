@@ -18,7 +18,7 @@ export function usePostMedia(
   );
 
   const { debouncedFn: debouncedSave, cleanup } = useDebounce(saveCallback);
-  
+
   const handleMediaUpload = useCallback(
     (index: number, file: File) => {
       if (!file) return;
