@@ -5,8 +5,8 @@
       "name": "open-crosspost",
       "dependencies": {
         "@builddao/near-social-js": "^1.1.0",
-        "@crosspost/sdk": "^0.1.14",
-        "@crosspost/types": "^0.1.14",
+        "@crosspost/sdk": "^0.2.0",
+        "@crosspost/types": "^0.2.0",
         "@dnd-kit/core": "^6.3.1",
         "@dnd-kit/sortable": "^10.0.0",
         "@dnd-kit/utilities": "^3.2.2",
@@ -116,9 +116,9 @@
 
     "@builddao/near-social-js": ["@builddao/near-social-js@1.1.0", "", { "dependencies": { "bignumber.js": "^9.1.2", "near-api-js": "^4.0.1" } }, "sha512-HWdzpb30hfHhGSwBwt6h//skrIL7MFcFuIviN8iL90DuH00tkrRRhDidVRkNu2mJ5WU5bOsBPdEd424omvpZkA=="],
 
-    "@crosspost/sdk": ["@crosspost/sdk@0.1.14", "", { "dependencies": { "@crosspost/types": "^0.1.9", "near-sign-verify": "^0.1.3" } }, "sha512-Bf9xO3hj1OMt9a5Z1WCtMcoh4d4uHTh5sxOUn1JExsLV9cO9AZllgSzvMf9cYWroifYieIwKnhZXVs4QKqGi9Q=="],
+    "@crosspost/sdk": ["@crosspost/sdk@0.2.0", "", { "dependencies": { "@crosspost/types": "^0.1.9", "near-sign-verify": "^0.1.3" } }, "sha512-3FrveWHe4S0cnpiOdxDr7OY+lGEGTvgbyXlzJKIS2xGpBeZtT4xKeugVCu7AC5vOA7KSkuTDmnrL0TIjqfJuRA=="],
 
-    "@crosspost/types": ["@crosspost/types@0.1.14", "", { "dependencies": { "hono": "^4.7.6", "zod": "^3.24.2" } }, "sha512-Il5VcqY/CsBBPpfk/Kj3eRsT+Mncj4A2snfkDKHhalz/hoJMT6XUM+uiRIsa06OeK3bg/sKHAJ4HnYBUkaPqFw=="],
+    "@crosspost/types": ["@crosspost/types@0.2.0", "", { "dependencies": { "hono": "^4.7.6", "zod": "^3.24.2" } }, "sha512-/qTC/y/wP2YKTRxWh2QLQHd/s+izZ0AG1eVlonWiFJzKelDB9kRCO8/kIriOI1pc9NRcdpdFoOdPwDpL+NEi+g=="],
 
     "@dnd-kit/accessibility": ["@dnd-kit/accessibility@3.1.1", "", { "dependencies": { "tslib": "^2.0.0" }, "peerDependencies": { "react": ">=16.8.0" } }, "sha512-2P+YgaXF+gRsIihwwY1gCsQSYnu9Zyj2py8kY5fFvUM1qm2WA2u639R6YNVfU4GWr+ZM5mqEsfHZZLoRONbemw=="],
 
@@ -1857,6 +1857,8 @@
     "@babel/core/semver": ["semver@6.3.1", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="],
 
     "@babel/helper-compilation-targets/semver": ["semver@6.3.1", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="],
+
+    "@crosspost/sdk/@crosspost/types": ["@crosspost/types@0.1.14", "", { "dependencies": { "hono": "^4.7.6", "zod": "^3.24.2" } }, "sha512-Il5VcqY/CsBBPpfk/Kj3eRsT+Mncj4A2snfkDKHhalz/hoJMT6XUM+uiRIsa06OeK3bg/sKHAJ4HnYBUkaPqFw=="],
 
     "@here-wallet/core/@near-js/accounts": ["@near-js/accounts@1.4.1", "", { "dependencies": { "@near-js/crypto": "1.4.2", "@near-js/providers": "1.0.3", "@near-js/signers": "0.2.2", "@near-js/transactions": "1.3.3", "@near-js/types": "0.3.1", "@near-js/utils": "1.1.0", "@noble/hashes": "1.7.1", "borsh": "1.0.0", "depd": "2.0.0", "is-my-json-valid": "^2.20.6", "lru_map": "0.4.1", "near-abi": "0.2.0" } }, "sha512-ni3QT9H3NdrbVVKyx56yvz93r89Dvpc/vgVtiIK2OdXjkK6jcj+UKMDRQ6F7rd9qJOInLkHZbVBtcR6j1CXLjw=="],
 

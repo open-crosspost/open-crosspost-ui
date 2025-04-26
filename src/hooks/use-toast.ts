@@ -1,13 +1,10 @@
 "use client";
-// Inspired by react-hot-toast library
 import * as React from "react";
-import type { ToastActionElement, ToastProps } from "@/components/ui/toast"; // Import types
+import type { ToastActionElement, ToastProps, } from "@/components/ui/toast";
 
 const TOAST_LIMIT = 3;
 const TOAST_REMOVE_DELAY = 3000;
 
-// Use the interface defined in toaster.tsx or define a compatible one here
-// Let's redefine it here for clarity within the hook file, ensuring compatibility
 type ToasterToast = Omit<
   ToastProps,
   "id" | "title" | "description" | "action"
@@ -16,8 +13,8 @@ type ToasterToast = Omit<
   title?: React.ReactNode;
   description?: React.ReactNode;
   action?: ToastActionElement;
-  open?: boolean; // Add open state
-  onOpenChange?: (open: boolean) => void; // Add callback
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 const actionTypes = {
@@ -25,9 +22,8 @@ const actionTypes = {
   UPDATE_TOAST: "UPDATE_TOAST",
   DISMISS_TOAST: "DISMISS_TOAST",
   REMOVE_TOAST: "REMOVE_TOAST",
-} as const; // Use 'as const' for stricter type checking
+} as const; 
 
-// Define Action types
 type Action =
   | {
       type: typeof actionTypes.ADD_TOAST;
@@ -35,7 +31,7 @@ type Action =
     }
   | {
       type: typeof actionTypes.UPDATE_TOAST;
-      toast: Partial<ToasterToast>; // Allow partial updates
+      toast: Partial<ToasterToast>; 
     }
   | {
       type: typeof actionTypes.DISMISS_TOAST;
@@ -46,7 +42,6 @@ type Action =
       toastId?: ToasterToast["id"];
     };
 
-// Define State type
 interface State {
   toasts: ToasterToast[];
 }
@@ -58,7 +53,6 @@ function genId(): string {
   return count.toString();
 }
 
-// Use the specific return type of setTimeout for browser environments
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
 const addToRemoveQueue = (toastId: string) => {
@@ -148,7 +142,6 @@ function dispatch(action: Action) {
   });
 }
 
-// Define props for the toast function
 type ToastFnProps = Omit<ToasterToast, "id" | "open" | "onOpenChange">;
 
 interface ToastReturn {
@@ -187,7 +180,6 @@ function toast(props: ToastFnProps): ToastReturn {
   };
 }
 
-// Define the return type of the hook
 interface UseToastReturn extends State {
   toast: typeof toast;
   dismiss: (toastId?: string) => void;
@@ -204,7 +196,7 @@ function useToast(): UseToastReturn {
         listeners.splice(index, 1);
       }
     };
-  }, [state]); // Dependency array should include state
+  }, [state]);
 
   return {
     ...state,

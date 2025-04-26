@@ -128,7 +128,6 @@ function LeaderboardPage() {
     pageCount: Math.ceil(totalEntries / pagination.pageSize),
   });
 
-  // Fetch leaderboard data
   useEffect(() => {
     const fetchLeaderboard = async () => {
       setIsLoading(true);
@@ -139,14 +138,7 @@ function LeaderboardPage() {
           throw new Error("Wallet not connected");
         }
 
-        // Get client and authenticate before making the request
         const client = getClient();
-        // const authData = await authenticate(
-        //   wallet,
-        //   signedAccountId,
-        //   "getLeaderboard",
-        // );
-        // client.setAuthentication(authData);
 
         const { entries } = await client.activity.getLeaderboard({
           limit: pagination.pageSize,

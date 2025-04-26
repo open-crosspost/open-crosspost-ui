@@ -8,7 +8,6 @@ export function usePostMedia(
   toast = toastFunction,
   saveAutoSave?: (posts: PostContent[]) => void,
 ) {
-  // Use the shared debounce utility
   const saveCallback = useCallback(
     (postsToSave: PostContent[]) => {
       if (saveAutoSave) {
@@ -19,7 +18,7 @@ export function usePostMedia(
   );
 
   const { debouncedFn: debouncedSave, cleanup } = useDebounce(saveCallback);
-  // Handle media upload
+  
   const handleMediaUpload = useCallback(
     (index: number, file: File) => {
       if (!file) return;
@@ -55,7 +54,6 @@ export function usePostMedia(
               mediaPreview: event.target!.result as string,
             };
 
-            // Use debounced save for media uploads
             debouncedSave(newPosts);
 
             return newPosts;
@@ -67,7 +65,6 @@ export function usePostMedia(
     [setPosts, toast, debouncedSave],
   );
 
-  // Handle media removal
   const removeMedia = useCallback(
     (index: number) => {
       setPosts((currentPosts) => {
@@ -88,7 +85,6 @@ export function usePostMedia(
           mediaPreview: null,
         };
 
-        // Use debounced save for media removal
         debouncedSave(newPosts);
 
         return newPosts;

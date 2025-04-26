@@ -268,7 +268,6 @@ export function useSubmitPost() {
       finalStatus = "idle";
     }
 
-    // Update state with final results
     setStatus(finalStatus);
     setResult({
       status: finalStatus,
@@ -277,7 +276,6 @@ export function useSubmitPost() {
       errors: finalErrors,
     });
 
-    // Show appropriate toast based on final status
     if (finalStatus === "success") {
       toast({
         title: "Success",
