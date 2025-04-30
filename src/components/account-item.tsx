@@ -3,12 +3,14 @@ import React from "react";
 import { Button } from "./ui/button";
 import { ProfileCard } from "./profile-card";
 
-interface AccountItemProps {
+export interface AccountItemProps {
   account: ConnectedAccount;
   isSelected: boolean;
   onSelect: () => void;
   actions?: React.ReactNode;
-  variant?: "default" | "compact"; // New prop for layout variants
+  variant?: "default" | "compact";
+  disabled?: boolean; 
+  title?: string;
 }
 
 export function AccountItem({
@@ -17,17 +19,29 @@ export function AccountItem({
   onSelect,
   actions,
   variant = "default",
+  disabled = false,
+  title,
 }: AccountItemProps) {
+  // Handle click with disabled state
+  const handleClick = () => {
+    if (!disabled) {
+      onSelect();
+    }
+  };
+
   // Compact variant is used in the grid layout of PlatformAccountsSelector
   if (variant === "compact") {
     return (
       <div
-        className={`flex items-center p-3 rounded-md cursor-pointer transition-colors ${
-          isSelected
-            ? "border-2 border-green-500 bg-green-50"
-            : "border-2 border-gray-200 hover:bg-gray-50"
+        className={`flex items-center p-3 rounded-md transition-colors ${
+          disabled
+            ? "border-2 border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed"
+            : isSelected
+            ? "border-2 border-green-500 bg-green-50 cursor-pointer"
+            : "border-2 border-gray-200 hover:bg-gray-50 cursor-pointer"
         }`}
-        onClick={onSelect}
+        onClick={handleClick}
+        title={title}
       >
         <div className="flex-grow">
           <ProfileCard account={account} size="sm" />
@@ -59,12 +73,16 @@ export function AccountItem({
     );
   }
 
-  // Default variant (used in the manage page)
   return (
     <div
       className={`flex flex-col sm:flex-row sm:items-center sm:justify-between rounded-md border-2 p-3 sm:p-4 gap-3 ${
-        isSelected ? "border-green-500 bg-green-50" : "border-gray-200"
+        disabled
+          ? "border-gray-200 bg-gray-100 opacity-60"
+          : isSelected
+          ? "border-green-500 bg-green-50"
+          : "border-gray-200"
       }`}
+      title={title}
     >
       <div className="flex items-center space-x-4">
         <ProfileCard account={account} size="md" />
@@ -74,7 +92,8 @@ export function AccountItem({
         {actions}
         <Button
           size="sm"
-          onClick={onSelect}
+          onClick={handleClick}
+          disabled={disabled}
           className={
             isSelected ? "bg-green-200 text-black hover:bg-green-300" : ""
           }

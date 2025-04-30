@@ -12,6 +12,11 @@ export interface ReplyPostParams extends CreatePostParams {
   postId: string;
 }
 
+export interface QuotePostParams extends CreatePostParams {
+  platform: PlatformName;
+  postId: string;
+}
+
 export interface PostResponse {
   summary: {
     total: number;
@@ -46,4 +51,17 @@ export const useReplyPost = createAuthenticatedMutation<
   mutationKey: ["replyPost"],
   clientMethod: (client, params) => client.post.replyToPost(params),
   getAuthDetails: () => "replyToPost",
+});
+
+/**
+ * Hook for quoting an existing post
+ */
+export const useQuotePost = createAuthenticatedMutation<
+  PostResponse,
+  Error,
+  QuotePostParams
+>({
+  mutationKey: ["quotePost"],
+  clientMethod: (client, params) => client.post.quotePost(params),
+  getAuthDetails: () => "quotePost",
 });

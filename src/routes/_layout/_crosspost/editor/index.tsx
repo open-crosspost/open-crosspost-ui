@@ -1,14 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { DraftsModal } from "../../../../components/drafts-modal";
 import { PlatformAccountsSelector } from "../../../../components/platform-accounts-selector";
 import {
   EditorPost,
   PostEditorCore,
 } from "../../../../components/post-editor-core";
+import { PostInteractionSelector, PostType } from "../../../../components/post-interaction-selector";
 import { Button } from "../../../../components/ui/button";
-import { Checkbox } from "../../../../components/ui/checkbox";
-import { Input } from "../../../../components/ui/input";
+import { PlatformName, SUPPORTED_PLATFORMS } from "@crosspost/types";
+import { detectPlatformFromUrl } from "../../../../lib/utils/url-utils";
 import { usePostManagement } from "../../../../hooks/use-post-management";
 import { usePostMedia } from "../../../../hooks/use-post-media";
 import { useSubmitPost } from "../../../../hooks/use-submit-post";
@@ -35,8 +36,25 @@ function EditorPage() {
   const [posts, setPosts] = useState<EditorPost[]>([
     { text: "", mediaId: null, mediaPreview: null },
   ]);
-  const [isReply, setIsReply] = useState(false);
-  const [replyUrl, setReplyUrl] = useState("");
+  const [postType, setPostType] = useState<PostType>("post");
+  const [targetUrl, setTargetUrl] = useState("");
+  
+  // Detect platform from URL and determine which platforms to disable
+  const disabledPlatforms = useMemo<PlatformName[]>(() => {
+    if (postType === "post") {
+      return []; // No platforms disabled for regular posts
+    }
+    
+    const detectedPlatform = detectPlatformFromUrl(targetUrl);
+    if (!detectedPlatform) {
+      return []; // If no platform detected, don't disable any yet
+    }
+    
+    // Return all platforms except the detected one
+    return Object.values(SUPPORTED_PLATFORMS).filter(
+      platform => platform !== detectedPlatform
+    ) as PlatformName[];
+  }, [postType, targetUrl]);
 
   const { handleMediaUpload, removeMedia } = usePostMedia(
     setPosts as any,
@@ -99,8 +117,8 @@ function EditorPage() {
     const postStatus = await submitPost(
       postContents,
       selectedAccounts,
-      isReply,
-      replyUrl,
+      postType,
+      targetUrl,
     );
 
     // Only clear form on complete success
@@ -112,8 +130,8 @@ function EditorPage() {
   }, [
     posts,
     selectedAccounts,
-    isReply,
-    replyUrl,
+    postType,
+    targetUrl,
     submitPost,
     setPosts,
     clearAutoSave,
@@ -142,32 +160,15 @@ function EditorPage() {
   return (
     <div className="w-full max-w-2xl mx-auto">
       <div className="space-y-4 mb-4">
-        <PlatformAccountsSelector />
+        <PlatformAccountsSelector disabledPlatforms={disabledPlatforms} />
         {/* Controls Bar */}
         <div className="flex justify-between items-center mb-2">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="isReply"
-                checked={isReply}
-                onCheckedChange={(checked: boolean) => setIsReply(checked)}
-                className="border-2"
-              />
-              <label htmlFor="isReply" className="text-sm">
-                Reply to post
-              </label>
-            </div>
-            {isReply && (
-              <Input
-                value={replyUrl}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setReplyUrl(e.target.value)
-                }
-                placeholder="Enter post URL to reply to (e.g., https://x.com/user/status/123)"
-                className="w-[400px] border-2"
-              />
-            )}
-          </div>
+          <PostInteractionSelector
+            postType={postType}
+            targetUrl={targetUrl}
+            onPostTypeChange={setPostType}
+            onTargetUrlChange={setTargetUrl}
+          />
           <Button onClick={() => setModalOpen(true)} size="sm">
             Drafts
           </Button>
