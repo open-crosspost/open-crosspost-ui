@@ -4,9 +4,18 @@ import { useState } from "react";
 import { NearSocialService } from "../lib/near-social-service";
 import { transformNearSocialPost } from "../lib/utils/near-social-utils";
 import { parseCrosspostError } from "../lib/utils/error-utils";
+import {
+  detectPlatformFromUrl,
+  extractPostIdFromUrl,
+} from "../lib/utils/url-utils";
 import { PostContent } from "../store/drafts-store";
 import { toast } from "./use-toast";
-import { useCreatePost, useReplyPost } from "./use-post-mutations";
+import {
+  useCreatePost,
+  useQuotePost,
+  useReplyPost,
+} from "./use-post-mutations";
+import { PostType } from "../components/post-interaction-selector";
 
 export type SubmitStatus =
   | "idle"
@@ -36,12 +45,13 @@ export function useSubmitPost() {
 
   const createPostMutation = useCreatePost();
   const replyPostMutation = useReplyPost();
+  const quotePostMutation = useQuotePost();
 
   const submitPost = async (
     posts: PostContent[],
     selectedAccounts: ConnectedAccount[],
-    isReply: boolean = false,
-    replyUrl: string = "",
+    postType: PostType = "post",
+    targetUrl: string = "",
   ): Promise<SubmitStatus> => {
     if (!wallet || !signedAccountId) {
       toast({
@@ -78,13 +88,52 @@ export function useSubmitPost() {
     setStatus("posting");
     setResult({ status: "posting" });
 
-    // Separate NEAR Social accounts
-    const nearSocialAccounts = selectedAccounts.filter(
-      (account) => account.platform === ("Near Social" as PlatformName),
-    );
-    const otherAccounts = selectedAccounts.filter(
-      (account) => account.platform !== ("Near Social" as PlatformName),
-    );
+    // For quote or reply, validate the URL and filter accounts by platform
+    if ((postType === "quote" || postType === "reply") && targetUrl) {
+      const detectedPlatform = detectPlatformFromUrl(targetUrl);
+
+      if (!detectedPlatform) {
+        toast({
+          title: "Invalid URL",
+          description: "Could not detect platform from the provided URL",
+          variant: "destructive",
+        });
+        setStatus("failure");
+        setResult({ status: "failure" });
+        return "failure";
+      }
+
+      // Filter accounts to only include those from the detected platform
+      selectedAccounts = selectedAccounts.filter(
+        (account) => account.platform === detectedPlatform,
+      );
+
+      if (selectedAccounts.length === 0) {
+        toast({
+          title: "No Compatible Accounts",
+          description: `Please select at least one ${detectedPlatform} account to ${postType}`,
+          variant: "destructive",
+        });
+        setStatus("failure");
+        setResult({ status: "failure" });
+        return "failure";
+      }
+    }
+
+    // Separate NEAR Social accounts - only used for regular posts
+    const nearSocialAccounts =
+      postType === "post"
+        ? selectedAccounts.filter(
+            (account) => account.platform === ("Near Social" as PlatformName),
+          )
+        : [];
+
+    const otherAccounts =
+      postType === "post"
+        ? selectedAccounts.filter(
+            (account) => account.platform !== ("Near Social" as PlatformName),
+          )
+        : selectedAccounts;
 
     // Initial toast
     const uniquePlatforms = new Set([
@@ -104,8 +153,8 @@ export function useSubmitPost() {
     let apiResponse: any = null;
     let apiError: any = null;
 
-    // --- Post to NEAR Social ---
-    if (nearSocialAccounts.length > 0) {
+    // --- Post to NEAR Social (only for regular posts) ---
+    if (nearSocialAccounts.length > 0 && postType === "post") {
       try {
         const nearSocialService = new NearSocialService(wallet);
         const combinedText = transformNearSocialPost(nonEmptyPosts);
@@ -143,20 +192,13 @@ export function useSubmitPost() {
           content: nonEmptyPosts,
         };
 
-        if (isReply && replyUrl) {
-          // Extract platform and postId from URL
-          let platform: PlatformName;
-          let postId: string;
+        if (postType === "reply" && targetUrl) {
+          // Extract platform and postId from URL using utility functions
+          const platform = detectPlatformFromUrl(targetUrl);
+          const postId = extractPostIdFromUrl(targetUrl, platform);
 
-          if (replyUrl.includes("x.com") || replyUrl.includes("twitter.com")) {
-            platform = Platform.TWITTER;
-            postId = replyUrl.split("/").pop() || "";
-          } else {
-            throw new Error("Unsupported platform URL format for reply");
-          }
-
-          if (!postId) {
-            throw new Error("Invalid reply URL format");
+          if (!platform || !postId) {
+            throw new Error("Invalid URL format or unsupported platform");
           }
 
           apiResponse = await replyPostMutation.mutateAsync({
@@ -164,7 +206,22 @@ export function useSubmitPost() {
             platform,
             postId,
           });
+        } else if (postType === "quote" && targetUrl) {
+          // For quote posts, use the dedicated quote mutation
+          const platform = detectPlatformFromUrl(targetUrl);
+          const postId = extractPostIdFromUrl(targetUrl, platform);
+
+          if (!platform || !postId) {
+            throw new Error("Invalid URL format or unsupported platform");
+          }
+
+          apiResponse = await quotePostMutation.mutateAsync({
+            ...postRequest,
+            platform,
+            postId,
+          });
         } else {
+          // Regular post
           apiResponse = await createPostMutation.mutateAsync(postRequest);
         }
       } catch (error) {

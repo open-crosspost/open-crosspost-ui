@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import React from "react";
+import { PlatformName } from "@crosspost/types";
 import {
   useAllAccounts,
   useConnectedAccounts,
@@ -8,7 +9,13 @@ import {
 import { AccountItem } from "./account-item";
 import { Button } from "./ui/button";
 
-export function PlatformAccountsSelector() {
+interface PlatformAccountsSelectorProps {
+  disabledPlatforms?: PlatformName[];
+}
+
+export function PlatformAccountsSelector({
+  disabledPlatforms = [],
+}: PlatformAccountsSelectorProps) {
   const navigate = useNavigate();
   const allAccounts = useAllAccounts();
   const { toggleAccountSelection, isAccountSelected } =
@@ -80,15 +87,26 @@ export function PlatformAccountsSelector() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 w-full">
-        {allAccounts.map((account) => (
-          <AccountItem
-            key={account.userId}
-            account={account}
-            isSelected={isAccountSelected(account.userId)}
-            onSelect={() => toggleAccountSelection(account.userId)}
-            variant="compact"
-          />
-        ))}
+        {allAccounts.map((account) => {
+          const isPlatformDisabled = disabledPlatforms.includes(
+            account.platform,
+          );
+          return (
+            <AccountItem
+              key={account.userId}
+              account={account}
+              isSelected={isAccountSelected(account.userId)}
+              onSelect={() => toggleAccountSelection(account.userId)}
+              variant="compact"
+              disabled={isPlatformDisabled}
+              title={
+                isPlatformDisabled
+                  ? `${account.platform} is disabled for this interaction type`
+                  : undefined
+              }
+            />
+          );
+        })}
       </div>
     </div>
   );
