@@ -6,7 +6,10 @@ import {
   EditorPost,
   PostEditorCore,
 } from "../../../../components/post-editor-core";
-import { PostInteractionSelector, PostType } from "../../../../components/post-interaction-selector";
+import {
+  PostInteractionSelector,
+  PostType,
+} from "../../../../components/post-interaction-selector";
 import { Button } from "../../../../components/ui/button";
 import { PlatformName, SUPPORTED_PLATFORMS } from "@crosspost/types";
 import { detectPlatformFromUrl } from "../../../../lib/utils/url-utils";
@@ -38,21 +41,21 @@ function EditorPage() {
   ]);
   const [postType, setPostType] = useState<PostType>("post");
   const [targetUrl, setTargetUrl] = useState("");
-  
+
   // Detect platform from URL and determine which platforms to disable
   const disabledPlatforms = useMemo<PlatformName[]>(() => {
     if (postType === "post") {
       return []; // No platforms disabled for regular posts
     }
-    
+
     const detectedPlatform = detectPlatformFromUrl(targetUrl);
     if (!detectedPlatform) {
       return []; // If no platform detected, don't disable any yet
     }
-    
+
     // Return all platforms except the detected one
     return Object.values(SUPPORTED_PLATFORMS).filter(
-      platform => platform !== detectedPlatform
+      (platform) => platform !== detectedPlatform,
     ) as PlatformName[];
   }, [postType, targetUrl]);
 

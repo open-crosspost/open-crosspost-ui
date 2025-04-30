@@ -4,10 +4,17 @@ import { useState } from "react";
 import { NearSocialService } from "../lib/near-social-service";
 import { transformNearSocialPost } from "../lib/utils/near-social-utils";
 import { parseCrosspostError } from "../lib/utils/error-utils";
-import { detectPlatformFromUrl, extractPostIdFromUrl } from "../lib/utils/url-utils";
+import {
+  detectPlatformFromUrl,
+  extractPostIdFromUrl,
+} from "../lib/utils/url-utils";
 import { PostContent } from "../store/drafts-store";
 import { toast } from "./use-toast";
-import { useCreatePost, useQuotePost, useReplyPost } from "./use-post-mutations";
+import {
+  useCreatePost,
+  useQuotePost,
+  useReplyPost,
+} from "./use-post-mutations";
 import { PostType } from "../components/post-interaction-selector";
 
 export type SubmitStatus =
@@ -84,7 +91,7 @@ export function useSubmitPost() {
     // For quote or reply, validate the URL and filter accounts by platform
     if ((postType === "quote" || postType === "reply") && targetUrl) {
       const detectedPlatform = detectPlatformFromUrl(targetUrl);
-      
+
       if (!detectedPlatform) {
         toast({
           title: "Invalid URL",
@@ -95,12 +102,12 @@ export function useSubmitPost() {
         setResult({ status: "failure" });
         return "failure";
       }
-      
+
       // Filter accounts to only include those from the detected platform
       selectedAccounts = selectedAccounts.filter(
-        (account) => account.platform === detectedPlatform
+        (account) => account.platform === detectedPlatform,
       );
-      
+
       if (selectedAccounts.length === 0) {
         toast({
           title: "No Compatible Accounts",
@@ -114,17 +121,19 @@ export function useSubmitPost() {
     }
 
     // Separate NEAR Social accounts - only used for regular posts
-    const nearSocialAccounts = postType === "post" 
-      ? selectedAccounts.filter(
-          (account) => account.platform === ("Near Social" as PlatformName),
-        )
-      : [];
-    
-    const otherAccounts = postType === "post"
-      ? selectedAccounts.filter(
-          (account) => account.platform !== ("Near Social" as PlatformName),
-        )
-      : selectedAccounts;
+    const nearSocialAccounts =
+      postType === "post"
+        ? selectedAccounts.filter(
+            (account) => account.platform === ("Near Social" as PlatformName),
+          )
+        : [];
+
+    const otherAccounts =
+      postType === "post"
+        ? selectedAccounts.filter(
+            (account) => account.platform !== ("Near Social" as PlatformName),
+          )
+        : selectedAccounts;
 
     // Initial toast
     const uniquePlatforms = new Set([
@@ -201,11 +210,11 @@ export function useSubmitPost() {
           // For quote posts, use the dedicated quote mutation
           const platform = detectPlatformFromUrl(targetUrl);
           const postId = extractPostIdFromUrl(targetUrl, platform);
-          
+
           if (!platform || !postId) {
             throw new Error("Invalid URL format or unsupported platform");
           }
-          
+
           apiResponse = await quotePostMutation.mutateAsync({
             ...postRequest,
             platform,

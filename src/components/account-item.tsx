@@ -9,7 +9,7 @@ export interface AccountItemProps {
   onSelect: () => void;
   actions?: React.ReactNode;
   variant?: "default" | "compact";
-  disabled?: boolean; 
+  disabled?: boolean;
   title?: string;
 }
 
@@ -37,8 +37,8 @@ export function AccountItem({
           disabled
             ? "border-2 border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed"
             : isSelected
-            ? "border-2 border-green-500 bg-green-50 cursor-pointer"
-            : "border-2 border-gray-200 hover:bg-gray-50 cursor-pointer"
+              ? "border-2 border-green-500 bg-green-50 cursor-pointer"
+              : "border-2 border-gray-200 hover:bg-gray-50 cursor-pointer"
         }`}
         onClick={handleClick}
         title={title}
@@ -79,8 +79,8 @@ export function AccountItem({
         disabled
           ? "border-gray-200 bg-gray-100 opacity-60"
           : isSelected
-          ? "border-green-500 bg-green-50"
-          : "border-gray-200"
+            ? "border-green-500 bg-green-50"
+            : "border-gray-200"
       }`}
       title={title}
     >

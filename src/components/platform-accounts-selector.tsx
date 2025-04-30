@@ -88,7 +88,9 @@ export function PlatformAccountsSelector({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 w-full">
         {allAccounts.map((account) => {
-          const isPlatformDisabled = disabledPlatforms.includes(account.platform);
+          const isPlatformDisabled = disabledPlatforms.includes(
+            account.platform,
+          );
           return (
             <AccountItem
               key={account.userId}

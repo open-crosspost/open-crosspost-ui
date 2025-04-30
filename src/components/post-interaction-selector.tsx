@@ -35,7 +35,8 @@ export function PostInteractionSelector({
               onClick={() => onPostTypeChange(type)}
               className={cn(
                 "capitalize",
-                postType === type && "bg-green-100 text-black hover:bg-green-200",
+                postType === type &&
+                  "bg-green-100 text-black hover:bg-green-200",
               )}
             >
               {type}
@@ -54,8 +55,8 @@ export function PostInteractionSelector({
             placeholder={`Enter URL to ${postType} (e.g., https://x.com/user/status/123)`}
             className={cn(
               "w-full sm:w-[400px] border-2",
-              !detectedPlatform && targetUrl && "border-red-500", 
-              detectedPlatform && "border-green-500"
+              !detectedPlatform && targetUrl && "border-red-500",
+              detectedPlatform && "border-green-500",
             )}
           />
         </div>
