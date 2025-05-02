@@ -1,7 +1,6 @@
 import { getClient } from "../../../../lib/authorization-service";
-import { authenticate } from "../../../../lib/authentication-service";
-import { getErrorMessage } from "@crosspost/sdk";
-import { TimePeriod } from "@crosspost/types";
+import { getErrorMessage, SUPPORTED_PLATFORMS } from "@crosspost/sdk";
+import { TimePeriod, AccountActivityEntry, Platform } from "@crosspost/types";
 import { createFileRoute } from "@tanstack/react-router";
 import { BackButton } from "../../../../components/back-button";
 import { useWalletSelector } from "@near-wallet-selector/react-hook";
@@ -17,19 +16,6 @@ import {
 } from "@tanstack/react-table";
 import React, { useEffect, useState } from "react";
 
-/**
- * Leaderboard entry interface
- */
-export interface LeaderboardEntry {
-  signerId: string;
-  username?: string;
-  profileImageUrl?: string;
-  postCount: number;
-  platform?: string;
-  rank?: number; // Added by the frontend
-  firstPostTimestamp?: number;
-  lastPostTimestamp?: number;
-}
 
 export const Route = createFileRoute("/_layout/_crosspost/leaderboard/")({
   component: LeaderboardPage,
@@ -38,7 +24,7 @@ export const Route = createFileRoute("/_layout/_crosspost/leaderboard/")({
 function LeaderboardPage() {
   const { wallet, signedAccountId } = useWalletSelector();
   // State for table data and loading
-  const [data, setData] = useState<LeaderboardEntry[]>([]);
+  const [data, setData] = useState<AccountActivityEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalEntries, setTotalEntries] = useState(0);
@@ -58,8 +44,7 @@ function LeaderboardPage() {
     pageSize: 10,
   });
 
-  // Column definitions using TanStack Table's column helper
-  const columnHelper = createColumnHelper<LeaderboardEntry>();
+  const columnHelper = createColumnHelper<AccountActivityEntry>();
   const columns = [
     columnHelper.accessor("rank", {
       header: "Rank",
@@ -73,40 +58,56 @@ function LeaderboardPage() {
         </div>
       ),
     }),
-    columnHelper.accessor("postCount", {
+    columnHelper.accessor("totalPosts", {
       header: "Posts",
       cell: (info) => info.getValue(),
     }),
-    columnHelper.accessor("firstPostTimestamp", {
-      header: "First Post",
+    // Keep First Post column, but data might not be available in AccountActivityEntry
+    // If firstPostTimestamp is added to the API response later, this will work.
+    // For now, it might render 'N/A' or cause an error if the property doesn't exist.
+    // Consider adding optional chaining or checking if the property exists.
+    columnHelper.accessor((row) => (row as any).firstPostTimestamp, {
+       id: 'firstPostTimestamp', // Need an ID if using an accessor function
+       header: "First Post",
+       cell: (info) => {
+         const timestamp = info.getValue();
+         if (!timestamp) return "N/A";
+         try {
+           // Assuming timestamp is a number (milliseconds) or a string Date.parse can handle
+           const date = new Date(timestamp);
+           if (isNaN(date.getTime())) return "Invalid Date"; // Check if date is valid
+           return date.toLocaleString(undefined, {
+             year: "numeric",
+             month: "short",
+             day: "numeric",
+             hour: "2-digit",
+             minute: "2-digit",
+           });
+         } catch (e) {
+            console.error("Error parsing first post date:", timestamp, e);
+            return "Invalid Date";
+         }
+       },
+     }),
+    columnHelper.accessor("lastActive", { // Use lastActive from API
+      header: "Last Active", // Renamed header for clarity
       cell: (info) => {
-        const timestamp = info.getValue();
-        if (!timestamp) return "N/A";
-
-        const date = new Date(timestamp);
-        return date.toLocaleString(undefined, {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        });
-      },
-    }),
-    columnHelper.accessor("lastPostTimestamp", {
-      header: "Last Post",
-      cell: (info) => {
-        const timestamp = info.getValue();
-        if (!timestamp) return "N/A";
-
-        const date = new Date(timestamp);
-        return date.toLocaleString(undefined, {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        });
+        const dateTimeString = info.getValue();
+        if (!dateTimeString) return "N/A";
+        try {
+          const date = new Date(dateTimeString);
+          if (isNaN(date.getTime())) return "Invalid Date"; // Check if date is valid
+          return date.toLocaleString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+        } catch (e) {
+           console.error("Error parsing last active date:", dateTimeString, e);
+           return "Invalid Date";
+        }
       },
     }),
   ];
@@ -124,36 +125,67 @@ function LeaderboardPage() {
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    manualPagination: true,
-    pageCount: Math.ceil(totalEntries / pagination.pageSize),
+    manualPagination: true, // Keep manual pagination
+    // pageCount is derived from totalEntries fetched from API
+    pageCount: totalEntries > 0 ? Math.ceil(totalEntries / pagination.pageSize) : -1, // Use -1 or 0 if total unknown initially
+    // Alternatively, if totalEntries is 0 initially: pageCount: Math.max(1, Math.ceil(totalEntries / pagination.pageSize))
   });
+
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
       setIsLoading(true);
       setError(null);
+      // Reset data and total on fetch start? Optional, prevents showing stale data briefly.
+      // setData([]);
+      // setTotalEntries(0);
 
       try {
         if (!wallet || !signedAccountId) {
-          throw new Error("Wallet not connected");
+          // Don't throw, just set error and return or show a connect message
+          setError("Wallet not connected");
+          setIsLoading(false);
+          setData([]);
+          setTotalEntries(0);
+          return;
         }
 
         const client = getClient();
 
-        const { entries } = await client.activity.getLeaderboard({
+        // Prepare filter object
+        const filter: { platforms?: Platform[]; timeframe?: TimePeriod } = {};
+        if (platform) {
+          // Ensure platform is a valid Platform enum key before adding
+          const platformEnumKey = Object.keys(Platform).find(key => Platform[key as keyof typeof Platform] === platform);
+          if (platformEnumKey) {
+             filter.platforms = [platform as Platform]; // Cast needed if state is string
+          } else {
+             console.warn("Invalid platform selected:", platform);
+             // Optionally reset platform filter or show an error
+          }
+        }
+        if (timeframe) {
+          filter.timeframe = timeframe;
+        }
+
+        // Make API call
+        const response = await client.activity.getLeaderboard({
           limit: pagination.pageSize,
           offset: pagination.pageIndex * pagination.pageSize,
-          timeframe: timeframe,
+          // Pass filter only if it has keys, otherwise pass undefined
+          filter: Object.keys(filter).length > 0 ? filter : undefined,
         });
 
-        // Transform the entries to include rank
-        const transformedEntries = entries.map((entry: any, index: number) => ({
-          ...entry,
-          rank: pagination.pageIndex * pagination.pageSize + index + 1,
-        }));
+        // Assuming response structure is { data: { entries: [...] }, meta: { pagination: { total: ... } } }
+        if (response && response.data && response.meta && response.meta.pagination) {
+          setData(response.data.entries);
+          setTotalEntries(response.meta.pagination.total);
+        } else {
+          // Handle unexpected response structure
+          console.error("Unexpected API response structure:", response);
+          throw new Error("Received invalid data format from server.");
+        }
 
-        setData(transformedEntries);
-        setTotalEntries(entries.length);
       } catch (err) {
         const errMessage = getErrorMessage(
           err,
@@ -162,13 +194,16 @@ function LeaderboardPage() {
         setError(errMessage);
         console.error("Leaderboard fetch error:", err);
         setData([]);
+        setTotalEntries(0); // Reset total on error
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchLeaderboard();
-  }, [pagination.pageIndex, pagination.pageSize, timeframe, platform]);
+    // Add wallet and signedAccountId as dependencies
+  }, [pagination.pageIndex, pagination.pageSize, timeframe, platform, wallet, signedAccountId]);
+
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -193,21 +228,23 @@ function LeaderboardPage() {
           </select>
         </div>
 
-        {/* <div>
+        <div>
           <label className="block text-sm font-medium mb-1">Platform</label>
           <select
             value={platform || ""}
-            onChange={(e) => setPlatform(e.target.value || undefined)}
+            // Update platform state correctly using Platform enum values
+            onChange={(e) => setPlatform(e.target.value || undefined)} // Keep as string for value, handle conversion in fetch
             className="border rounded px-3 py-2 w-full"
           >
             <option value="">All Platforms</option>
-            {SUPPORTED_PLATFORMS.map((p) => (
-              <option key={p} value={p}>
-                {p}
+            {/* Use Platform enum keys/values for options */}
+            {Object.entries(Platform).map(([key, value]) => (
+              <option key={key} value={value}> {/* Use enum value */}
+                {key} {/* Display enum key */}
               </option>
             ))}
           </select>
-        </div> */}
+        </div>
       </div>
 
       {/* Error message */}
@@ -321,7 +358,8 @@ function LeaderboardPage() {
                 Page{" "}
                 <strong>
                   {table.getState().pagination.pageIndex + 1} of{" "}
-                  {table.getPageCount()}
+                  {/* Use table.getPageCount() which relies on totalEntries */}
+                  {table.getPageCount() > 0 ? table.getPageCount() : 1}
                 </strong>
               </span>
               <select
