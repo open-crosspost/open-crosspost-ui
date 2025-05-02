@@ -14,9 +14,11 @@ import { Route as rootRoute } from "./routes/__root";
 import { Route as LayoutImport } from "./routes/_layout";
 import { Route as LayoutCrosspostImport } from "./routes/_layout/_crosspost";
 import { Route as LayoutCrosspostIndexImport } from "./routes/_layout/_crosspost/index";
+import { Route as LayoutCrosspostProfileIndexImport } from "./routes/_layout/_crosspost/profile/index";
 import { Route as LayoutCrosspostManageIndexImport } from "./routes/_layout/_crosspost/manage/index";
 import { Route as LayoutCrosspostLeaderboardIndexImport } from "./routes/_layout/_crosspost/leaderboard/index";
 import { Route as LayoutCrosspostEditorIndexImport } from "./routes/_layout/_crosspost/editor/index";
+import { Route as LayoutCrosspostProfileAccountIdImport } from "./routes/_layout/_crosspost/profile/$accountId";
 
 // Create/Update Routes
 
@@ -35,6 +37,13 @@ const LayoutCrosspostIndexRoute = LayoutCrosspostIndexImport.update({
   path: "/",
   getParentRoute: () => LayoutCrosspostRoute,
 } as any);
+
+const LayoutCrosspostProfileIndexRoute =
+  LayoutCrosspostProfileIndexImport.update({
+    id: "/profile/",
+    path: "/profile/",
+    getParentRoute: () => LayoutCrosspostRoute,
+  } as any);
 
 const LayoutCrosspostManageIndexRoute = LayoutCrosspostManageIndexImport.update(
   {
@@ -58,6 +67,13 @@ const LayoutCrosspostEditorIndexRoute = LayoutCrosspostEditorIndexImport.update(
     getParentRoute: () => LayoutCrosspostRoute,
   } as any,
 );
+
+const LayoutCrosspostProfileAccountIdRoute =
+  LayoutCrosspostProfileAccountIdImport.update({
+    id: "/profile/$accountId",
+    path: "/profile/$accountId",
+    getParentRoute: () => LayoutCrosspostRoute,
+  } as any);
 
 // Populate the FileRoutesByPath interface
 
@@ -84,6 +100,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof LayoutCrosspostIndexImport;
       parentRoute: typeof LayoutCrosspostImport;
     };
+    "/_layout/_crosspost/profile/$accountId": {
+      id: "/_layout/_crosspost/profile/$accountId";
+      path: "/profile/$accountId";
+      fullPath: "/profile/$accountId";
+      preLoaderRoute: typeof LayoutCrosspostProfileAccountIdImport;
+      parentRoute: typeof LayoutCrosspostImport;
+    };
     "/_layout/_crosspost/editor/": {
       id: "/_layout/_crosspost/editor/";
       path: "/editor";
@@ -105,6 +128,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof LayoutCrosspostManageIndexImport;
       parentRoute: typeof LayoutCrosspostImport;
     };
+    "/_layout/_crosspost/profile/": {
+      id: "/_layout/_crosspost/profile/";
+      path: "/profile";
+      fullPath: "/profile";
+      preLoaderRoute: typeof LayoutCrosspostProfileIndexImport;
+      parentRoute: typeof LayoutCrosspostImport;
+    };
   }
 }
 
@@ -112,16 +142,20 @@ declare module "@tanstack/react-router" {
 
 interface LayoutCrosspostRouteChildren {
   LayoutCrosspostIndexRoute: typeof LayoutCrosspostIndexRoute;
+  LayoutCrosspostProfileAccountIdRoute: typeof LayoutCrosspostProfileAccountIdRoute;
   LayoutCrosspostEditorIndexRoute: typeof LayoutCrosspostEditorIndexRoute;
   LayoutCrosspostLeaderboardIndexRoute: typeof LayoutCrosspostLeaderboardIndexRoute;
   LayoutCrosspostManageIndexRoute: typeof LayoutCrosspostManageIndexRoute;
+  LayoutCrosspostProfileIndexRoute: typeof LayoutCrosspostProfileIndexRoute;
 }
 
 const LayoutCrosspostRouteChildren: LayoutCrosspostRouteChildren = {
   LayoutCrosspostIndexRoute: LayoutCrosspostIndexRoute,
+  LayoutCrosspostProfileAccountIdRoute: LayoutCrosspostProfileAccountIdRoute,
   LayoutCrosspostEditorIndexRoute: LayoutCrosspostEditorIndexRoute,
   LayoutCrosspostLeaderboardIndexRoute: LayoutCrosspostLeaderboardIndexRoute,
   LayoutCrosspostManageIndexRoute: LayoutCrosspostManageIndexRoute,
+  LayoutCrosspostProfileIndexRoute: LayoutCrosspostProfileIndexRoute,
 };
 
 const LayoutCrosspostRouteWithChildren = LayoutCrosspostRoute._addFileChildren(
@@ -142,17 +176,21 @@ const LayoutRouteWithChildren =
 export interface FileRoutesByFullPath {
   "": typeof LayoutCrosspostRouteWithChildren;
   "/": typeof LayoutCrosspostIndexRoute;
+  "/profile/$accountId": typeof LayoutCrosspostProfileAccountIdRoute;
   "/editor": typeof LayoutCrosspostEditorIndexRoute;
   "/leaderboard": typeof LayoutCrosspostLeaderboardIndexRoute;
   "/manage": typeof LayoutCrosspostManageIndexRoute;
+  "/profile": typeof LayoutCrosspostProfileIndexRoute;
 }
 
 export interface FileRoutesByTo {
   "": typeof LayoutRouteWithChildren;
   "/": typeof LayoutCrosspostIndexRoute;
+  "/profile/$accountId": typeof LayoutCrosspostProfileAccountIdRoute;
   "/editor": typeof LayoutCrosspostEditorIndexRoute;
   "/leaderboard": typeof LayoutCrosspostLeaderboardIndexRoute;
   "/manage": typeof LayoutCrosspostManageIndexRoute;
+  "/profile": typeof LayoutCrosspostProfileIndexRoute;
 }
 
 export interface FileRoutesById {
@@ -160,24 +198,42 @@ export interface FileRoutesById {
   "/_layout": typeof LayoutRouteWithChildren;
   "/_layout/_crosspost": typeof LayoutCrosspostRouteWithChildren;
   "/_layout/_crosspost/": typeof LayoutCrosspostIndexRoute;
+  "/_layout/_crosspost/profile/$accountId": typeof LayoutCrosspostProfileAccountIdRoute;
   "/_layout/_crosspost/editor/": typeof LayoutCrosspostEditorIndexRoute;
   "/_layout/_crosspost/leaderboard/": typeof LayoutCrosspostLeaderboardIndexRoute;
   "/_layout/_crosspost/manage/": typeof LayoutCrosspostManageIndexRoute;
+  "/_layout/_crosspost/profile/": typeof LayoutCrosspostProfileIndexRoute;
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "" | "/" | "/editor" | "/leaderboard" | "/manage";
+  fullPaths:
+    | ""
+    | "/"
+    | "/profile/$accountId"
+    | "/editor"
+    | "/leaderboard"
+    | "/manage"
+    | "/profile";
   fileRoutesByTo: FileRoutesByTo;
-  to: "" | "/" | "/editor" | "/leaderboard" | "/manage";
+  to:
+    | ""
+    | "/"
+    | "/profile/$accountId"
+    | "/editor"
+    | "/leaderboard"
+    | "/manage"
+    | "/profile";
   id:
     | "__root__"
     | "/_layout"
     | "/_layout/_crosspost"
     | "/_layout/_crosspost/"
+    | "/_layout/_crosspost/profile/$accountId"
     | "/_layout/_crosspost/editor/"
     | "/_layout/_crosspost/leaderboard/"
-    | "/_layout/_crosspost/manage/";
+    | "/_layout/_crosspost/manage/"
+    | "/_layout/_crosspost/profile/";
   fileRoutesById: FileRoutesById;
 }
 
@@ -213,13 +269,19 @@ export const routeTree = rootRoute
       "parent": "/_layout",
       "children": [
         "/_layout/_crosspost/",
+        "/_layout/_crosspost/profile/$accountId",
         "/_layout/_crosspost/editor/",
         "/_layout/_crosspost/leaderboard/",
-        "/_layout/_crosspost/manage/"
+        "/_layout/_crosspost/manage/",
+        "/_layout/_crosspost/profile/"
       ]
     },
     "/_layout/_crosspost/": {
       "filePath": "_layout/_crosspost/index.tsx",
+      "parent": "/_layout/_crosspost"
+    },
+    "/_layout/_crosspost/profile/$accountId": {
+      "filePath": "_layout/_crosspost/profile/$accountId.tsx",
       "parent": "/_layout/_crosspost"
     },
     "/_layout/_crosspost/editor/": {
@@ -232,6 +294,10 @@ export const routeTree = rootRoute
     },
     "/_layout/_crosspost/manage/": {
       "filePath": "_layout/_crosspost/manage/index.tsx",
+      "parent": "/_layout/_crosspost"
+    },
+    "/_layout/_crosspost/profile/": {
+      "filePath": "_layout/_crosspost/profile/index.tsx",
       "parent": "/_layout/_crosspost"
     }
   }

@@ -8,12 +8,12 @@ import {
 } from "@tanstack/react-query";
 import { useWalletSelector } from "@near-wallet-selector/react-hook";
 import { getClient } from "./authorization-service";
-import { getErrorMessage } from "@crosspost/sdk";
+import { ApiResponse, getErrorMessage } from "@crosspost/sdk";
 
 type ClientMethodExecutor<TData, TVariables> = (
   client: any, // Using any for client type to avoid circular dependencies
   variables: TVariables,
-) => Promise<TData>;
+) => Promise<ApiResponse<TData>>;
 
 type AuthDetailsGetter<TVariables> = (variables: TVariables) => string;
 
@@ -89,7 +89,16 @@ export function createAuthenticatedMutation<
           );
           client.setAuthentication(authData);
 
-          return await clientMethod(client, variables);
+          const response = await clientMethod(client, variables);
+
+          if (response.success && response.data) {
+            return response.data;
+          } else {
+            const errorMessage = response.errors?.length
+              ? response.errors[0].message
+              : "Unknown error occurred";
+            throw new Error(errorMessage);
+          }
         } catch (error) {
           // Standardized error logging
           console.error(

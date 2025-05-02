@@ -136,29 +136,25 @@ export default async () => {
     plugins: [
       pluginReact(),
       pluginNodePolyfill(),
-      // pluginModuleFederation({
-      //   name: normalizeText(profile?.name || "app"),
-      //   filename: "main/remoteEntry.js", // branch
-      //   exposes: {
-      //     "./App": "./src/App.tsx",
-      //     "./Thing": "./src/App.tsx",
-      //     "./View": "./src/components/View.tsx",
-      //     "./Template": "./src/components/Template.tsx",
-      //     "./Edit": "./src/components/Edit.tsx",
-      //   },
-      //   experiments: {
-      //     federationRuntime: "hoisted",
-      //   },
-      //   shared: {
-      //     react: { singleton: true, eager: true, requiredVersion: "^18.0.0" },
-      //     "react-dom": {
-      //       singleton: true,
-      //       eager: true,
-      //       requiredVersion: "^18.0.0",
-      //     },
-      //     "@tanstack/react-router": { singleton: true, eager: true },
-      //   },
-      // }),
+      pluginModuleFederation({
+        name: "www",
+        remotes: {
+          profile:
+            "profile@https://unpkg.com/@near-everything/profile@latest/dist/profile/remoteEntry.js",
+        },
+        experiments: {
+          federationRuntime: "hoisted",
+        },
+        shared: {
+          react: { singleton: true, eager: true, requiredVersion: "^18.0.0" },
+          "react-dom": {
+            singleton: true,
+            eager: true,
+            requiredVersion: "^18.0.0",
+          },
+          "@tanstack/react-router": { singleton: true, eager: true },
+        },
+      }),
     ],
   });
 };

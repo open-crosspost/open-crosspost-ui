@@ -1,10 +1,13 @@
-import { getClient } from "../../../../lib/authorization-service";
-import { authenticate } from "../../../../lib/authentication-service";
 import { getErrorMessage } from "@crosspost/sdk";
-import { TimePeriod } from "@crosspost/types";
-import { createFileRoute } from "@tanstack/react-router";
-import { BackButton } from "../../../../components/back-button";
+import {
+  AccountActivityEntry,
+  Filter,
+  Platform,
+  TimePeriod,
+} from "@crosspost/types";
 import { useWalletSelector } from "@near-wallet-selector/react-hook";
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
 import {
   createColumnHelper,
   flexRender,
@@ -15,51 +18,92 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import React, { useEffect, useState } from "react";
-
-/**
- * Leaderboard entry interface
- */
-export interface LeaderboardEntry {
-  signerId: string;
-  username?: string;
-  profileImageUrl?: string;
-  postCount: number;
-  platform?: string;
-  rank?: number; // Added by the frontend
-  firstPostTimestamp?: number;
-  lastPostTimestamp?: number;
-}
+import React, { useState } from "react";
+import { BackButton } from "../../../../components/back-button";
+import { getClient } from "../../../../lib/authorization-service";
 
 export const Route = createFileRoute("/_layout/_crosspost/leaderboard/")({
   component: LeaderboardPage,
 });
 
+// Function to fetch leaderboard data
+const fetchLeaderboard = async ({
+  limit,
+  offset,
+  timeframe,
+  platform,
+}: {
+  limit: number;
+  offset: number;
+  timeframe: TimePeriod;
+  platform?: string;
+}) => {
+  const client = getClient();
+
+  const response = await client.activity.getLeaderboard({
+    limit,
+    offset,
+    filter: {
+      timeframe,
+      platforms: [platform as Platform],
+    },
+  });
+
+  return {
+    entries: response.data?.entries || [],
+    meta: response.meta || { pagination: { total: 0, limit, offset } },
+  };
+};
+
 function LeaderboardPage() {
   const { wallet, signedAccountId } = useWalletSelector();
-  // State for table data and loading
-  const [data, setData] = useState<LeaderboardEntry[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [totalEntries, setTotalEntries] = useState(0);
 
-  // State for filters
   const [timeframe, setTimeframe] = useState<TimePeriod>(TimePeriod.ALL);
   const [platform, setPlatform] = useState<string | undefined>(undefined);
 
-  // State for sorting
   const [sorting, setSorting] = useState<SortingState>([
     { id: "rank", desc: false },
   ]);
 
-  // State for pagination
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
 
-  // Column definitions using TanStack Table's column helper
-  const columnHelper = createColumnHelper<LeaderboardEntry>();
+  const {
+    data: queryResult,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: [
+      "leaderboard",
+      pagination.pageIndex,
+      pagination.pageSize,
+      timeframe,
+      platform,
+      !!wallet,
+      signedAccountId,
+    ],
+    queryFn: async () => {
+      if (!wallet || !signedAccountId) {
+        throw new Error("Wallet not connected");
+      }
+
+      return fetchLeaderboard({
+        limit: pagination.pageSize,
+        offset: pagination.pageIndex * pagination.pageSize,
+        timeframe,
+        platform,
+      });
+    },
+    enabled: !!wallet && !!signedAccountId,
+  });
+
+  // Extract data and metadata from query result
+  const data = queryResult?.entries || [];
+  const totalEntries = queryResult?.meta?.pagination?.total || data.length; // Fallback to data.length if meta is not available
+
+  const columnHelper = createColumnHelper<AccountActivityEntry>();
   const columns = [
     columnHelper.accessor("rank", {
       header: "Rank",
@@ -73,40 +117,51 @@ function LeaderboardPage() {
         </div>
       ),
     }),
-    columnHelper.accessor("postCount", {
+    columnHelper.accessor("totalPosts", {
       header: "Posts",
       cell: (info) => info.getValue(),
     }),
-    columnHelper.accessor("firstPostTimestamp", {
+    columnHelper.accessor((row) => (row as any).firstPostTimestamp, {
+      id: "firstPostTimestamp",
       header: "First Post",
       cell: (info) => {
         const timestamp = info.getValue();
         if (!timestamp) return "N/A";
-
-        const date = new Date(timestamp);
-        return date.toLocaleString(undefined, {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        });
+        try {
+          const date = new Date(timestamp);
+          if (isNaN(date.getTime())) return "Invalid Date";
+          return date.toLocaleString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+        } catch (e) {
+          console.error("Error parsing first post date:", timestamp, e);
+          return "Invalid Date";
+        }
       },
     }),
-    columnHelper.accessor("lastPostTimestamp", {
-      header: "Last Post",
+    columnHelper.accessor("lastActive", {
+      header: "Last Active",
       cell: (info) => {
-        const timestamp = info.getValue();
-        if (!timestamp) return "N/A";
-
-        const date = new Date(timestamp);
-        return date.toLocaleString(undefined, {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        });
+        const dateTimeString = info.getValue();
+        if (!dateTimeString) return "N/A";
+        try {
+          const date = new Date(dateTimeString);
+          if (isNaN(date.getTime())) return "Invalid Date"; // Check if date is valid
+          return date.toLocaleString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+        } catch (e) {
+          console.error("Error parsing last active date:", dateTimeString, e);
+          return "Invalid Date";
+        }
       },
     }),
   ];
@@ -124,51 +179,12 @@ function LeaderboardPage() {
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    manualPagination: true,
-    pageCount: Math.ceil(totalEntries / pagination.pageSize),
+    manualPagination: true, // Keep manual pagination
+    // pageCount is derived from totalEntries fetched from API
+    pageCount:
+      totalEntries > 0 ? Math.ceil(totalEntries / pagination.pageSize) : -1, // Use -1 or 0 if total unknown initially
+    // Alternatively, if totalEntries is 0 initially: pageCount: Math.max(1, Math.ceil(totalEntries / pagination.pageSize))
   });
-
-  useEffect(() => {
-    const fetchLeaderboard = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        if (!wallet || !signedAccountId) {
-          throw new Error("Wallet not connected");
-        }
-
-        const client = getClient();
-
-        const { entries } = await client.activity.getLeaderboard({
-          limit: pagination.pageSize,
-          offset: pagination.pageIndex * pagination.pageSize,
-          timeframe: timeframe,
-        });
-
-        // Transform the entries to include rank
-        const transformedEntries = entries.map((entry: any, index: number) => ({
-          ...entry,
-          rank: pagination.pageIndex * pagination.pageSize + index + 1,
-        }));
-
-        setData(transformedEntries);
-        setTotalEntries(entries.length);
-      } catch (err) {
-        const errMessage = getErrorMessage(
-          err,
-          "Failed to fetch leaderboard data",
-        );
-        setError(errMessage);
-        console.error("Leaderboard fetch error:", err);
-        setData([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchLeaderboard();
-  }, [pagination.pageIndex, pagination.pageSize, timeframe, platform]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -193,27 +209,31 @@ function LeaderboardPage() {
           </select>
         </div>
 
-        {/* <div>
+        <div>
           <label className="block text-sm font-medium mb-1">Platform</label>
           <select
             value={platform || ""}
-            onChange={(e) => setPlatform(e.target.value || undefined)}
+            // Update platform state correctly using Platform enum values
+            onChange={(e) => setPlatform(e.target.value || undefined)} // Keep as string for value, handle conversion in fetch
             className="border rounded px-3 py-2 w-full"
           >
             <option value="">All Platforms</option>
-            {SUPPORTED_PLATFORMS.map((p) => (
-              <option key={p} value={p}>
-                {p}
+            {/* Use Platform enum keys/values for options */}
+            {Object.entries(Platform).map(([key, value]) => (
+              <option key={key} value={value}>
+                {" "}
+                {/* Use enum value */}
+                {key} {/* Display enum key */}
               </option>
             ))}
           </select>
-        </div> */}
+        </div>
       </div>
 
       {/* Error message */}
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
+          {getErrorMessage(error, "Failed to fetch leaderboard data")}
         </div>
       )}
 
@@ -321,7 +341,8 @@ function LeaderboardPage() {
                 Page{" "}
                 <strong>
                   {table.getState().pagination.pageIndex + 1} of{" "}
-                  {table.getPageCount()}
+                  {/* Use table.getPageCount() which relies on totalEntries */}
+                  {table.getPageCount() > 0 ? table.getPageCount() : 1}
                 </strong>
               </span>
               <select
