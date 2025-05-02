@@ -7,7 +7,7 @@ import { Button } from "../../../../components/ui/button";
 import { getClient } from "../../../../lib/authorization-service";
 import { getProfile, Profile as ProfileType } from "../../../../lib/social";
 
-const Profile = lazy(() => import("profile/App"));
+// const Profile = lazy(() => import("profile/App"));
 
 class ProfileErrorBoundary extends Component<
   { children: React.ReactNode },
@@ -90,16 +90,16 @@ export function ProfilePage() {
   );
 }
 
-const ProfileView: React.FC<{ accountId: string; profile: ProfileType }> = ({
-  accountId,
-  profile,
-}) => (
-  <ProfileErrorBoundary>
-    <Suspense fallback={<div>Loading...</div>}>
-      <Profile accountId={accountId} profile={profile} />
-    </Suspense>
-  </ProfileErrorBoundary>
-);
+// const ProfileView: React.FC<{ accountId: string; profile: ProfileType }> = ({
+//   accountId,
+//   profile,
+// }) => (
+//   <ProfileErrorBoundary>
+//     <Suspense fallback={<div>Loading...</div>}>
+//       <Profile accountId={accountId} profile={profile} />
+//     </Suspense>
+//   </ProfileErrorBoundary>
+// );
 
 const PlatformIcon: React.FC<{ platform: string; className?: string }> = ({
   platform,
