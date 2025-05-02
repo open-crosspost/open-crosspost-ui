@@ -120,7 +120,7 @@ const fetchAccountPosts = async (accountId: string): Promise<AccountPost[]> => {
   try {
     const client = getClient();
     const response = await client.activity.getAccountPosts(accountId);
-    return response.posts;
+    return response.data?.posts || [];
   } catch (err) {
     console.error("Error fetching posts:", err);
     // Re-throw the error so React Query can handle it

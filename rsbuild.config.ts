@@ -137,18 +137,23 @@ export default async () => {
       pluginReact(),
       pluginNodePolyfill(),
       pluginModuleFederation({
-        name: 'www',
+        name: "www",
         remotes: {
-          profile: 'profile@https://unpkg.com/@near-everything/profile@latest/dist/profile/remoteEntry.js'
+          profile:
+            "profile@https://unpkg.com/@near-everything/profile@latest/dist/profile/remoteEntry.js",
         },
         experiments: {
-          federationRuntime: 'hoisted'
+          federationRuntime: "hoisted",
         },
         shared: {
-          'react': { singleton: true, eager: true, requiredVersion: '^18.0.0' },
-          'react-dom': { singleton: true, eager: true, requiredVersion: '^18.0.0' },
-          '@tanstack/react-router': { singleton: true, eager: true }
-        }
+          react: { singleton: true, eager: true, requiredVersion: "^18.0.0" },
+          "react-dom": {
+            singleton: true,
+            eager: true,
+            requiredVersion: "^18.0.0",
+          },
+          "@tanstack/react-router": { singleton: true, eager: true },
+        },
       }),
     ],
   });

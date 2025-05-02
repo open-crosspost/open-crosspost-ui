@@ -3,7 +3,7 @@ import React from "react";
 import { Button } from "../../../../components/ui/button";
 
 export const Route = createFileRoute("/_layout/_crosspost/profile/")({
-  component: ProfileIndexPage
+  component: ProfileIndexPage,
 });
 
 export function ProfileIndexPage() {

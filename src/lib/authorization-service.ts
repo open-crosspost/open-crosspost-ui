@@ -84,10 +84,18 @@ export async function authorize(
     // Call the SDK method to verify with the backend
     const response = await client.auth.authorizeNearAccount();
 
-    // Persist authorization state
-    localStorage.setItem("crosspost:authorized", "true");
-    // Emit event
-    authorizationEvents.emit(AUTHORIZATION_EVENTS.AUTHORIZED);
+    // Check if the response was successful
+    if (response.success) {
+      // Persist authorization state
+      localStorage.setItem("crosspost:authorized", "true");
+      // Emit event
+      authorizationEvents.emit(AUTHORIZATION_EVENTS.AUTHORIZED);
+    } else {
+      const errorMessage = response.errors?.length
+        ? response.errors[0].message
+        : "Authorization failed";
+      throw new Error(errorMessage);
+    }
 
     toast({
       title: "Authorized",
@@ -115,7 +123,6 @@ export async function authorize(
  * and potentially informing the backend.
  * @returns Promise resolving when unauthorization is complete.
  */
-// Add new unauthorize function
 export async function unauthorize(): Promise<void> {
   toast({
     title: "Revoking Authorization...",
@@ -125,8 +132,14 @@ export async function unauthorize(): Promise<void> {
 
   try {
     const client = getClient();
-    // TODO: Check if client.unauthorizeNearAccount exists and call it
-    // await client.unauthorizeNearAccount(); // TODO: expose method
+    const response = await client.auth.unauthorizeNear();
+
+    if (!response.success) {
+      const errorMessage = response.errors?.length
+        ? response.errors[0].message
+        : "Unknown error occurred";
+      throw new Error(errorMessage);
+    }
 
     // Remove persisted state regardless of backend call success
     localStorage.removeItem("crosspost:authorized");

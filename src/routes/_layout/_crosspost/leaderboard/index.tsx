@@ -1,9 +1,13 @@
-import { getClient } from "../../../../lib/authorization-service";
-import { getErrorMessage, SUPPORTED_PLATFORMS } from "@crosspost/sdk";
-import { TimePeriod, AccountActivityEntry, Platform } from "@crosspost/types";
-import { createFileRoute } from "@tanstack/react-router";
-import { BackButton } from "../../../../components/back-button";
+import { getErrorMessage } from "@crosspost/sdk";
+import {
+  AccountActivityEntry,
+  Filter,
+  Platform,
+  TimePeriod,
+} from "@crosspost/types";
 import { useWalletSelector } from "@near-wallet-selector/react-hook";
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
 import {
   createColumnHelper,
   flexRender,
@@ -14,35 +18,90 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import React, { useEffect, useState } from "react";
-
+import React, { useState } from "react";
+import { BackButton } from "../../../../components/back-button";
+import { getClient } from "../../../../lib/authorization-service";
 
 export const Route = createFileRoute("/_layout/_crosspost/leaderboard/")({
   component: LeaderboardPage,
 });
 
+// Function to fetch leaderboard data
+const fetchLeaderboard = async ({
+  limit,
+  offset,
+  timeframe,
+  platform,
+}: {
+  limit: number;
+  offset: number;
+  timeframe: TimePeriod;
+  platform?: string;
+}) => {
+  const client = getClient();
+
+  const response = await client.activity.getLeaderboard({
+    limit,
+    offset,
+    filter: {
+      timeframe,
+      platforms: [platform as Platform],
+    },
+  });
+
+  return {
+    entries: response.data?.entries || [],
+    meta: response.meta || { pagination: { total: 0, limit, offset } },
+  };
+};
+
 function LeaderboardPage() {
   const { wallet, signedAccountId } = useWalletSelector();
-  // State for table data and loading
-  const [data, setData] = useState<AccountActivityEntry[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [totalEntries, setTotalEntries] = useState(0);
 
-  // State for filters
   const [timeframe, setTimeframe] = useState<TimePeriod>(TimePeriod.ALL);
   const [platform, setPlatform] = useState<string | undefined>(undefined);
 
-  // State for sorting
   const [sorting, setSorting] = useState<SortingState>([
     { id: "rank", desc: false },
   ]);
 
-  // State for pagination
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
+
+  const {
+    data: queryResult,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: [
+      "leaderboard",
+      pagination.pageIndex,
+      pagination.pageSize,
+      timeframe,
+      platform,
+      !!wallet,
+      signedAccountId,
+    ],
+    queryFn: async () => {
+      if (!wallet || !signedAccountId) {
+        throw new Error("Wallet not connected");
+      }
+
+      return fetchLeaderboard({
+        limit: pagination.pageSize,
+        offset: pagination.pageIndex * pagination.pageSize,
+        timeframe,
+        platform,
+      });
+    },
+    enabled: !!wallet && !!signedAccountId,
+  });
+
+  // Extract data and metadata from query result
+  const data = queryResult?.entries || [];
+  const totalEntries = queryResult?.meta?.pagination?.total || data.length; // Fallback to data.length if meta is not available
 
   const columnHelper = createColumnHelper<AccountActivityEntry>();
   const columns = [
@@ -62,35 +121,30 @@ function LeaderboardPage() {
       header: "Posts",
       cell: (info) => info.getValue(),
     }),
-    // Keep First Post column, but data might not be available in AccountActivityEntry
-    // If firstPostTimestamp is added to the API response later, this will work.
-    // For now, it might render 'N/A' or cause an error if the property doesn't exist.
-    // Consider adding optional chaining or checking if the property exists.
     columnHelper.accessor((row) => (row as any).firstPostTimestamp, {
-       id: 'firstPostTimestamp', // Need an ID if using an accessor function
-       header: "First Post",
-       cell: (info) => {
-         const timestamp = info.getValue();
-         if (!timestamp) return "N/A";
-         try {
-           // Assuming timestamp is a number (milliseconds) or a string Date.parse can handle
-           const date = new Date(timestamp);
-           if (isNaN(date.getTime())) return "Invalid Date"; // Check if date is valid
-           return date.toLocaleString(undefined, {
-             year: "numeric",
-             month: "short",
-             day: "numeric",
-             hour: "2-digit",
-             minute: "2-digit",
-           });
-         } catch (e) {
-            console.error("Error parsing first post date:", timestamp, e);
-            return "Invalid Date";
-         }
-       },
-     }),
-    columnHelper.accessor("lastActive", { // Use lastActive from API
-      header: "Last Active", // Renamed header for clarity
+      id: "firstPostTimestamp",
+      header: "First Post",
+      cell: (info) => {
+        const timestamp = info.getValue();
+        if (!timestamp) return "N/A";
+        try {
+          const date = new Date(timestamp);
+          if (isNaN(date.getTime())) return "Invalid Date";
+          return date.toLocaleString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+        } catch (e) {
+          console.error("Error parsing first post date:", timestamp, e);
+          return "Invalid Date";
+        }
+      },
+    }),
+    columnHelper.accessor("lastActive", {
+      header: "Last Active",
       cell: (info) => {
         const dateTimeString = info.getValue();
         if (!dateTimeString) return "N/A";
@@ -105,8 +159,8 @@ function LeaderboardPage() {
             minute: "2-digit",
           });
         } catch (e) {
-           console.error("Error parsing last active date:", dateTimeString, e);
-           return "Invalid Date";
+          console.error("Error parsing last active date:", dateTimeString, e);
+          return "Invalid Date";
         }
       },
     }),
@@ -127,83 +181,10 @@ function LeaderboardPage() {
     getPaginationRowModel: getPaginationRowModel(),
     manualPagination: true, // Keep manual pagination
     // pageCount is derived from totalEntries fetched from API
-    pageCount: totalEntries > 0 ? Math.ceil(totalEntries / pagination.pageSize) : -1, // Use -1 or 0 if total unknown initially
+    pageCount:
+      totalEntries > 0 ? Math.ceil(totalEntries / pagination.pageSize) : -1, // Use -1 or 0 if total unknown initially
     // Alternatively, if totalEntries is 0 initially: pageCount: Math.max(1, Math.ceil(totalEntries / pagination.pageSize))
   });
-
-
-  useEffect(() => {
-    const fetchLeaderboard = async () => {
-      setIsLoading(true);
-      setError(null);
-      // Reset data and total on fetch start? Optional, prevents showing stale data briefly.
-      // setData([]);
-      // setTotalEntries(0);
-
-      try {
-        if (!wallet || !signedAccountId) {
-          // Don't throw, just set error and return or show a connect message
-          setError("Wallet not connected");
-          setIsLoading(false);
-          setData([]);
-          setTotalEntries(0);
-          return;
-        }
-
-        const client = getClient();
-
-        // Prepare filter object
-        const filter: { platforms?: Platform[]; timeframe?: TimePeriod } = {};
-        if (platform) {
-          // Ensure platform is a valid Platform enum key before adding
-          const platformEnumKey = Object.keys(Platform).find(key => Platform[key as keyof typeof Platform] === platform);
-          if (platformEnumKey) {
-             filter.platforms = [platform as Platform]; // Cast needed if state is string
-          } else {
-             console.warn("Invalid platform selected:", platform);
-             // Optionally reset platform filter or show an error
-          }
-        }
-        if (timeframe) {
-          filter.timeframe = timeframe;
-        }
-
-        // Make API call
-        const response = await client.activity.getLeaderboard({
-          limit: pagination.pageSize,
-          offset: pagination.pageIndex * pagination.pageSize,
-          // Pass filter only if it has keys, otherwise pass undefined
-          filter: Object.keys(filter).length > 0 ? filter : undefined,
-        });
-
-        // Assuming response structure is { data: { entries: [...] }, meta: { pagination: { total: ... } } }
-        if (response && response.data && response.meta && response.meta.pagination) {
-          setData(response.data.entries);
-          setTotalEntries(response.meta.pagination.total);
-        } else {
-          // Handle unexpected response structure
-          console.error("Unexpected API response structure:", response);
-          throw new Error("Received invalid data format from server.");
-        }
-
-      } catch (err) {
-        const errMessage = getErrorMessage(
-          err,
-          "Failed to fetch leaderboard data",
-        );
-        setError(errMessage);
-        console.error("Leaderboard fetch error:", err);
-        setData([]);
-        setTotalEntries(0); // Reset total on error
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchLeaderboard();
-    // Add wallet and signedAccountId as dependencies
-  }, [pagination.pageIndex, pagination.pageSize, timeframe, platform, wallet, signedAccountId]);
-
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -239,7 +220,9 @@ function LeaderboardPage() {
             <option value="">All Platforms</option>
             {/* Use Platform enum keys/values for options */}
             {Object.entries(Platform).map(([key, value]) => (
-              <option key={key} value={value}> {/* Use enum value */}
+              <option key={key} value={value}>
+                {" "}
+                {/* Use enum value */}
                 {key} {/* Display enum key */}
               </option>
             ))}
@@ -250,7 +233,7 @@ function LeaderboardPage() {
       {/* Error message */}
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
+          {getErrorMessage(error, "Failed to fetch leaderboard data")}
         </div>
       )}
 

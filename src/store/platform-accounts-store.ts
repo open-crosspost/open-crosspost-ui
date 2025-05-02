@@ -1,10 +1,10 @@
-import { getErrorMessage } from "@crosspost/sdk";
 import { ConnectedAccount, Platform } from "@crosspost/types";
 import { useWalletSelector } from "@near-wallet-selector/react-hook";
 import { useQuery } from "@tanstack/react-query";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { useAuthorizationStatus } from "../hooks/use-authorization-status";
+import { useToast } from "../hooks/use-toast";
 import { createAuthenticatedMutation } from "../lib/authentication-service";
 import { getClient } from "../lib/authorization-service";
 import { NearSocialService } from "../lib/near-social-service";
@@ -64,6 +64,7 @@ export const usePlatformAccountsStore = create<PlatformAccountsState>()(
 export function useConnectedAccounts() {
   const { wallet, signedAccountId } = useWalletSelector();
   const isAuthorized = useAuthorizationStatus();
+  const { toast } = useToast();
 
   return useQuery({
     queryKey: ["connectedAccounts"],
@@ -75,28 +76,44 @@ export function useConnectedAccounts() {
       try {
         const client = getClient();
 
-        const { accounts } = await client.auth.getConnectedAccounts();
-        return accounts;
+        const response = await client.auth.getConnectedAccounts();
+
+        if (response.success && response.data) {
+          return response.data.accounts;
+        } else {
+          const errorMessage = response.errors?.length
+            ? response.errors[0].message
+            : "Unknown error occurred";
+          throw new Error(errorMessage);
+        }
       } catch (error) {
-        console.error(
-          "Failed to fetch connected accounts:",
-          getErrorMessage(error),
-        );
+        console.error("Failed to fetch connected accounts:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch connected accounts",
+        });
         throw error;
       }
     },
     enabled: !!signedAccountId && isAuthorized === true && !!wallet,
+    retry: 1,
+    retryDelay: 1000,
+    gcTime: 0,
   });
 }
 
 // Connect a platform account
-export const useConnectAccount = createAuthenticatedMutation({
+export const useConnectAccount = createAuthenticatedMutation<
+  void,
+  Error,
+  { platform: Platform }
+>({
   mutationKey: ["connectAccount"],
-  clientMethod: async (client, { platform }: { platform: Platform }) => {
-    await client.auth.loginToPlatform(platform.toLowerCase() as any);
+  clientMethod: async (client, { platform }) => {
+    return await client.auth.loginToPlatform(platform.toLowerCase() as any);
   },
-  getAuthDetails: ({ platform }: { platform: Platform }) =>
-    `loginToPlatform:${platform}`,
+  getAuthDetails: ({ platform }) => `loginToPlatform:${platform}`,
   onSuccess: (_, __, ___, queryClient) => {
     // Invalidate the connected accounts query to trigger a refetch
     queryClient.invalidateQueries({ queryKey: ["connectedAccounts"] });
@@ -104,51 +121,63 @@ export const useConnectAccount = createAuthenticatedMutation({
 });
 
 // Disconnect a platform account
-export const useDisconnectAccount = createAuthenticatedMutation({
+export const useDisconnectAccount = createAuthenticatedMutation<
+  string,
+  Error,
+  { platform: Platform; userId: string }
+>({
   mutationKey: ["disconnectAccount"],
-  clientMethod: async (
-    client,
-    { platform, userId }: { platform: Platform; userId: string },
-  ) => {
-    await client.auth.revokeAuth(platform.toLowerCase() as any, userId);
-    return userId;
+  clientMethod: async (client, { platform, userId }) => {
+    const response = await client.auth.revokeAuth(
+      platform.toLowerCase() as any,
+      userId,
+    );
+    if (response.success) {
+      return response;
+    } else {
+      throw new Error(
+        response.errors?.[0]?.message || "Failed to disconnect account",
+      );
+    }
   },
-  getAuthDetails: ({
-    platform,
-    userId,
-  }: {
-    platform: Platform;
-    userId: string;
-  }) => `revokeAuth:${platform}:${userId}`,
+  getAuthDetails: ({ platform, userId }) => `revokeAuth:${platform}:${userId}`,
   onSuccess: (userId, _, __, queryClient) => {
     // Invalidate the connected accounts query to trigger a refetch
     queryClient.invalidateQueries({ queryKey: ["connectedAccounts"] });
 
     // Also remove from selected accounts if it was selected
     const store = usePlatformAccountsStore.getState();
-    if (store.selectedAccountIds.includes(userId)) {
+    if (
+      typeof userId === "string" &&
+      store.selectedAccountIds.includes(userId)
+    ) {
       store.unselectAccount(userId);
     }
   },
 });
 
 // Refresh a platform account's token
-export const useRefreshAccount = createAuthenticatedMutation({
+export const useRefreshAccount = createAuthenticatedMutation<
+  string,
+  Error,
+  { platform: Platform; userId: string }
+>({
   mutationKey: ["refreshAccount"],
-  clientMethod: async (
-    client,
-    { platform, userId }: { platform: Platform; userId: string },
-  ) => {
-    await client.auth.refreshProfile(platform.toLowerCase() as any, userId);
-    return userId;
+  clientMethod: async (client, { platform, userId }) => {
+    const response = await client.auth.refreshProfile(
+      platform.toLowerCase() as any,
+      userId,
+    );
+    if (response.success) {
+      return response;
+    } else {
+      throw new Error(
+        response.errors?.[0]?.message || "Failed to refresh account",
+      );
+    }
   },
-  getAuthDetails: ({
-    platform,
-    userId,
-  }: {
-    platform: Platform;
-    userId: string;
-  }) => `refreshProfile:${platform}:${userId}`,
+  getAuthDetails: ({ platform, userId }) =>
+    `refreshProfile:${platform}:${userId}`,
   onSuccess: (_, __, ___, queryClient) => {
     // Invalidate the connected accounts query to trigger a refetch
     queryClient.invalidateQueries({ queryKey: ["connectedAccounts"] });
@@ -156,29 +185,30 @@ export const useRefreshAccount = createAuthenticatedMutation({
 });
 
 // Check a platform account's status
-export const useCheckAccountStatus = createAuthenticatedMutation({
+export const useCheckAccountStatus = createAuthenticatedMutation<
+  { userId: string; isConnected: boolean },
+  Error,
+  { platform: Platform; userId: string }
+>({
   mutationKey: ["checkAccountStatus"],
-  clientMethod: async (
-    client,
-    { platform, userId }: { platform: Platform; userId: string },
-  ) => {
-    const { authenticated, tokenStatus } = await client.auth.getAuthStatus(
+  clientMethod: async (client, { platform, userId }) => {
+    const response = await client.auth.getAuthStatus(
       platform.toLowerCase() as any,
       userId,
     );
 
-    // Check if the account is authenticated based on the response
-    const isConnected = authenticated && tokenStatus.valid;
-
-    return { userId, isConnected };
+    if (response.success) {
+      const { authenticated, tokenStatus } = response.data;
+      const isConnected = authenticated && tokenStatus.valid;
+      return response;
+    } else {
+      throw new Error(
+        response.errors?.[0]?.message || "Failed to check account status",
+      );
+    }
   },
-  getAuthDetails: ({
-    platform,
-    userId,
-  }: {
-    platform: Platform;
-    userId: string;
-  }) => `getAuthStatus:${platform}:${userId}`,
+  getAuthDetails: ({ platform, userId }) =>
+    `getAuthStatus:${platform}:${userId}`,
   onSuccess: (data, _, __, queryClient) => {
     // Update the account in the cache
     queryClient.setQueryData(
