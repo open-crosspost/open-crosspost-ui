@@ -1,44 +1,11 @@
 import { AccountPost } from "@crosspost/types";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
-import { Link as LinkIcon, Twitter } from "lucide-react"; // Import Twitter and a default link icon
-import React, { Component } from "react";
+import { Link as LinkIcon, Twitter } from "lucide-react";
+import React from "react";
 import { Button } from "../../../../components/ui/button";
 import { getClient } from "../../../../lib/authorization-service";
-import { getProfile, Profile as ProfileType } from "../../../../lib/social";
-
-// const Profile = lazy(() => import("profile/App"));
-
-// class ProfileErrorBoundary extends Component<
-//   { children: React.ReactNode },
-//   { hasError: boolean }
-// > {
-//   constructor(props: { children: React.ReactNode }) {
-//     super(props);
-//     this.state = { hasError: false };
-//   }
-
-//   static getDerivedStateFromError() {
-//     return { hasError: true };
-//   }
-
-//   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-//     console.error("Profile error:", error, errorInfo);
-//   }
-
-//   render() {
-//     if (this.state.hasError) {
-//       return (
-//         <div className="p-4 text-center">
-//           <h2 className="text-lg font-semibold mb-2">Something went wrong</h2>
-//           <p>Unable to load profile. Please try again later.</p>
-//         </div>
-//       );
-//     }
-
-//     return this.props.children;
-//   }
-// }
+import { getProfile } from "../../../../lib/social";
 
 export const Route = createFileRoute("/_layout/_crosspost/profile/$accountId")({
   loader: async ({ params }) => {
@@ -72,34 +39,12 @@ export function ProfilePage() {
     );
   }
 
-  // const fallbackProfile: ProfileType = {
-  //   name: accountId || "Anonymous",
-  //   description: "",
-  //   image: undefined,
-  //   backgroundImage: undefined,
-  // };
-
   return (
     <div className="flex flex-col space-y-6">
-      {/* <ProfileView
-        accountId={accountId || "Anonymous"}
-        profile={data?.profile || fallbackProfile}
-      /> */}
       <AccountPostsList accountId={accountId || "Anonymous"} />
     </div>
   );
 }
-
-// const ProfileView: React.FC<{ accountId: string; profile: ProfileType }> = ({
-//   accountId,
-//   profile,
-// }) => (
-//   <ProfileErrorBoundary>
-//     <Suspense fallback={<div>Loading...</div>}>
-//       <Profile accountId={accountId} profile={profile} />
-//     </Suspense>
-//   </ProfileErrorBoundary>
-// );
 
 const PlatformIcon: React.FC<{ platform: string; className?: string }> = ({
   platform,
@@ -123,7 +68,6 @@ const fetchAccountPosts = async (accountId: string): Promise<AccountPost[]> => {
     return response.data?.posts || [];
   } catch (err) {
     console.error("Error fetching posts:", err);
-    // Re-throw the error so React Query can handle it
     throw new Error("Failed to load posts. Please try again later.");
   }
 };
@@ -134,12 +78,12 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
     isLoading,
     isError,
     error,
-    refetch, // Added refetch for the retry button
+    refetch,
   } = useQuery<AccountPost[], Error>({
-    queryKey: ["accountPosts", accountId], // Unique query key including accountId
+    queryKey: ["accountPosts", accountId],
     queryFn: () => fetchAccountPosts(accountId),
-    enabled: !!accountId, // Only run the query if accountId is available
-    staleTime: 5 * 60 * 1000, // Cache data for 5 minutes
+    enabled: !!accountId,
+    staleTime: 5 * 60 * 1000,
   });
 
   if (isLoading) {
