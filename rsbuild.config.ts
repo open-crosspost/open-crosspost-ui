@@ -43,13 +43,14 @@ export default async () => {
     },
     server: {
       port: 5170,
+      historyApiFallback: true,
     },
     output: {
       distPath: {
         root: "dist",
       },
       cleanDistPath: true,
-      assetPrefix: ".",
+      assetPrefix: "/",
     },
     tools: {
       rspack: {
