@@ -108,10 +108,7 @@ function SortablePostComponent({
                   <button
                     type="button"
                     onClick={() =>
-                      onOpenMediaModal(
-                        post.mediaPreview!,
-                        post.mediaMimeType!,
-                      )
+                      onOpenMediaModal(post.mediaPreview!, post.mediaMimeType!)
                     }
                     className="block h-10 w-10 rounded overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   >

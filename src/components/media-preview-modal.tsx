@@ -53,7 +53,9 @@ export function MediaPreviewModal({
                 />
               )}
               {isVideo && (
-                <div className="player-wrapper w-full h-full relative pb-[56.25%]"> {/* Aspect ratio padding hack */}
+                <div className="player-wrapper w-full h-full relative pb-[56.25%]">
+                  {" "}
+                  {/* Aspect ratio padding hack */}
                   <ReactPlayer
                     className="absolute top-0 left-0"
                     url={mediaSrc}
