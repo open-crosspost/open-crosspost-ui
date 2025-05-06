@@ -1,6 +1,6 @@
 import { capitalize } from "@/lib/utils/string";
 import { ConnectedAccount, PlatformName } from "@crosspost/types";
-import { RefreshCw, Trash2 } from "lucide-react";
+import { ClipboardCopy, RefreshCw, Trash2 } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "../hooks/use-toast";
 import {
@@ -23,6 +23,7 @@ export function PlatformAccountItem({
 }: PlatformAccountProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [isCopying, setIsCopying] = useState(false);
 
   const disconnectAccount = useDisconnectAccount();
   const refreshAccount = useRefreshAccount();
@@ -84,10 +85,37 @@ export function PlatformAccountItem({
     }
   };
 
+  const handleCopyUserId = async () => {
+    setIsCopying(true);
+    try {
+      await navigator.clipboard.writeText(account.userId);
+      toast({
+        title: "Copied to Clipboard",
+        description: `User ID copied to clipboard`,
+      });
+    } catch (error) {
+      toast({
+        title: "Copy Error",
+        description: "Failed to copy user ID to clipboard",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCopying(false);
+    }
+  };
+
   // Only show action buttons for non-NEAR accounts and if showActions is true
   const actionButtons =
     !isNearSocial && showActions ? (
       <>
+        <Button
+          size="sm"
+          onClick={handleCopyUserId}
+          title="Copy user ID"
+          disabled={isCopying}
+        >
+          <ClipboardCopy size={16} className={isCopying ? "animate-spin" : ""} />
+        </Button>
         <Button
           size="sm"
           onClick={handleRefresh}
