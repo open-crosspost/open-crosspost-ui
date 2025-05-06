@@ -30,6 +30,7 @@ interface PostEditorCoreProps {
   onMediaRemove: (index: number) => void;
   onAddThread: () => void;
   onRemoveThread: (index: number) => void;
+  onOpenMediaModal: (src: string, type: string) => void;
 }
 
 export function PostEditorCore({
@@ -40,6 +41,7 @@ export function PostEditorCore({
   onMediaRemove,
   onAddThread,
   onRemoveThread,
+  onOpenMediaModal,
 }: PostEditorCoreProps) {
   // Set up DnD sensors
   const sensors = useSensors(
@@ -85,6 +87,7 @@ export function PostEditorCore({
               onMediaUpload={onMediaUpload}
               onMediaRemove={onMediaRemove}
               onRemove={posts.length > 1 ? onRemoveThread : undefined}
+              onOpenMediaModal={onOpenMediaModal}
             />
           ))}
         </SortableContext>

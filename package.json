@@ -70,6 +70,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-markdown": "^9.0.3",
+    "react-player": "^2.16.0",
     "tree-kill": "^1.2.2",
     "web4-api-js": "^1.0.0",
     "zustand": "^5.0.3"

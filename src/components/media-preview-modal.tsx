@@ -1,0 +1,78 @@
+import React from "react";
+import { motion } from "framer-motion";
+import ReactPlayer from "react-player/lazy"; // Lazy load for better performance
+import { Dialog, DialogContent } from "./ui/dialog";
+import { ModalWindowControls } from "./modal-window-controls";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
+import { DialogTitle, DialogDescription } from "@radix-ui/react-dialog"; // Use primitives for VisuallyHidden
+
+interface MediaPreviewModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  mediaSrc: string | null;
+  mediaType: string | null;
+}
+
+export function MediaPreviewModal({
+  isOpen,
+  onClose,
+  mediaSrc,
+  mediaType,
+}: MediaPreviewModalProps) {
+  if (!isOpen || !mediaSrc || !mediaType) {
+    return null;
+  }
+
+  const isVideo = mediaType.startsWith("video/");
+  const isImage = mediaType.startsWith("image/");
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="border-none bg-transparent p-0 shadow-none sm:max-w-4xl">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
+          className="relative w-[calc(100%-0.5rem)] sm:w-full max-w-4xl mx-auto border-2 border-gray-800 bg-white shadow-[2px_2px_0_rgba(0,0,0,1)] sm:shadow-[4px_4px_0_rgba(0,0,0,1)] flex flex-col max-h-[85vh]"
+        >
+          <ModalWindowControls onClose={onClose} />
+          <VisuallyHidden.Root>
+            <DialogTitle>Media Preview</DialogTitle>
+            <DialogDescription>
+              Preview of the uploaded media.
+            </DialogDescription>
+          </VisuallyHidden.Root>
+          <div className="flex-grow p-3 sm:p-6 flex items-center justify-center overflow-hidden">
+            {/* Container to constrain the media */}
+            <div className="w-full h-full flex items-center justify-center">
+              {isImage && (
+                <img
+                  src={mediaSrc}
+                  alt="Media Preview"
+                  className="max-w-full max-h-full object-contain block" // block helps prevent extra space below image
+                />
+              )}
+              {isVideo && (
+                <div className="player-wrapper w-full h-full relative pb-[56.25%]"> {/* Aspect ratio padding hack */}
+                  <ReactPlayer
+                    className="absolute top-0 left-0"
+                    url={mediaSrc}
+                    controls={true}
+                    playing={true} // Autoplay when modal opens
+                    width="100%"
+                    height="100%"
+                  />
+                </div>
+              )}
+              {!isImage && !isVideo && (
+                <p className="text-gray-600">
+                  Unsupported media type: {mediaType}
+                </p>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      </DialogContent>
+    </Dialog>
+  );
+}

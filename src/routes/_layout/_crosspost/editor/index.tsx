@@ -19,6 +19,7 @@ import { useSubmitPost } from "../../../../hooks/use-submit-post";
 import { toast } from "../../../../hooks/use-toast";
 import { PostContent, useDraftsStore } from "../../../../store/drafts-store";
 import { useSelectedAccounts } from "../../../../store/platform-accounts-store";
+import { MediaPreviewModal } from "../../../../components/media-preview-modal";
 
 export const Route = createFileRoute("/_layout/_crosspost/editor/")({
   component: EditorPage,
@@ -41,6 +42,11 @@ function EditorPage() {
   ]);
   const [postType, setPostType] = useState<PostType>("post");
   const [targetUrl, setTargetUrl] = useState("");
+  const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
+  const [modalMediaContent, setModalMediaContent] = useState<{
+    src: string;
+    type: string;
+  } | null>(null);
 
   // Detect platform from URL and determine which platforms to disable
   const disabledPlatforms = useMemo<PlatformName[]>(() => {
@@ -171,6 +177,16 @@ function EditorPage() {
     [setPosts],
   );
 
+  const openMediaModal = useCallback((src: string, type: string) => {
+    setModalMediaContent({ src, type });
+    setIsMediaModalOpen(true);
+  }, []);
+
+  const closeMediaModal = useCallback(() => {
+    setIsMediaModalOpen(false);
+    setModalMediaContent(null);
+  }, []);
+
   return (
     <div className="w-full max-w-2xl mx-auto">
       <div className="space-y-4 mb-4">
@@ -197,6 +213,7 @@ function EditorPage() {
         onMediaRemove={removeMedia}
         onAddThread={addThread}
         onRemoveThread={removeThread}
+        onOpenMediaModal={openMediaModal}
       />
 
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mt-4">
@@ -226,6 +243,12 @@ function EditorPage() {
       </div>
 
       {isModalOpen && <DraftsModal onSelect={handleLoadDraft} />}
+      <MediaPreviewModal
+        isOpen={isMediaModalOpen}
+        onClose={closeMediaModal}
+        mediaSrc={modalMediaContent?.src || null}
+        mediaType={modalMediaContent?.type || null}
+      />
     </div>
   );
 }

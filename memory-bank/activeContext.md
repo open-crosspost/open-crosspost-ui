@@ -17,6 +17,12 @@ Following the initial refactor of the authentication/authorization system, the c
     -   Allowed uploading of all `image/*` and `video/*` types via the "Add Media" button.
     -   Implemented proper MIME type detection and storage (`mediaMimeType` field added to `EditorPost` and `PostContent` interfaces).
     -   Ensured the correct MIME type is used during post submission (`handleSubmit`).
+    -   Fixed the media thumbnail preview in `SortablePost` to correctly display images and videos.
+    -   Added a `MediaPreviewModal` component to view full-size media.
+    -   Made media thumbnails clickable to open the preview modal.
+    -   Refactored `MediaPreviewModal` to match `DraftsModal` styling and structure.
+    -   Integrated `react-player` for enhanced video playback in the modal.
+    -   Improved media scaling within the modal to fit the viewport better.
 
 ## Current Requirements & Immediate Plan
 

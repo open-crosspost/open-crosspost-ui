@@ -9,12 +9,14 @@ interface SortablePostProps {
     text: string;
     mediaId: string | null;
     mediaPreview: string | null;
+    mediaMimeType?: string;
   };
   index: number;
   onTextChange: (index: number, text: string) => void;
   onRemove?: (index: number) => void;
   onMediaUpload: (index: number, file: File) => void;
   onMediaRemove: (index: number) => void;
+  onOpenMediaModal: (src: string, type: string) => void;
 }
 
 function SortablePostComponent({
@@ -24,6 +26,7 @@ function SortablePostComponent({
   onRemove,
   onMediaUpload,
   onMediaRemove,
+  onOpenMediaModal,
 }: SortablePostProps) {
   const {
     attributes,
@@ -100,24 +103,46 @@ function SortablePostComponent({
               >
                 Add Media
               </Button>
-              {post.mediaPreview && (
-                <>
-                  <div className="relative">
-                    <img
-                      src={post.mediaPreview}
-                      alt="Preview"
-                      className="h-10 w-10 object-cover rounded"
-                    />
-                    <Button
-                      onClick={() => onMediaRemove(index)}
-                      size="sm"
-                      variant="destructive"
-                      className="absolute -top-2 -right-2 h-6 w-6 p-0 rounded-full"
-                    >
-                      ×
-                    </Button>
-                  </div>
-                </>
+              {post.mediaPreview && post.mediaMimeType && (
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onOpenMediaModal(
+                        post.mediaPreview!,
+                        post.mediaMimeType!,
+                      )
+                    }
+                    className="block h-10 w-10 rounded overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  >
+                    {post.mediaMimeType.startsWith("image/") ? (
+                      <img
+                        src={post.mediaPreview}
+                        alt="Preview"
+                        className="h-full w-full object-cover"
+                      />
+                    ) : post.mediaMimeType.startsWith("video/") ? (
+                      <video
+                        src={post.mediaPreview}
+                        className="h-full w-full object-cover"
+                        muted
+                        playsInline
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-gray-200 flex items-center justify-center text-xs text-gray-500">
+                        ?
+                      </div>
+                    )}
+                  </button>
+                  <Button
+                    onClick={() => onMediaRemove(index)}
+                    size="sm"
+                    variant="destructive"
+                    className="absolute -top-2 -right-2 h-6 w-6 p-0 rounded-full"
+                  >
+                    ×
+                  </Button>
+                </div>
               )}
             </div>
             <div className="flex flex-wrap items-center gap-2">
