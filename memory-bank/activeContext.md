@@ -13,6 +13,10 @@ Following the initial refactor of the authentication/authorization system, the c
 -   **Cleanup:** Removed old auth files and updated imports across the application.
 -   **Persistence Fix:** Authorization status (`crosspost:authorized` flag in `localStorage`) now correctly persists across sessions.
 -   **Blank Page Fix:** Resolved the issue where the app showed a blank page after initial authorization.
+-   **Enhanced Media Handling:** Improved media upload functionality in the post editor (`src/routes/_layout/_crosspost/editor/index.tsx` and related hooks/components).
+    -   Allowed uploading of all `image/*` and `video/*` types via the "Add Media" button.
+    -   Implemented proper MIME type detection and storage (`mediaMimeType` field added to `EditorPost` and `PostContent` interfaces).
+    -   Ensured the correct MIME type is used during post submission (`handleSubmit`).
 
 ## Current Requirements & Immediate Plan
 

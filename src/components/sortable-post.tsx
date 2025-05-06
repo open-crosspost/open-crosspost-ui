@@ -82,7 +82,7 @@ function SortablePostComponent({
             <div className="flex flex-row flex-wrap gap-2">
               <input
                 type="file"
-                accept="image/jpeg,image/png,image/gif,image/webp,video/mp4"
+                accept="image/*,video/*"
                 onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {
                     onMediaUpload(index, e.target.files[0]);

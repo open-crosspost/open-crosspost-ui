@@ -19,6 +19,7 @@ export interface EditorPost {
   text: string;
   mediaId: string | null;
   mediaPreview: string | null;
+  mediaMimeType?: string;
 }
 
 interface PostEditorCoreProps {

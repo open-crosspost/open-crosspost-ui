@@ -33,8 +33,7 @@ export function usePostMedia(
         return;
       }
 
-      // Check file type
-      if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) {
+      if (!file.type.match(/^(image|video)\//)) {
         toast({
           title: "Invalid File Type",
           description: "Only images and videos are supported",
@@ -50,8 +49,9 @@ export function usePostMedia(
             const newPosts = [...currentPosts];
             newPosts[index] = {
               ...newPosts[index],
-              mediaId: URL.createObjectURL(file), // Temporary ID for preview
+              mediaId: URL.createObjectURL(file),
               mediaPreview: event.target!.result as string,
+              mediaMimeType: file.type,
             };
 
             debouncedSave(newPosts);
@@ -83,6 +83,7 @@ export function usePostMedia(
           ...newPosts[index],
           mediaId: null,
           mediaPreview: null,
+          mediaMimeType: undefined,
         };
 
         debouncedSave(newPosts);

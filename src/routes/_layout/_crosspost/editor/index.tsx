@@ -90,6 +90,14 @@ function EditorPage() {
     setPosts([{ text: "", mediaId: null, mediaPreview: null }]);
   }, [saveDraft, posts, toast, setPosts, clearAutoSave]);
 
+  // Helper function to extract MIME type from data URL
+  function getMimeTypeFromDataUrl(dataUrl: string): string {
+    if (!dataUrl || !dataUrl.startsWith("data:"))
+      return "application/octet-stream";
+    const match = dataUrl.match(/^data:([^;]+);/);
+    return match ? match[1] : "application/octet-stream";
+  }
+
   // Handle posts change (e.g., after drag and drop)
   const handlePostsChange = useCallback(
     (newPosts: EditorPost[]) => {
@@ -108,9 +116,8 @@ function EditorPage() {
         ? [
             {
               data: post.mediaPreview,
-              mimeType: post.mediaPreview.startsWith("data:image/")
-                ? "image/jpeg"
-                : "video/mp4",
+              mimeType:
+                post.mediaMimeType || getMimeTypeFromDataUrl(post.mediaPreview),
             },
           ]
         : undefined,
@@ -151,6 +158,10 @@ function EditorPage() {
             mediaId: post.mediaId === undefined ? null : post.mediaId,
             mediaPreview:
               post.media && post.media.length > 0 ? post.media[0].data : null,
+            mediaMimeType:
+              post.media && post.media.length > 0
+                ? post.media[0].mimeType
+                : undefined,
           } as EditorPost;
         });
 

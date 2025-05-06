@@ -12,6 +12,7 @@ export interface PostContent {
   media?: PostMedia[];
   mediaId?: string | null;
   mediaPreview?: string | null;
+  mediaMimeType?: string;
 }
 
 export interface Draft {
