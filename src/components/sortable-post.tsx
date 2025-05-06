@@ -107,9 +107,15 @@ function SortablePostComponent({
                 <div className="relative">
                   <button
                     type="button"
-                    onClick={() =>
-                      onOpenMediaModal(post.mediaPreview!, post.mediaMimeType!)
-                    }
+                    onClick={() => {
+                      const srcForModal =
+                        post.mediaMimeType?.startsWith("video/") && post.mediaId
+                          ? post.mediaId
+                          : post.mediaPreview;
+                      if (srcForModal && post.mediaMimeType) {
+                        onOpenMediaModal(srcForModal, post.mediaMimeType);
+                      }
+                    }}
                     className="block h-10 w-10 rounded overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   >
                     {post.mediaMimeType.startsWith("image/") ? (

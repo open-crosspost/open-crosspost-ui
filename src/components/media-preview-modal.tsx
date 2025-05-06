@@ -1,10 +1,10 @@
 import React from "react";
 import { motion } from "framer-motion";
-import ReactPlayer from "react-player/lazy"; // Lazy load for better performance
+import ReactPlayer from "react-player/lazy";
 import { Dialog, DialogContent } from "./ui/dialog";
 import { ModalWindowControls } from "./modal-window-controls";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
-import { DialogTitle, DialogDescription } from "@radix-ui/react-dialog"; // Use primitives for VisuallyHidden
+import { DialogTitle, DialogDescription } from "@radix-ui/react-dialog";
 
 interface MediaPreviewModalProps {
   isOpen: boolean;
@@ -53,18 +53,25 @@ export function MediaPreviewModal({
                 />
               )}
               {isVideo && (
-                <div className="player-wrapper w-full h-full relative pb-[56.25%]">
-                  {" "}
-                  {/* Aspect ratio padding hack */}
-                  <ReactPlayer
-                    className="absolute top-0 left-0"
-                    url={mediaSrc}
-                    controls={true}
-                    playing={true} // Autoplay when modal opens
-                    width="100%"
-                    height="100%"
-                  />
-                </div>
+                <ReactPlayer
+                  key={mediaSrc}
+                  url={mediaSrc}
+                  controls
+                  playing
+                  width="100%"
+                  height="100%"
+                  config={{
+                    file: {
+                      attributes: {
+                        style: {
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "contain",
+                        },
+                      },
+                    },
+                  }}
+                />
               )}
               {!isImage && !isVideo && (
                 <p className="text-gray-600">
