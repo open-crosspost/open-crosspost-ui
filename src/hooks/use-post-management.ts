@@ -1,15 +1,15 @@
 import { useCallback } from "react";
-import { PostContent } from "../store/drafts-store";
 import { useDebounce } from "../lib/utils/debounce";
+import { EditorContent } from "../store/drafts-store";
 
 export function usePostManagement(
-  posts: PostContent[],
-  setPosts: React.Dispatch<React.SetStateAction<PostContent[]>>,
-  saveAutoSave?: (posts: PostContent[]) => void,
+  posts: EditorContent[],
+  setPosts: React.Dispatch<React.SetStateAction<EditorContent[]>>,
+  saveAutoSave?: (posts: EditorContent[]) => void,
 ) {
   // Use the shared debounce utility
   const saveCallback = useCallback(
-    (postsToSave: PostContent[]) => {
+    (postsToSave: EditorContent[]) => {
       if (saveAutoSave) {
         saveAutoSave(postsToSave);
       }
@@ -41,7 +41,7 @@ export function usePostManagement(
     setPosts((currentPosts) => {
       const newPosts = [
         ...currentPosts,
-        { text: "", mediaId: null, mediaPreview: null },
+        { text: "", media: [] },
       ];
 
       // No need to debounce here as this is a user-initiated action
@@ -79,15 +79,14 @@ export function usePostManagement(
         .filter((part) => part.trim().length > 0);
 
       if (parts.length === 0) {
-        setPosts([{ text: "", mediaId: null, mediaPreview: null }]);
+        setPosts([{ text: "", media: [] }]);
         return;
       }
 
       // Create a post for each part
       const threadPosts = parts.map((part) => ({
         text: part.trim(),
-        mediaId: null,
-        mediaPreview: null,
+        media: [],
       }));
 
       setPosts(threadPosts);
@@ -101,16 +100,14 @@ export function usePostManagement(
       // Join all post texts with double newlines
       const combinedText = currentPosts.map((post) => post.text).join("\n\n");
 
-      // Keep the first media if any
       const firstMediaPost = currentPosts.find(
-        (post) => post.mediaId !== null || post.mediaPreview !== null,
+        (post) => post.media && post.media.length > 0
       );
 
       return [
         {
           text: combinedText,
-          mediaId: firstMediaPost?.mediaId || null,
-          mediaPreview: firstMediaPost?.mediaPreview || null,
+          media: firstMediaPost?.media || [],
         },
       ];
     });

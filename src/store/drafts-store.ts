@@ -1,37 +1,35 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { MediaContent, PostContent } from "@crosspost/types";
 
-export interface PostMedia {
-  data: string; // Base64 encoded data or URL
-  mimeType: string;
-  altText?: string;
+export interface EditorMedia extends MediaContent {
+  // Additional fields for UI handling
+  id?: string | null;
+  preview?: string | null;
 }
 
-export interface PostContent {
-  text: string;
-  media?: PostMedia[];
-  mediaId?: string | null;
-  mediaPreview?: string | null;
-  mediaMimeType?: string;
+export interface EditorContent extends PostContent {
+  media: EditorMedia[]
 }
+
 
 export interface Draft {
   id: string;
   createdAt: string;
   updatedAt: string;
-  posts: PostContent[];
+  posts: EditorContent[];
 }
 
 interface DraftsState {
   drafts: Draft[];
   isModalOpen: boolean;
-  autosave: { posts: PostContent[] } | null;
-  updateDraft: (id: string, posts: PostContent[]) => void;
+  autosave: { posts: EditorContent[] } | null;
+  updateDraft: (id: string, posts: EditorContent[]) => void;
   deleteDraft: (id: string) => void;
   setModalOpen: (isOpen: boolean) => void;
-  saveAutoSave: (posts: PostContent[]) => void;
+  saveAutoSave: (posts: EditorContent[]) => void;
   clearAutoSave: () => void;
-  saveDraft: (posts: PostContent[]) => string;
+  saveDraft: (posts: EditorContent[]) => string;
 }
 
 export const useDraftsStore = create<DraftsState>()(

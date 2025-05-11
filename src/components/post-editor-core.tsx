@@ -1,4 +1,3 @@
-import React from "react";
 import {
   closestCenter,
   DndContext,
@@ -13,18 +12,14 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import React from "react";
 import { SortablePost } from "./sortable-post";
 import { Button } from "./ui/button";
-export interface EditorPost {
-  text: string;
-  mediaId: string | null;
-  mediaPreview: string | null;
-  mediaMimeType?: string;
-}
+import { EditorContent } from "@/store/drafts-store";
 
 interface PostEditorCoreProps {
-  posts: EditorPost[];
-  onPostsChange: (posts: EditorPost[]) => void;
+  posts: EditorContent[];
+  onPostsChange: (posts: EditorContent[]) => void;
   onTextChange: (index: number, text: string) => void;
   onMediaUpload: (index: number, file: File) => void;
   onMediaRemove: (index: number) => void;

@@ -8,7 +8,7 @@ import {
   detectPlatformFromUrl,
   extractPostIdFromUrl,
 } from "../lib/utils/url-utils";
-import { PostContent } from "../store/drafts-store";
+import { EditorContent } from "../store/drafts-store";
 import { toast } from "./use-toast";
 import {
   useCreatePost,
@@ -48,7 +48,7 @@ export function useSubmitPost() {
   const quotePostMutation = useQuotePost();
 
   const submitPost = async (
-    posts: PostContent[],
+    posts: EditorContent[],
     selectedAccounts: ConnectedAccount[],
     postType: PostType = "post",
     targetUrl: string = "",
@@ -64,7 +64,7 @@ export function useSubmitPost() {
       return "failure";
     }
 
-    const nonEmptyPosts = posts.filter((p) => p.text.trim());
+    const nonEmptyPosts = posts.filter((p) => (p.text || "").trim());
     if (nonEmptyPosts.length === 0) {
       toast({
         title: "Empty Post",

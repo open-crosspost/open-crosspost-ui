@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { DraftsModal } from "../../../../components/drafts-modal";
 import { PlatformAccountsSelector } from "../../../../components/platform-accounts-selector";
 import {
-  EditorPost,
   PostEditorCore,
 } from "../../../../components/post-editor-core";
 import {
@@ -17,7 +16,7 @@ import { usePostManagement } from "../../../../hooks/use-post-management";
 import { usePostMedia } from "../../../../hooks/use-post-media";
 import { useSubmitPost } from "../../../../hooks/use-submit-post";
 import { toast } from "../../../../hooks/use-toast";
-import { PostContent, useDraftsStore } from "../../../../store/drafts-store";
+import { EditorContent, EditorMedia, useDraftsStore } from "../../../../store/drafts-store";
 import { useSelectedAccounts } from "../../../../store/platform-accounts-store";
 import { MediaPreviewModal } from "../../../../components/media-preview-modal";
 
@@ -37,8 +36,8 @@ function EditorPage() {
     isModalOpen,
   } = useDraftsStore();
 
-  const [posts, setPosts] = useState<EditorPost[]>([
-    { text: "", mediaId: null, mediaPreview: null },
+  const [posts, setPosts] = useState<EditorContent[]>([
+    { text: "", media: [] as EditorMedia[] },
   ]);
   const [postType, setPostType] = useState<PostType>("post");
   const [targetUrl, setTargetUrl] = useState("");
@@ -66,18 +65,18 @@ function EditorPage() {
   }, [postType, targetUrl]);
 
   const { handleMediaUpload, removeMedia } = usePostMedia(
-    setPosts as any,
+    setPosts,
     toast,
     saveAutoSave,
   );
 
   const { handleTextChange, addThread, removeThread, cleanup } =
-    usePostManagement(posts as any, setPosts as any, saveAutoSave);
+    usePostManagement(posts, setPosts, saveAutoSave);
 
   // Load auto-saved content on mount and handle cleanup
   useEffect(() => {
     if (autosave && autosave.posts && autosave.posts.length > 0) {
-      setPosts(autosave.posts as any);
+      setPosts(autosave.posts);
     }
 
     return () => {
@@ -87,13 +86,13 @@ function EditorPage() {
 
   // Memoized draft save handler
   const handleSaveDraft = useCallback(() => {
-    saveDraft(posts as any);
+    saveDraft(posts);
     toast({
       title: "Draft Saved",
       description: "Your draft has been saved successfully.",
     });
     clearAutoSave();
-    setPosts([{ text: "", mediaId: null, mediaPreview: null }]);
+    setPosts([{ text: "", media: [] as EditorMedia[] }]);
   }, [saveDraft, posts, toast, setPosts, clearAutoSave]);
 
   // Helper function to extract MIME type from data URL
@@ -106,40 +105,44 @@ function EditorPage() {
 
   // Handle posts change (e.g., after drag and drop)
   const handlePostsChange = useCallback(
-    (newPosts: EditorPost[]) => {
+    (newPosts: EditorContent[]) => {
       setPosts(newPosts);
-      saveAutoSave(newPosts as any);
+      saveAutoSave(newPosts);
     },
     [saveAutoSave],
   );
 
   // Handle post submission
   const handleSubmit = useCallback(async () => {
-    // Convert posts to PostContent format
-    const postContents: PostContent[] = posts.map((post) => ({
-      text: post.text,
-      media: post.mediaPreview
-        ? [
-            {
-              data: post.mediaPreview,
-              mimeType:
-                post.mediaMimeType || getMimeTypeFromDataUrl(post.mediaPreview),
-            },
-          ]
-        : undefined,
-    }));
+    // Convert posts to EditorContent format
+    const editorContents: EditorContent[] = posts.map((post) => {
+      // Handle multiple media items
+      const media = post.media && post.media.length > 0
+        ? post.media.map(item => ({
+            data: item.preview || '',
+            mimeType: item.mimeType || getMimeTypeFromDataUrl(item.preview || ''),
+            id: item.id,
+            preview: item.preview
+          }))
+        : [];
+      
+      return {
+        text: post.text || "",
+        media
+      };
+    });
 
     // Submit the post
     const postStatus = await submitPost(
-      postContents,
+      editorContents,
       selectedAccounts,
       postType,
       targetUrl,
     );
 
     // Only clear form on complete success
-    if (postStatus === "success" && postContents.length > 0) {
-      setPosts([{ text: "", mediaId: null, mediaPreview: null }]);
+    if (postStatus === "success" && editorContents.length > 0) {
+      setPosts([{ text: "", media: [] as EditorMedia[] }]);
       clearAutoSave();
     }
     // Keep the editor content for partial success or failure
@@ -155,20 +158,20 @@ function EditorPage() {
 
   // Handle load draft
   const handleLoadDraft = useCallback(
-    (draftPosts: PostContent[]) => {
+    (draftPosts: EditorContent[]) => {
       if (draftPosts.length > 0) {
         // Convert to the format expected by the editor
         const formattedPosts = draftPosts.map((post) => {
+          const media = post.media?.map(media => ({
+            id: null,
+            preview: media.data,
+            mimeType: media.mimeType
+          })) || [];
+          
           return {
             text: post.text,
-            mediaId: post.mediaId === undefined ? null : post.mediaId,
-            mediaPreview:
-              post.media && post.media.length > 0 ? post.media[0].data : null,
-            mediaMimeType:
-              post.media && post.media.length > 0
-                ? post.media[0].mimeType
-                : undefined,
-          } as EditorPost;
+            media: media,
+          } as EditorContent;
         });
 
         setPosts(formattedPosts);
@@ -223,7 +226,7 @@ function EditorPage() {
         <div className="flex gap-2 order-1 sm:order-2">
           <Button
             onClick={handleSaveDraft}
-            disabled={posts.every((p) => !p.text.trim())}
+            disabled={posts.every((p) => !(p.text || "").trim())}
             className="flex-1 sm:flex-auto"
           >
             Save Draft
@@ -232,7 +235,7 @@ function EditorPage() {
             onClick={handleSubmit}
             disabled={
               isPosting ||
-              posts.every((p) => !p.text.trim()) ||
+              posts.every((p) => !(p.text || "").trim()) ||
               selectedAccounts.length === 0
             }
             className="flex-1 sm:flex-auto"
