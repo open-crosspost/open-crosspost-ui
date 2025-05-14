@@ -9,9 +9,8 @@ export interface EditorMedia extends MediaContent {
 }
 
 export interface EditorContent extends PostContent {
-  media: EditorMedia[]
+  media: EditorMedia[];
 }
-
 
 export interface Draft {
   id: string;

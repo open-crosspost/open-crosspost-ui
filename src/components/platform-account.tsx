@@ -114,7 +114,10 @@ export function PlatformAccountItem({
           title="Copy user ID"
           disabled={isCopying}
         >
-          <ClipboardCopy size={16} className={isCopying ? "animate-spin" : ""} />
+          <ClipboardCopy
+            size={16}
+            className={isCopying ? "animate-spin" : ""}
+          />
         </Button>
         <Button
           size="sm"

@@ -39,10 +39,7 @@ export function usePostManagement(
   // Add a new thread post
   const addThread = useCallback(() => {
     setPosts((currentPosts) => {
-      const newPosts = [
-        ...currentPosts,
-        { text: "", media: [] },
-      ];
+      const newPosts = [...currentPosts, { text: "", media: [] }];
 
       // No need to debounce here as this is a user-initiated action
       if (saveAutoSave) {
@@ -101,7 +98,7 @@ export function usePostManagement(
       const combinedText = currentPosts.map((post) => post.text).join("\n\n");
 
       const firstMediaPost = currentPosts.find(
-        (post) => post.media && post.media.length > 0
+        (post) => post.media && post.media.length > 0,
       );
 
       return [

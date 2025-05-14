@@ -45,9 +45,7 @@ export default function App() {
         config={{
           network: NETWORK_ID,
           createAccessKeyFor: SOCIAL_CONTRACT[NETWORK_ID],
-          modules: [
-            setupMeteorWallet()
-          ],
+          modules: [setupMeteorWallet()],
         }}
       >
         <RouterProvider router={router} />

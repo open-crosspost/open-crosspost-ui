@@ -99,58 +99,68 @@ function SortablePostComponent({
                   document.getElementById(`media-upload-${index}`)?.click()
                 }
                 size="sm"
-                disabled={post.media?.some((item) => item.mimeType?.startsWith('video/')) && post.media?.length > 0}
+                disabled={
+                  post.media?.some((item) =>
+                    item.mimeType?.startsWith("video/"),
+                  ) && post.media?.length > 0
+                }
               >
                 Add Media
               </Button>
-              
+
               {/* Media Items Grid */}
               {post.media && post.media.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {post.media.map((mediaItem: EditorMedia, mediaIndex: number) => (
-                    <div key={`media-${index}-${mediaIndex}`} className="relative">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const srcForModal =
-                            mediaItem.mimeType?.startsWith("video/") && mediaItem.id
-                              ? mediaItem.id
-                              : mediaItem.preview;
-                          if (srcForModal && mediaItem.mimeType) {
-                            onOpenMediaModal(srcForModal, mediaItem.mimeType);
-                          }
-                        }}
-                        className="block h-10 w-10 rounded overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  {post.media.map(
+                    (mediaItem: EditorMedia, mediaIndex: number) => (
+                      <div
+                        key={`media-${index}-${mediaIndex}`}
+                        className="relative"
                       >
-                        {mediaItem.mimeType?.startsWith("image/") ? (
-                          <img
-                            src={mediaItem.preview || ''}
-                            alt={`Preview ${mediaIndex + 1}`}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : mediaItem.mimeType?.startsWith("video/") ? (
-                          <video
-                            src={mediaItem.preview || ''}
-                            className="h-full w-full object-cover"
-                            muted
-                            playsInline
-                          />
-                        ) : (
-                          <div className="h-full w-full bg-gray-200 flex items-center justify-center text-xs text-gray-500">
-                            ?
-                          </div>
-                        )}
-                      </button>
-                      <Button
-                        onClick={() => onMediaRemove(index, mediaIndex)}
-                        size="sm"
-                        variant="destructive"
-                        className="absolute -top-2 -right-2 h-6 w-6 p-0 rounded-full"
-                      >
-                        ×
-                      </Button>
-                    </div>
-                  ))}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const srcForModal =
+                              mediaItem.mimeType?.startsWith("video/") &&
+                              mediaItem.id
+                                ? mediaItem.id
+                                : mediaItem.preview;
+                            if (srcForModal && mediaItem.mimeType) {
+                              onOpenMediaModal(srcForModal, mediaItem.mimeType);
+                            }
+                          }}
+                          className="block h-10 w-10 rounded overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        >
+                          {mediaItem.mimeType?.startsWith("image/") ? (
+                            <img
+                              src={mediaItem.preview || ""}
+                              alt={`Preview ${mediaIndex + 1}`}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : mediaItem.mimeType?.startsWith("video/") ? (
+                            <video
+                              src={mediaItem.preview || ""}
+                              className="h-full w-full object-cover"
+                              muted
+                              playsInline
+                            />
+                          ) : (
+                            <div className="h-full w-full bg-gray-200 flex items-center justify-center text-xs text-gray-500">
+                              ?
+                            </div>
+                          )}
+                        </button>
+                        <Button
+                          onClick={() => onMediaRemove(index, mediaIndex)}
+                          size="sm"
+                          variant="destructive"
+                          className="absolute -top-2 -right-2 h-6 w-6 p-0 rounded-full"
+                        >
+                          ×
+                        </Button>
+                      </div>
+                    ),
+                  )}
                 </div>
               )}
             </div>

@@ -46,30 +46,35 @@ export function usePostMedia(
       const checkMediaCompatibility = (currentPosts: EditorContent[]) => {
         const post = currentPosts[index];
         const existingmedia = post.media || [];
-        
-        // Check if we're trying to add a video when multiple images already exist
-        const hasMultipleImages = existingmedia.length > 0 &&
-          existingmedia.some(item => item.mimeType?.startsWith('image/'));
 
-        if (file.type.startsWith('video/') && hasMultipleImages) {
+        // Check if we're trying to add a video when multiple images already exist
+        const hasMultipleImages =
+          existingmedia.length > 0 &&
+          existingmedia.some((item) => item.mimeType?.startsWith("image/"));
+
+        if (file.type.startsWith("video/") && hasMultipleImages) {
           toast({
             title: "Cannot Add Video",
-            description: "Videos cannot be added when multiple images are attached",
+            description:
+              "Videos cannot be added when multiple images are attached",
             variant: "destructive",
           });
           return false;
         }
 
-        const hasVideo = existingmedia.some(item => item.mimeType?.startsWith('video/'));
-        if (file.type.startsWith('image/') && hasVideo) {
+        const hasVideo = existingmedia.some((item) =>
+          item.mimeType?.startsWith("video/"),
+        );
+        if (file.type.startsWith("image/") && hasVideo) {
           toast({
             title: "Cannot Add Image",
-            description: "Multiple images cannot be added when a video is attached",
+            description:
+              "Multiple images cannot be added when a video is attached",
             variant: "destructive",
           });
           return false;
         }
-        
+
         return true;
       };
 
@@ -82,7 +87,7 @@ export function usePostMedia(
             if (!checkMediaCompatibility(currentPosts)) {
               return currentPosts;
             }
-            
+
             const updatedPosts = [...currentPosts];
             const updatedPost = updatedPosts[index];
 
@@ -117,7 +122,6 @@ export function usePostMedia(
         const post = newPosts[index];
         const media = post.media || [];
 
-
         const mediaToRemove = media[mediaIndex];
 
         // Revoke object URL if it exists
@@ -132,7 +136,7 @@ export function usePostMedia(
         // Remove the media item
         const updatedmedia = [
           ...media.slice(0, mediaIndex),
-          ...media.slice(mediaIndex + 1)
+          ...media.slice(mediaIndex + 1),
         ];
 
         newPosts[index] = {

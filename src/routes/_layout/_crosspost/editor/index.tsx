@@ -2,9 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { DraftsModal } from "../../../../components/drafts-modal";
 import { PlatformAccountsSelector } from "../../../../components/platform-accounts-selector";
-import {
-  PostEditorCore,
-} from "../../../../components/post-editor-core";
+import { PostEditorCore } from "../../../../components/post-editor-core";
 import {
   PostInteractionSelector,
   PostType,
@@ -16,7 +14,11 @@ import { usePostManagement } from "../../../../hooks/use-post-management";
 import { usePostMedia } from "../../../../hooks/use-post-media";
 import { useSubmitPost } from "../../../../hooks/use-submit-post";
 import { toast } from "../../../../hooks/use-toast";
-import { EditorContent, EditorMedia, useDraftsStore } from "../../../../store/drafts-store";
+import {
+  EditorContent,
+  EditorMedia,
+  useDraftsStore,
+} from "../../../../store/drafts-store";
 import { useSelectedAccounts } from "../../../../store/platform-accounts-store";
 import { MediaPreviewModal } from "../../../../components/media-preview-modal";
 
@@ -117,18 +119,20 @@ function EditorPage() {
     // Convert posts to EditorContent format
     const editorContents: EditorContent[] = posts.map((post) => {
       // Handle multiple media items
-      const media = post.media && post.media.length > 0
-        ? post.media.map(item => ({
-            data: item.preview || '',
-            mimeType: item.mimeType || getMimeTypeFromDataUrl(item.preview || ''),
-            id: item.id,
-            preview: item.preview
-          }))
-        : [];
-      
+      const media =
+        post.media && post.media.length > 0
+          ? post.media.map((item) => ({
+              data: item.preview || "",
+              mimeType:
+                item.mimeType || getMimeTypeFromDataUrl(item.preview || ""),
+              id: item.id,
+              preview: item.preview,
+            }))
+          : [];
+
       return {
         text: post.text || "",
-        media
+        media,
       };
     });
 
@@ -162,12 +166,13 @@ function EditorPage() {
       if (draftPosts.length > 0) {
         // Convert to the format expected by the editor
         const formattedPosts = draftPosts.map((post) => {
-          const media = post.media?.map(media => ({
-            id: null,
-            preview: media.data,
-            mimeType: media.mimeType
-          })) || [];
-          
+          const media =
+            post.media?.map((media) => ({
+              id: null,
+              preview: media.data,
+              mimeType: media.mimeType,
+            })) || [];
+
           return {
             text: post.text,
             media: media,
