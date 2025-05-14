@@ -15,11 +15,13 @@ import { AccountItem } from "./account-item";
 interface PlatformAccountProps {
   account: ConnectedAccount;
   showActions?: boolean;
+  showSelect?: boolean;
 }
 
 export function PlatformAccountItem({
   account,
   showActions = true,
+  showSelect = true,
 }: PlatformAccountProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);

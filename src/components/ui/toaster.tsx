@@ -1,4 +1,5 @@
-import * as React from "react"; // Add React import
+import * as React from "react";
+import { useToast } from "@/hooks/use-toast";
 import {
   Toast,
   ToastClose,
@@ -6,37 +7,14 @@ import {
   ToastProvider,
   ToastTitle,
   ToastViewport,
-  type ToastProps, // Import the ToastProps type
-  type ToastActionElement, // Import the ToastActionElement type
 } from "@/components/ui/toast";
-import { useToast } from "@/hooks/use-toast"; // Assuming this path is correct
-
-// Define the shape of a toast object managed by the hook
-interface ToasterToast {
-  id: string;
-  title?: React.ReactNode;
-  description?: React.ReactNode;
-  action?: ToastActionElement;
-  // Include other relevant props from ToastProps manually if needed for the hook's logic
-  // For example:
-  variant?: ToastProps["variant"];
-  // Add other props from ToastProps that useToast might set or use
-}
 
 export function Toaster() {
-  // Explicitly type the return value of useToast if possible,
-  // otherwise, rely on inference or type the destructured `toasts`
-  const { toasts }: { toasts: ToasterToast[] } = useToast();
+  const { toasts } = useToast();
 
   return (
     <ToastProvider>
-      {toasts.map(function ({
-        id,
-        title,
-        description,
-        action,
-        ...props
-      }: ToasterToast) {
+      {toasts.map(function ({ id, title, description, action, ...props }) {
         return (
           <Toast key={id} {...props}>
             <div className="grid gap-1">

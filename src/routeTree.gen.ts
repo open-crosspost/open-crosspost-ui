@@ -14,6 +14,7 @@ import { Route as rootRoute } from "./routes/__root";
 import { Route as LayoutImport } from "./routes/_layout";
 import { Route as LayoutCrosspostImport } from "./routes/_layout/_crosspost";
 import { Route as LayoutCrosspostIndexImport } from "./routes/_layout/_crosspost/index";
+import { Route as LayoutCrosspostResultsIndexImport } from "./routes/_layout/_crosspost/results/index";
 import { Route as LayoutCrosspostProfileIndexImport } from "./routes/_layout/_crosspost/profile/index";
 import { Route as LayoutCrosspostManageIndexImport } from "./routes/_layout/_crosspost/manage/index";
 import { Route as LayoutCrosspostLeaderboardIndexImport } from "./routes/_layout/_crosspost/leaderboard/index";
@@ -37,6 +38,13 @@ const LayoutCrosspostIndexRoute = LayoutCrosspostIndexImport.update({
   path: "/",
   getParentRoute: () => LayoutCrosspostRoute,
 } as any);
+
+const LayoutCrosspostResultsIndexRoute =
+  LayoutCrosspostResultsIndexImport.update({
+    id: "/results/",
+    path: "/results/",
+    getParentRoute: () => LayoutCrosspostRoute,
+  } as any);
 
 const LayoutCrosspostProfileIndexRoute =
   LayoutCrosspostProfileIndexImport.update({
@@ -135,6 +143,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof LayoutCrosspostProfileIndexImport;
       parentRoute: typeof LayoutCrosspostImport;
     };
+    "/_layout/_crosspost/results/": {
+      id: "/_layout/_crosspost/results/";
+      path: "/results";
+      fullPath: "/results";
+      preLoaderRoute: typeof LayoutCrosspostResultsIndexImport;
+      parentRoute: typeof LayoutCrosspostImport;
+    };
   }
 }
 
@@ -147,6 +162,7 @@ interface LayoutCrosspostRouteChildren {
   LayoutCrosspostLeaderboardIndexRoute: typeof LayoutCrosspostLeaderboardIndexRoute;
   LayoutCrosspostManageIndexRoute: typeof LayoutCrosspostManageIndexRoute;
   LayoutCrosspostProfileIndexRoute: typeof LayoutCrosspostProfileIndexRoute;
+  LayoutCrosspostResultsIndexRoute: typeof LayoutCrosspostResultsIndexRoute;
 }
 
 const LayoutCrosspostRouteChildren: LayoutCrosspostRouteChildren = {
@@ -156,6 +172,7 @@ const LayoutCrosspostRouteChildren: LayoutCrosspostRouteChildren = {
   LayoutCrosspostLeaderboardIndexRoute: LayoutCrosspostLeaderboardIndexRoute,
   LayoutCrosspostManageIndexRoute: LayoutCrosspostManageIndexRoute,
   LayoutCrosspostProfileIndexRoute: LayoutCrosspostProfileIndexRoute,
+  LayoutCrosspostResultsIndexRoute: LayoutCrosspostResultsIndexRoute,
 };
 
 const LayoutCrosspostRouteWithChildren = LayoutCrosspostRoute._addFileChildren(
@@ -181,6 +198,7 @@ export interface FileRoutesByFullPath {
   "/leaderboard": typeof LayoutCrosspostLeaderboardIndexRoute;
   "/manage": typeof LayoutCrosspostManageIndexRoute;
   "/profile": typeof LayoutCrosspostProfileIndexRoute;
+  "/results": typeof LayoutCrosspostResultsIndexRoute;
 }
 
 export interface FileRoutesByTo {
@@ -191,6 +209,7 @@ export interface FileRoutesByTo {
   "/leaderboard": typeof LayoutCrosspostLeaderboardIndexRoute;
   "/manage": typeof LayoutCrosspostManageIndexRoute;
   "/profile": typeof LayoutCrosspostProfileIndexRoute;
+  "/results": typeof LayoutCrosspostResultsIndexRoute;
 }
 
 export interface FileRoutesById {
@@ -203,6 +222,7 @@ export interface FileRoutesById {
   "/_layout/_crosspost/leaderboard/": typeof LayoutCrosspostLeaderboardIndexRoute;
   "/_layout/_crosspost/manage/": typeof LayoutCrosspostManageIndexRoute;
   "/_layout/_crosspost/profile/": typeof LayoutCrosspostProfileIndexRoute;
+  "/_layout/_crosspost/results/": typeof LayoutCrosspostResultsIndexRoute;
 }
 
 export interface FileRouteTypes {
@@ -214,7 +234,8 @@ export interface FileRouteTypes {
     | "/editor"
     | "/leaderboard"
     | "/manage"
-    | "/profile";
+    | "/profile"
+    | "/results";
   fileRoutesByTo: FileRoutesByTo;
   to:
     | ""
@@ -223,7 +244,8 @@ export interface FileRouteTypes {
     | "/editor"
     | "/leaderboard"
     | "/manage"
-    | "/profile";
+    | "/profile"
+    | "/results";
   id:
     | "__root__"
     | "/_layout"
@@ -233,7 +255,8 @@ export interface FileRouteTypes {
     | "/_layout/_crosspost/editor/"
     | "/_layout/_crosspost/leaderboard/"
     | "/_layout/_crosspost/manage/"
-    | "/_layout/_crosspost/profile/";
+    | "/_layout/_crosspost/profile/"
+    | "/_layout/_crosspost/results/";
   fileRoutesById: FileRoutesById;
 }
 
@@ -273,7 +296,8 @@ export const routeTree = rootRoute
         "/_layout/_crosspost/editor/",
         "/_layout/_crosspost/leaderboard/",
         "/_layout/_crosspost/manage/",
-        "/_layout/_crosspost/profile/"
+        "/_layout/_crosspost/profile/",
+        "/_layout/_crosspost/results/"
       ]
     },
     "/_layout/_crosspost/": {
@@ -298,6 +322,10 @@ export const routeTree = rootRoute
     },
     "/_layout/_crosspost/profile/": {
       "filePath": "_layout/_crosspost/profile/index.tsx",
+      "parent": "/_layout/_crosspost"
+    },
+    "/_layout/_crosspost/results/": {
+      "filePath": "_layout/_crosspost/results/index.tsx",
       "parent": "/_layout/_crosspost"
     }
   }

@@ -1,39 +1,13 @@
-import { SuccessDetail } from "@crosspost/sdk";
-import { PlatformName, PostContent } from "@crosspost/types";
+import { CreatePostRequest, MultiStatusData, QuotePostRequest, ReplyToPostRequest } from "@crosspost/types";
 import { createAuthenticatedMutation } from "../lib/authentication-service";
-
-export interface CreatePostParams {
-  targets: Array<{ platform: PlatformName; userId: string }>;
-  content: PostContent[];
-}
-
-export interface ReplyPostParams extends CreatePostParams {
-  platform: PlatformName;
-  postId: string;
-}
-
-export interface QuotePostParams extends CreatePostParams {
-  platform: PlatformName;
-  postId: string;
-}
-
-export interface PostResponse {
-  summary: {
-    total: number;
-    succeeded: number;
-    failed: number;
-  };
-  results: SuccessDetail[];
-  errors: any[];
-}
 
 /**
  * Hook for creating a new post across multiple platforms
  */
 export const useCreatePost = createAuthenticatedMutation<
-  PostResponse,
+  MultiStatusData,
   Error,
-  CreatePostParams
+  CreatePostRequest
 >({
   mutationKey: ["createPost"],
   clientMethod: (client, params) => client.post.createPost(params),
@@ -44,9 +18,9 @@ export const useCreatePost = createAuthenticatedMutation<
  * Hook for replying to an existing post
  */
 export const useReplyPost = createAuthenticatedMutation<
-  PostResponse,
+  MultiStatusData,
   Error,
-  ReplyPostParams
+  ReplyToPostRequest
 >({
   mutationKey: ["replyPost"],
   clientMethod: (client, params) => client.post.replyToPost(params),
@@ -57,9 +31,9 @@ export const useReplyPost = createAuthenticatedMutation<
  * Hook for quoting an existing post
  */
 export const useQuotePost = createAuthenticatedMutation<
-  PostResponse,
+  MultiStatusData,
   Error,
-  QuotePostParams
+  QuotePostRequest
 >({
   mutationKey: ["quotePost"],
   clientMethod: (client, params) => client.post.quotePost(params),

@@ -97,20 +97,8 @@ export async function authorize(
       throw new Error(errorMessage);
     }
 
-    toast({
-      title: "Authorized",
-      variant: "success",
-    });
     return true;
   } catch (error) {
-    toast({
-      title: "Authorization Failed",
-      description:
-        error instanceof Error
-          ? error.message
-          : "Failed to authorize with the server",
-      variant: "destructive",
-    });
     console.error("Authorization error:", error);
     localStorage.removeItem("crosspost:authorized");
     authorizationEvents.emit(AUTHORIZATION_EVENTS.AUTHORIZATION_REVOKED);

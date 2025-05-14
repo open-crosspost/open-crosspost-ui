@@ -1,9 +1,9 @@
-import * as React from "react";
 import * as ToastPrimitives from "@radix-ui/react-toast";
 import { cva, type VariantProps } from "class-variance-authority";
 import { X } from "lucide-react";
+import * as React from "react";
 
-import { cn } from "@/lib/utils"; // Assuming this path is correct
+import { cn } from "@/lib/utils";
 
 const ToastProvider = ToastPrimitives.Provider;
 
@@ -23,14 +23,14 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName;
 
 const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full flex-col overflow-hidden rounded-md p-4 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full base-component",
+  "group pointer-events-auto relative flex w-full items-center justify-between space-x-2 overflow-hidden rounded-md p-4 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full base-component",
   {
     variants: {
       variant: {
-        default: "bg-white text-foreground", // Assuming 'foreground' is defined in Tailwind config
+        default: "bg-background text-foreground",
         destructive:
-          "destructive group border-destructive bg-destructive text-destructive-foreground",
-        success: "success group border-green-600 bg-green-100 text-green-800",
+          "destructive group bg-destructive text-destructive-foreground",
+        success: "success group bg-green-100 text-green-800",
       },
     },
     defaultVariants: {
@@ -39,13 +39,10 @@ const toastVariants = cva(
   },
 );
 
-export interface ToastProps
-  extends React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root>,
-    VariantProps<typeof toastVariants> {}
-
 const Toast = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Root>,
-  ToastProps
+  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> &
+    VariantProps<typeof toastVariants>
 >(({ className, variant, ...props }, ref) => {
   return (
     <ToastPrimitives.Root
@@ -79,7 +76,7 @@ const ToastClose = React.forwardRef<
   <ToastPrimitives.Close
     ref={ref}
     className={cn(
-      "absolute right-1 top-1 inline-flex h-6 w-6 items-center justify-center rounded-md text-black transition-colors focus:outline-none disabled:pointer-events-none disabled:opacity-50 base-component base-component-hover", // Consider text-foreground or similar for theme consistency
+      "absolute right-1 top-1 inline-flex h-6 w-6 items-center justify-center rounded-md text-foreground transition-colors focus:outline-none disabled:pointer-events-none disabled:opacity-50 base-component base-component-hover",
       className,
     )}
     toast-close=""
@@ -96,7 +93,7 @@ const ToastTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToastPrimitives.Title
     ref={ref}
-    className={cn("text-sm font-semibold mb-1", className)}
+    className={cn("font-semibold mb-1", className)}
     {...props}
   />
 ));
@@ -114,15 +111,18 @@ const ToastDescription = React.forwardRef<
 ));
 ToastDescription.displayName = ToastPrimitives.Description.displayName;
 
-// Define ToastActionElement type based on ToastAction props
-export type ToastActionElement = React.ReactElement<typeof ToastAction>;
+type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>;
+
+type ToastActionElement = React.ReactElement<typeof ToastAction>;
 
 export {
-  ToastProvider,
-  ToastViewport,
   Toast,
-  ToastTitle,
-  ToastDescription,
-  ToastClose,
   ToastAction,
+  ToastClose,
+  ToastDescription,
+  ToastProvider,
+  ToastTitle,
+  ToastViewport,
+  type ToastActionElement,
+  type ToastProps,
 };

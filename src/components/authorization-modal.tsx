@@ -1,3 +1,13 @@
+import {
+  getErrorMessage,
+  isAuthError,
+  isNetworkError,
+  isPlatformError,
+} from "@crosspost/sdk";
+import { useWalletSelector } from "@near-wallet-selector/react-hook";
+import { Shield } from "lucide-react";
+import * as React from "react";
+import { useState } from "react";
 import { Button } from "../components/ui/button";
 import {
   Dialog,
@@ -8,21 +18,11 @@ import {
   DialogTitle,
 } from "../components/ui/dialog";
 import { APP_NAME } from "../config";
-import {
-  createAuthorizationPayload,
-  authorize,
-} from "../lib/authorization-service";
-import { useWalletSelector } from "@near-wallet-selector/react-hook";
-import { Shield } from "lucide-react";
-import * as React from "react";
-import { useState } from "react";
 import { toast } from "../hooks/use-toast";
 import {
-  isAuthError,
-  isPlatformError,
-  isNetworkError,
-  getErrorMessage,
-} from "@crosspost/sdk";
+  authorize,
+  createAuthorizationPayload,
+} from "../lib/authorization-service";
 
 interface AuthorizationModalProps {
   isOpen: boolean;
@@ -57,6 +57,7 @@ export function AuthorizationModal({
       toast({
         title: "Authorization successful",
         description: "You can now post to connected platforms",
+        variant: "success",
       });
 
       onSuccess?.();
@@ -90,7 +91,7 @@ export function AuthorizationModal({
         });
       } else {
         toast({
-          title: "Authorization error",
+          title: "Authorization Failed",
           description: getErrorMessage(
             error,
             "An unexpected error occurred during authorization",
