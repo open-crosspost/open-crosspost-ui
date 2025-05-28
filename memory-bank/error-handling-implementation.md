@@ -47,21 +47,25 @@ export interface PostResponse {
 ### New Components
 
 1. **PlatformIcon Component**
+
    - Reusable component for displaying platform icons
    - Props: platform, size, className
    - Used in multiple places for consistent platform representation
 
 2. **PostResultsSummary Component**
+
    - Displays summary of post results (total, succeeded, failed)
    - Props: summary, className
    - Used in the error details dialog
 
 3. **SuccessfulPostsList Component**
+
    - Displays list of successful posts with platform icons and links
    - Props: results, className
    - Used in the error details dialog
 
 4. **FailedPostsList Component**
+
    - Displays list of failed posts with error details and retry buttons
    - Props: errors, onRetry, isRetrying, className
    - Used in the error details dialog
@@ -92,7 +96,8 @@ PostErrorDetails
 const [retrying, setRetrying] = useState<Record<string, boolean>>({});
 
 // Track updated results after retries
-const [currentSuccessResults, setCurrentSuccessResults] = useState(successResults);
+const [currentSuccessResults, setCurrentSuccessResults] =
+  useState(successResults);
 const [currentErrorResults, setCurrentErrorResults] = useState(errorResults);
 ```
 
@@ -135,6 +140,7 @@ export function usePostError() {
 ### Toast Variants
 
 1. **Success Toast**
+
    ```typescript
    toast({
      title: "Success",
@@ -144,6 +150,7 @@ export function usePostError() {
    ```
 
 2. **Warning Toast (Partial Success)**
+
    ```typescript
    toast({
      title: "Partial Success",
@@ -179,22 +186,22 @@ export function usePostError() {
 const handleRetry = async (error: PostError) => {
   const retryKey = `${error.platform}-${error.userId}`;
   setRetrying({ ...retrying, [retryKey]: true });
-  
+
   try {
     const postRequest = {
       targets: [{ platform: error.platform, userId: error.userId }],
       content: postContent,
     };
-    
+
     const response = await apiClient.createPost(postRequest);
-    
+
     if (response.success && response.data?.summary.succeeded > 0) {
       // Handle successful retry
       toast({
         title: "Retry Successful",
         description: `Successfully posted to ${error.platform}`,
       });
-      
+
       // Update results
       updateResultsAfterRetry(error, response.data);
     } else {
@@ -224,8 +231,10 @@ const handleRetry = async (error: PostError) => {
 
 ```typescript
 const handleRetryAll = async () => {
-  const recoverableErrors = currentErrorResults.filter(error => error.recoverable);
-  
+  const recoverableErrors = currentErrorResults.filter(
+    (error) => error.recoverable,
+  );
+
   if (recoverableErrors.length === 0) {
     toast({
       title: "No Retryable Errors",
@@ -234,31 +243,31 @@ const handleRetryAll = async () => {
     });
     return;
   }
-  
+
   // Set all as retrying
   const retryingState: Record<string, boolean> = {};
-  recoverableErrors.forEach(error => {
+  recoverableErrors.forEach((error) => {
     retryingState[`${error.platform}-${error.userId}`] = true;
   });
   setRetrying(retryingState);
-  
+
   // Create targets for all recoverable errors
-  const targets = recoverableErrors.map(error => ({
+  const targets = recoverableErrors.map((error) => ({
     platform: error.platform,
     userId: error.userId,
   }));
-  
+
   try {
     const postRequest = {
       targets,
       content: postContent,
     };
-    
+
     const response = await apiClient.createPost(postRequest);
-    
+
     if (response.success && response.data) {
       const { summary } = response.data;
-      
+
       if (summary.succeeded > 0) {
         // Handle successful retries
         toast({
@@ -266,7 +275,7 @@ const handleRetryAll = async () => {
           description: `Successfully posted to ${summary.succeeded} of ${summary.total} platforms`,
           variant: summary.failed === 0 ? "default" : "warning",
         });
-        
+
         // Update results
         updateResultsAfterBatchRetry(recoverableErrors, response.data);
       } else {
@@ -298,26 +307,26 @@ const handleRetryAll = async () => {
 ```typescript
 const handleSubmit = useCallback(async () => {
   // Existing validation code...
-  
+
   setIsPosting(true);
-  
+
   try {
     // Prepare post content...
-    
+
     // Handle NEAR Social posts...
-    
+
     // Handle other platform posts
     if (otherAccounts.length > 0) {
       const postRequest = {
         targets: otherAccounts.map(/* ... */),
         content: postContents,
       };
-      
+
       const response = await apiClient.createPost(postRequest);
-      
+
       if (response.success && response.data) {
         const { summary, results, errors } = response.data;
-        
+
         // All successful
         if (summary.failed === 0) {
           toast({
@@ -325,11 +334,11 @@ const handleSubmit = useCallback(async () => {
             description: `Your post has been published successfully to all ${summary.total} platforms`,
             variant: "default", // green success toast
           });
-          
+
           // Clear form
           setPosts([{ text: "", mediaId: null, mediaPreview: null }]);
           clearAutoSave();
-        } 
+        }
         // Partial success
         else if (summary.succeeded > 0) {
           toast({
@@ -342,11 +351,11 @@ const handleSubmit = useCallback(async () => {
               </ToastAction>
             ),
           });
-          
+
           // Clear form since we had partial success
           setPosts([{ text: "", mediaId: null, mediaPreview: null }]);
           clearAutoSave();
-        } 
+        }
         // All failed
         else {
           toast({
@@ -386,11 +395,13 @@ const showErrorDetails = useCallback((results: PostResult[], errors: PostError[]
 ## 7. Testing Scenarios
 
 ### Success Scenario
+
 - All posts succeed
 - Show success toast
 - Clear form
 
 ### Partial Success Scenario
+
 - Some posts succeed, some fail
 - Show warning toast with "View Details" button
 - Clicking button opens error details dialog
@@ -399,6 +410,7 @@ const showErrorDetails = useCallback((results: PostResult[], errors: PostError[]
 - Clear form
 
 ### All Failed Scenario
+
 - All posts fail
 - Show error toast with "View Details" button
 - Clicking button opens error details dialog
@@ -407,6 +419,7 @@ const showErrorDetails = useCallback((results: PostResult[], errors: PostError[]
 - Form is not cleared
 
 ### Retry Scenarios
+
 - Retry individual post succeeds
 - Retry individual post fails
 - Retry all recoverable posts with mixed results

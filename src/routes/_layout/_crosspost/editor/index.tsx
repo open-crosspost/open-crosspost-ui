@@ -10,7 +10,10 @@ import {
 import { Button } from "../../../../components/ui/button";
 import { Input } from "../../../../components/ui/input";
 import { PlatformName, SUPPORTED_PLATFORMS } from "@crosspost/types";
-import { detectPlatformFromUrl, extractPostIdFromUrl } from "../../../../lib/utils/url-utils";
+import {
+  detectPlatformFromUrl,
+  extractPostIdFromUrl,
+} from "../../../../lib/utils/url-utils";
 import { useNavigate } from "@tanstack/react-router";
 import { useSubmissionResultsStore } from "../../../../store/submission-results-store";
 import { usePostManagement } from "../../../../hooks/use-post-management";
@@ -39,12 +42,12 @@ function EditorPage() {
   const { submitPost, isPosting } = useSubmitPost();
   const navigate = useNavigate();
   const { setSubmissionOutcome } = useSubmissionResultsStore();
-  
+
   // Scheduling hooks
   const schedulePostMutation = useSchedulePost();
   const scheduleReplyMutation = useScheduleReplyPost();
   const scheduleQuoteMutation = useScheduleQuotePost();
-  
+
   const {
     setModalOpen,
     autosave,
@@ -281,7 +284,9 @@ function EditorPage() {
 
     try {
       // Create ISO timestamp from date and time
-      const scheduledAt = new Date(`${scheduledDate}T${scheduledTime}`).toISOString();
+      const scheduledAt = new Date(
+        `${scheduledDate}T${scheduledTime}`,
+      ).toISOString();
 
       // Convert posts to EditorContent format
       const editorContents = nonEmptyPosts.map((post) => {
@@ -403,7 +408,8 @@ function EditorPage() {
       console.error("Scheduling error:", error);
       toast({
         title: "Scheduling Failed",
-        description: error instanceof Error ? error.message : "An unknown error occurred",
+        description:
+          error instanceof Error ? error.message : "An unknown error occurred",
         variant: "destructive",
       });
     } finally {
@@ -470,7 +476,7 @@ function EditorPage() {
                 value={scheduledDate}
                 onChange={(e) => setScheduledDate(e.target.value)}
                 className="base-component text-sm rounded-none border-black shadow-black shadow-[3px_3px_0px_0px]"
-                min={new Date().toISOString().split('T')[0]}
+                min={new Date().toISOString().split("T")[0]}
               />
               <Input
                 type="time"
@@ -481,24 +487,23 @@ function EditorPage() {
               />
             </div>
           )}
-          
+
           {/* Button row */}
           <div className="flex gap-2">
-            <Button 
+            <Button
               onClick={handleScheduleClick}
               disabled={
                 isScheduling ||
-                posts.every((p)=>!(p.text || "").trim()) || 
+                posts.every((p) => !(p.text || "").trim()) ||
                 (isScheduleMode && (!scheduledDate || !scheduledTime)) ||
                 selectedAccounts.length === 0
               }
             >
-              {isScheduling 
-                ? "Scheduling..." 
-                : isScheduleMode && scheduledDate && scheduledTime 
-                ? "Schedule Post" 
-                : "Schedule"
-              }
+              {isScheduling
+                ? "Scheduling..."
+                : isScheduleMode && scheduledDate && scheduledTime
+                  ? "Schedule Post"
+                  : "Schedule"}
             </Button>
             <Button
               onClick={handleSaveDraft}

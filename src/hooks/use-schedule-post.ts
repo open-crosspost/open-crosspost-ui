@@ -1,4 +1,9 @@
-import { CreatePostRequest, MultiStatusData, QuotePostRequest, ReplyToPostRequest } from "@crosspost/types";
+import {
+  CreatePostRequest,
+  MultiStatusData,
+  QuotePostRequest,
+  ReplyToPostRequest,
+} from "@crosspost/types";
 import { createAuthenticatedMutation } from "../lib/authentication-service";
 
 // Schedule post request extends the base create post request with scheduling

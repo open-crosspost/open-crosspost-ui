@@ -2,7 +2,7 @@ import {
   ConnectedAccount,
   ErrorDetail,
   MultiStatusSummary,
-  SuccessDetail
+  SuccessDetail,
 } from "@crosspost/types";
 import { create } from "zustand";
 import { PostType } from "../components/post-interaction-selector";

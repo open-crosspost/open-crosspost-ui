@@ -13,7 +13,6 @@
   opacity: 0.7;
 }
 
-
 .markdown-content {
   line-height: 1.6;
 }
@@ -35,7 +34,9 @@
   margin-bottom: 0.7em;
   font-weight: bold;
 }
-.markdown-content h4, .markdown-content h5, .markdown-content h6 {
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
   font-size: 1.1em;
   margin-top: 0.8em;
   margin-bottom: 0.8em;
@@ -45,7 +46,8 @@
   margin-top: 0.5em;
   margin-bottom: 0.5em;
 }
-.markdown-content ul, .markdown-content ol {
+.markdown-content ul,
+.markdown-content ol {
   padding-left: 1.5em;
   margin-top: 0.5em;
   margin-bottom: 0.5em;
@@ -97,7 +99,8 @@
   border-collapse: collapse;
   margin: 0.5em 0;
 }
-.markdown-content th, .markdown-content td {
+.markdown-content th,
+.markdown-content td {
   border: 1px solid #ccc;
   padding: 0.3em;
 }
@@ -106,12 +109,11 @@
   height: auto;
 }
 
-
 @layer components {
   .base-component {
     @apply border-2 border-gray-800 bg-white shadow-custom;
   }
-  
+
   .base-component-hover {
     @apply hover:bg-gray-100;
   }
@@ -130,7 +132,16 @@ body {
   max-width: 100vw;
   min-height: 100vh;
   overflow-x: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Noto Sans, Ubuntu, Droid Sans, Helvetica Neue, sans-serif;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    Segoe UI,
+    Roboto,
+    Noto Sans,
+    Ubuntu,
+    Droid Sans,
+    Helvetica Neue,
+    sans-serif;
   background-color: rgb(243 244 246); /* bg-gray-100 */
 }
 
