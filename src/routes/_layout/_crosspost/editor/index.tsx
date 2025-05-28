@@ -467,6 +467,13 @@ function EditorPage() {
           {`${posts.length} parts`}
         </span>
         <div className="flex  gap-2 order-1 ssm:order-2">
+          <Button
+            onClick={handleSaveDraft}
+            disabled={posts.every((p) => !(p.text || "").trim())}
+            className="flex-1 sm:flex-auto"
+          >
+            Save Draft
+          </Button>
           {/* Scheduling inputs - shown when schedule mode is active */}
           {isScheduleMode && (
             <div className="flex flex-col sm:flex-row gap-2 items-center">
@@ -505,13 +512,7 @@ function EditorPage() {
                   ? "Schedule Post"
                   : "Schedule"}
             </Button>
-            <Button
-              onClick={handleSaveDraft}
-              disabled={posts.every((p) => !(p.text || "").trim())}
-              className="flex-1 sm:flex-auto"
-            >
-              Save Draft
-            </Button>
+
             <Button
               onClick={handleSubmit}
               disabled={
