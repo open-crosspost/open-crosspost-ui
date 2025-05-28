@@ -29,7 +29,7 @@ export const EVMWalletChain = evmWalletChains[NETWORK_ID];
 
 // API Configuration
 export const OPEN_CROSSPOST_PROXY_API =
-  process.env.OPEN_CROSSPOST_PROXY_API || "http://0.0.0.0:3000";
+  process.env.OPEN_CROSSPOST_PROXY_API;
 
 // Authentication configuration
 export const AUTH_STORAGE_PREFIX = "crosspost_auth_";

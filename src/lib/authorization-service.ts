@@ -49,6 +49,8 @@ export async function createAuthorizationPayload(
     callbackUrl,
   });
 
+  console.error("signedMessage", signedMessage);
+
   return {
     message,
     nonce,

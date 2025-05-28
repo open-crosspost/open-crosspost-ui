@@ -7,6 +7,7 @@ import React from "react";
 import "./index.css";
 import { routeTree } from "./routeTree.gen";
 import { setupMeteorWallet } from "@near-wallet-selector/meteor-wallet";
+import { setupIntearWallet } from "@near-wallet-selector/intear-wallet";
 import { NETWORK_ID } from "./config";
 
 // Create a new QueryClient instance
@@ -45,7 +46,7 @@ export default function App() {
         config={{
           network: NETWORK_ID,
           createAccessKeyFor: SOCIAL_CONTRACT[NETWORK_ID],
-          modules: [setupMeteorWallet()],
+          modules: [setupMeteorWallet(), setupIntearWallet()],
         }}
       >
         <RouterProvider router={router} />
