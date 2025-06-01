@@ -2,7 +2,7 @@ import * as React from "react";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "./ui/button";
 
-export function BackButton({ cleanup }: { cleanup: () => void }) {
+export function BackButton({ cleanup }: { cleanup?: () => void }) {
   return (
     <Button
       size="sm"

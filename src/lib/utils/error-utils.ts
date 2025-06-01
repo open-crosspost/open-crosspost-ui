@@ -2,7 +2,7 @@ import {
   ApiErrorCode,
   ErrorDetail,
   MultiStatusDataSchema,
-} from "@crosspost/sdk";
+} from "@crosspost/types";
 
 export interface ErrorResponse {
   summary?: {

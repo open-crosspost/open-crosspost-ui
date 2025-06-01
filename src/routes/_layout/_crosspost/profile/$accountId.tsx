@@ -1,8 +1,9 @@
 import { AccountPost } from "@crosspost/types";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { Link as LinkIcon, Twitter } from "lucide-react";
 import React from "react";
+import { InlineBadges } from "../../../../components/badges/inline-badges";
 import { Button } from "../../../../components/ui/button";
 import { getClient } from "../../../../lib/authorization-service";
 import { getProfile } from "../../../../lib/social";
@@ -41,6 +42,12 @@ export function ProfilePage() {
 
   return (
     <div className="flex flex-col space-y-6">
+      <div className="p-4">
+        <h1 className="text-2xl font-bold flex items-center gap-2">
+          <span>{accountId}</span>
+          <InlineBadges accountId={accountId} />
+        </h1>
+      </div>
       <AccountPostsList accountId={accountId || "Anonymous"} />
     </div>
   );
