@@ -1,4 +1,21 @@
 import { InlineBadges } from "@/components/badges/inline-badges";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getErrorMessage } from "@crosspost/sdk";
 import {
   AccountActivityEntry,
@@ -49,10 +66,8 @@ const fetchLeaderboard = async ({
   const response = await client.activity.getLeaderboard({
     limit,
     offset,
-    filter: {
-      timeframe,
-      platforms: [platform as Platform],
-    },
+    timeframe,
+    platforms: [platform as Platform],
   });
 
   return {
@@ -63,11 +78,9 @@ const fetchLeaderboard = async ({
 
 function LeaderboardPage() {
   const search = useSearch({ from: Route.id });
+  const { timeframe, platforms } = search;
   const navigate = useNavigate({ from: Route.fullPath });
   const { wallet, signedAccountId } = useWalletSelector();
-
-  const [timeframe, setTimeframe] = useState<TimePeriod>(TimePeriod.ALL);
-  const [platform, setPlatform] = useState<string | undefined>(undefined);
 
   const [sorting, setSorting] = useState<SortingState>([
     { id: "rank", desc: false },
@@ -88,7 +101,7 @@ function LeaderboardPage() {
       pagination.pageIndex,
       pagination.pageSize,
       timeframe,
-      platform,
+      platforms,
       !!wallet,
       signedAccountId,
     ],
@@ -100,8 +113,8 @@ function LeaderboardPage() {
       return fetchLeaderboard({
         limit: pagination.pageSize,
         offset: pagination.pageIndex * pagination.pageSize,
-        timeframe,
-        platform,
+        timeframe: timeframe ?? TimePeriod.ALL,
+        // platforms,
       });
     },
     enabled: !!wallet && !!signedAccountId,
@@ -115,14 +128,14 @@ function LeaderboardPage() {
   const columns = [
     columnHelper.accessor("rank", {
       header: "Rank",
-      cell: (info) => info.getValue(),
+      cell: (info) => <div className="w-[20px]">{info.getValue()}</div>,
     }),
     columnHelper.accessor("signerId", {
       header: "NEAR Account",
       cell: (info) => {
         const accountId = info.getValue();
         return (
-          <div className="flex items-center gap-2 w-[200px]">
+          <div className="flex items-center gap-2 w-[120px]">
             <Link
               to={`/profile/$accountId`}
               params={{ accountId }}
@@ -206,45 +219,56 @@ function LeaderboardPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center mb-4">
+      <div className="flex items-center justify-between mb-4">
         <BackButton />
-      </div>
+        {/* Filters */}
+        <div className="flex flex-wrap gap-4 mb-6">
+          <div>
+            <Label className="block text-sm font-medium mb-1">
+              Time Period
+            </Label>
+            <Select
+              value={timeframe}
+              onValueChange={(v) =>
+                navigate({
+                  search: (prev) => ({
+                    ...prev,
+                    timeframe: (v as TimePeriod) || undefined,
+                  }),
+                  replace: true,
+                })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select timeframe" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={TimePeriod.DAILY}>Last 24 Hours</SelectItem>
+                <SelectItem value={TimePeriod.WEEKLY}>Last Week</SelectItem>
+                <SelectItem value={TimePeriod.MONTHLY}>Last Month</SelectItem>
+                <SelectItem value={TimePeriod.YEARLY}>Last Year</SelectItem>
+                <SelectItem value={TimePeriod.ALL}>All Time</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-4 mb-6">
-        <div>
-          <label className="block text-sm font-medium mb-1">Time Period</label>
-          <select
-            value={timeframe}
-            onChange={(e) => setTimeframe(e.target.value as TimePeriod)}
-            className="border rounded px-3 py-2 w-full"
-          >
-            <option value={TimePeriod.DAILY}>Last 24 Hours</option>
-            <option value={TimePeriod.WEEKLY}>Last Week</option>
-            <option value={TimePeriod.MONTHLY}>Last Month</option>
-            <option value={TimePeriod.YEARLY}>Last Year</option>
-            <option value={TimePeriod.ALL}>All Time</option>
-          </select>
-        </div>
-
-        <div>
+          {/* <div>
           <label className="block text-sm font-medium mb-1">Platform</label>
           <select
-            value={platform || ""}
+            value={platforms}
             // Update platform state correctly using Platform enum values
             onChange={(e) => setPlatform(e.target.value || undefined)} // Keep as string for value, handle conversion in fetch
             className="border rounded px-3 py-2 w-full"
           >
             <option value="">All Platforms</option>
-            {/* Use Platform enum keys/values for options */}
             {Object.entries(Platform).map(([key, value]) => (
               <option key={key} value={value}>
                 {" "}
-                {/* Use enum value */}
-                {key} {/* Display enum key */}
+                {key}
               </option>
             ))}
           </select>
+        </div> */}
         </div>
       </div>
 
@@ -263,13 +287,13 @@ function LeaderboardPage() {
       ) : (
         <>
           {/* Table */}
-          <div className="overflow-x-auto border rounded-lg">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+          <div className="overflow-x-auto base-component rounded-lg">
+            <Table className="min-w-full">
+              <TableHeader className="bg-gray-50">
                 {table.getHeaderGroups().map((headerGroup) => (
-                  <tr key={headerGroup.id}>
+                  <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
-                      <th
+                      <TableHead
                         key={header.id}
                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                         onClick={header.column.getToggleSortingHandler()}
@@ -285,17 +309,17 @@ function LeaderboardPage() {
                             <span>▼</span>
                           ) : null}
                         </div>
-                      </th>
+                      </TableHead>
                     ))}
-                  </tr>
+                  </TableRow>
                 ))}
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              </TableHeader>
+              <TableBody className="bg-white divide-y divide-gray-200">
                 {table.getRowModel()?.rows?.length > 0 ? (
                   table.getRowModel()?.rows?.map((row) => (
-                    <tr key={row.id} className="hover:bg-gray-50">
+                    <TableRow key={row.id} className="hover:bg-gray-50">
                       {row.getVisibleCells()?.map((cell) => (
-                        <td
+                        <TableCell
                           key={cell.id}
                           className="px-6 py-4 whitespace-nowrap text-sm"
                         >
@@ -303,79 +327,85 @@ function LeaderboardPage() {
                             cell.column.columnDef.cell,
                             cell.getContext(),
                           )}
-                        </td>
+                        </TableCell>
                       ))}
-                    </tr>
+                    </TableRow>
                   ))
                 ) : (
-                  <tr>
-                    <td
+                  <TableRow>
+                    <TableCell
                       colSpan={columns.length}
                       className="px-6 py-4 text-center text-sm text-gray-500"
                     >
                       No data available
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 )}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
 
           {/* Pagination */}
           <div className="flex items-center justify-between mt-4">
             <div className="flex items-center gap-2">
-              <button
+              <Button
                 onClick={() => table.setPageIndex(0)}
                 disabled={!table.getCanPreviousPage()}
-                className="px-3 py-1 border rounded disabled:opacity-50"
+                className="px-3 py-1 disabled:opacity-50"
               >
                 {"<<"}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
-                className="px-3 py-1 border rounded disabled:opacity-50"
+                className="px-3 py-1 disabled:opacity-50"
               >
                 {"<"}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
-                className="px-3 py-1 border rounded disabled:opacity-50"
+                className="px-3 py-1 disabled:opacity-50"
               >
                 {">"}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                 disabled={!table.getCanNextPage()}
-                className="px-3 py-1 border rounded disabled:opacity-50"
+                className="px-3 py-1 disabled:opacity-50"
               >
                 {">>"}
-              </button>
+              </Button>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm">
-                Page{" "}
-                <strong>
-                  {table.getState().pagination.pageIndex + 1} of{" "}
-                  {/* Use table.getPageCount() which relies on totalEntries */}
-                  {table.getPageCount() > 0 ? table.getPageCount() : 1}
-                </strong>
-              </span>
-              <select
-                value={table.getState().pagination.pageSize}
-                onChange={(e) => {
-                  table.setPageSize(Number(e.target.value));
-                }}
-                className="border rounded px-2 py-1"
-              >
-                {[10, 25, 50, 100].map((pageSize) => (
-                  <option key={pageSize} value={pageSize}>
-                    Show {pageSize}
-                  </option>
-                ))}
-              </select>
+              <div>
+                <Label className="text-sm font-medium mb-1 block">
+                  Page{" "}
+                  <strong>
+                    {table.getState().pagination.pageIndex + 1} of{" "}
+                    {/* Use table.getPageCount() which relies on totalEntries */}
+                    {table.getPageCount() > 0 ? table.getPageCount() : 1}
+                  </strong>
+                </Label>
+                <Select
+                  value={table.getState().pagination.pageSize.toString()}
+                  onValueChange={(value) => {
+                    table.setPageSize(Number(value));
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select page size" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[10, 25, 50, 100].map((pageSize) => (
+                      <SelectItem key={pageSize} value={pageSize.toString()}>
+                        Show {pageSize}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </>

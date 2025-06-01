@@ -33,11 +33,10 @@ export async function hasShitzuNft(accountId: string): Promise<boolean> {
       request_type: "call_function",
       account_id: SHITZU_CONTRACT_ID,
       method_name: "nft_tokens_for_owner",
-      args_base64: Buffer.from(
-        JSON.stringify({ account_id: accountId }),
-      ).toString("base64"),
-      finality: "optimistic",
+      args_base64: btoa(JSON.stringify({ account_id: accountId })),
+      finality: "final",
     });
+
     if (result && "result" in result) {
       const tokens = JSON.parse(
         Buffer.from((result as any).result).toString(),
