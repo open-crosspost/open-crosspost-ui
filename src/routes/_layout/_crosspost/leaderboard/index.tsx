@@ -111,11 +111,19 @@ function LeaderboardPage() {
     }),
     columnHelper.accessor("signerId", {
       header: "NEAR Account",
-      cell: (info) => (
-        <div className="flex items-center gap-2">
-          <span>{info.getValue()}</span>
-        </div>
-      ),
+      cell: (info) => {
+        const accountId = info.getValue();
+        return (
+          <div className="flex items-center gap-2">
+            <a
+              href={`/profile/${accountId}`}
+              className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+            >
+              {accountId}
+            </a>
+          </div>
+        );
+      },
     }),
     columnHelper.accessor("totalPosts", {
       header: "Posts",
@@ -189,7 +197,7 @@ function LeaderboardPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center mb-4">
-        <BackButton />
+        <BackButton cleanup={() => {}} />
       </div>
 
       {/* Filters */}
