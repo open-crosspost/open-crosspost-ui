@@ -162,8 +162,20 @@ function LeaderboardPage() {
         );
       },
     }),
+    columnHelper.accessor("totalScore", {
+      header: "Score",
+      cell: (info) => <div className="font-semibold">{info.getValue()}</div>,
+    }),
     columnHelper.accessor("totalPosts", {
       header: "Posts",
+      cell: (info) => info.getValue(),
+    }),
+    columnHelper.accessor("totalReplies", {
+      header: "Replies",
+      cell: (info) => info.getValue(),
+    }),
+    columnHelper.accessor("totalQuotes", {
+      header: "Quotes",
       cell: (info) => info.getValue(),
     }),
     columnHelper.accessor((row) => (row as any).firstPostTimestamp, {
@@ -195,7 +207,7 @@ function LeaderboardPage() {
         if (!dateTimeString) return "N/A";
         try {
           const date = new Date(dateTimeString);
-          if (isNaN(date.getTime())) return "Invalid Date"; // Check if date is valid
+          if (isNaN(date.getTime())) return "Invalid Date";
           return date.toLocaleString(undefined, {
             year: "numeric",
             month: "short",
@@ -286,7 +298,7 @@ function LeaderboardPage() {
               Time Period
             </Label>
             <Select
-              value={timeframe}
+              value={timeframe ?? TimePeriod.ALL}
               onValueChange={(v) => {
                 const newSearch: any = {
                   ...search,
