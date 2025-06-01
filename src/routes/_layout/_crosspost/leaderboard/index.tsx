@@ -1,5 +1,6 @@
 import { InlineBadges } from "@/components/badges/inline-badges";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -55,11 +56,15 @@ const fetchLeaderboard = async ({
   offset,
   timeframe,
   platform,
+  startDate,
+  endDate,
 }: {
   limit: number;
   offset: number;
   timeframe: TimePeriod;
   platform?: string;
+  startDate?: string;
+  endDate?: string;
 }) => {
   const client = getClient();
 
@@ -67,6 +72,8 @@ const fetchLeaderboard = async ({
     limit,
     offset,
     timeframe,
+    startDate,
+    endDate,
     platforms: [platform as Platform],
   });
 
@@ -78,9 +85,12 @@ const fetchLeaderboard = async ({
 
 function LeaderboardPage() {
   const search = useSearch({ from: Route.id });
-  const { timeframe, platforms } = search;
+  const { timeframe, platforms, startDate, endDate } = search;
   const navigate = useNavigate({ from: Route.fullPath });
   const { wallet, signedAccountId } = useWalletSelector();
+
+  const parsedStartDate = startDate ? new Date(startDate) : undefined;
+  const parsedEndDate = endDate ? new Date(endDate) : undefined;
 
   const [sorting, setSorting] = useState<SortingState>([
     { id: "rank", desc: false },
@@ -101,6 +111,8 @@ function LeaderboardPage() {
       pagination.pageIndex,
       pagination.pageSize,
       timeframe,
+      startDate,
+      endDate,
       platforms,
       !!wallet,
       signedAccountId,
@@ -114,6 +126,8 @@ function LeaderboardPage() {
         limit: pagination.pageSize,
         offset: pagination.pageIndex * pagination.pageSize,
         timeframe: timeframe ?? TimePeriod.ALL,
+        startDate,
+        endDate,
         // platforms,
       });
     },
@@ -223,21 +237,73 @@ function LeaderboardPage() {
         <BackButton />
         {/* Filters */}
         <div className="flex flex-wrap gap-4 mb-6">
+          {/* Custom Date Range Pickers */}
+          {timeframe === TimePeriod.CUSTOM && (
+            <>
+              <div>
+                <Label className="block text-sm font-medium mb-1">
+                  Start Date
+                </Label>
+                <DatePicker
+                  date={parsedStartDate}
+                  onDateChange={(date) => {
+                    const dateString = date ? date.toISOString() : undefined;
+                    navigate({
+                      search: (prev: any) => ({
+                        ...prev,
+                        startDate: dateString,
+                      }),
+                      replace: true,
+                    });
+                  }}
+                  placeholder="Select start date and time"
+                />
+              </div>
+              <div>
+                <Label className="block text-sm font-medium mb-1">
+                  End Date
+                </Label>
+                <DatePicker
+                  date={parsedEndDate}
+                  onDateChange={(date) => {
+                    const dateString = date ? date.toISOString() : undefined;
+                    navigate({
+                      search: (prev: any) => ({
+                        ...prev,
+                        endDate: dateString,
+                      }),
+                      replace: true,
+                    });
+                  }}
+                  placeholder="Select end date and time"
+                  disabled={!parsedStartDate}
+                />
+              </div>
+            </>
+          )}
           <div>
             <Label className="block text-sm font-medium mb-1">
               Time Period
             </Label>
             <Select
               value={timeframe}
-              onValueChange={(v) =>
+              onValueChange={(v) => {
+                const newSearch: any = {
+                  ...search,
+                  timeframe: (v as TimePeriod) || undefined,
+                };
+
+                // Clear custom date range when switching away from custom
+                if (v !== TimePeriod.CUSTOM) {
+                  delete newSearch.startDate;
+                  delete newSearch.endDate;
+                }
+
                 navigate({
-                  search: (prev) => ({
-                    ...prev,
-                    timeframe: (v as TimePeriod) || undefined,
-                  }),
+                  search: newSearch,
                   replace: true,
-                })
-              }
+                });
+              }}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select timeframe" />
@@ -248,6 +314,7 @@ function LeaderboardPage() {
                 <SelectItem value={TimePeriod.MONTHLY}>Last Month</SelectItem>
                 <SelectItem value={TimePeriod.YEARLY}>Last Year</SelectItem>
                 <SelectItem value={TimePeriod.ALL}>All Time</SelectItem>
+                <SelectItem value={TimePeriod.CUSTOM}>Custom Range</SelectItem>
               </SelectContent>
             </Select>
           </div>
