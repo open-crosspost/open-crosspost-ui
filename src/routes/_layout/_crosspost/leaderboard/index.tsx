@@ -1,13 +1,19 @@
+import { InlineBadges } from "@/components/badges/inline-badges";
 import { getErrorMessage } from "@crosspost/sdk";
 import {
   AccountActivityEntry,
-  Filter,
+  ActivityLeaderboardQuerySchema,
   Platform,
   TimePeriod,
 } from "@crosspost/types";
 import { useWalletSelector } from "@near-wallet-selector/react-hook";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  useNavigate,
+  useSearch,
+} from "@tanstack/react-router";
 import {
   createColumnHelper,
   flexRender,
@@ -24,9 +30,9 @@ import { getClient } from "../../../../lib/authorization-service";
 
 export const Route = createFileRoute("/_layout/_crosspost/leaderboard/")({
   component: LeaderboardPage,
+  validateSearch: (search) => ActivityLeaderboardQuerySchema.parse(search),
 });
 
-// Function to fetch leaderboard data
 const fetchLeaderboard = async ({
   limit,
   offset,
@@ -56,6 +62,8 @@ const fetchLeaderboard = async ({
 };
 
 function LeaderboardPage() {
+  const search = useSearch({ from: Route.id });
+  const navigate = useNavigate({ from: Route.fullPath });
   const { wallet, signedAccountId } = useWalletSelector();
 
   const [timeframe, setTimeframe] = useState<TimePeriod>(TimePeriod.ALL);
@@ -114,13 +122,15 @@ function LeaderboardPage() {
       cell: (info) => {
         const accountId = info.getValue();
         return (
-          <div className="flex items-center gap-2">
-            <a
-              href={`/profile/${accountId}`}
-              className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+          <div className="flex items-center gap-2 w-[200px]">
+            <Link
+              to={`/profile/$accountId`}
+              params={{ accountId }}
+              className="text-blue-600 hover:text-blue-800 hover:underline transition-colors block truncate"
             >
               {accountId}
-            </a>
+            </Link>
+            <InlineBadges accountId={accountId} />
           </div>
         );
       },
@@ -197,7 +207,7 @@ function LeaderboardPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center mb-4">
-        <BackButton cleanup={() => {}} />
+        <BackButton />
       </div>
 
       {/* Filters */}

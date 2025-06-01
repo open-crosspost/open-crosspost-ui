@@ -30,11 +30,13 @@ export function ShitzuBadge({ accountId, className = "" }: ShitzuBadgeProps) {
       <Tooltip>
         <TooltipTrigger>
           <div
-            className={`inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-100 ${className}`}
+            className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${className}`}
           >
-            <span role="img" aria-label="Shitzu NFT" className="text-xs">
-              🐕
-            </span>
+            <img
+              src="https://app.shitzuapes.xyz/assets/favicon.ico"
+              alt="Shitzu NFT"
+              className="w-4 h-4"
+            />
           </div>
         </TooltipTrigger>
         <TooltipContent className="rounded-none">
