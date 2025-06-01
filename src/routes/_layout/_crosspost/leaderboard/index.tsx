@@ -1,6 +1,12 @@
 import { InlineBadges } from "@/components/badges/inline-badges";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -45,6 +51,11 @@ import {
 import React, { useState } from "react";
 import { BackButton } from "../../../../components/back-button";
 import { getClient } from "../../../../lib/authorization-service";
+import {
+  exportData,
+  ExportField,
+  ExportFormat,
+} from "../../../../lib/utils/export-utils";
 
 export const Route = createFileRoute("/_layout/_crosspost/leaderboard/")({
   component: LeaderboardPage,
@@ -81,6 +92,43 @@ const fetchLeaderboard = async ({
     entries: response.data?.entries || [],
     meta: response.meta || { pagination: { total: 0, limit, offset } },
   };
+};
+
+const fetchAllLeaderboardData = async ({
+  timeframe,
+  platform,
+  startDate,
+  endDate,
+}: {
+  timeframe: TimePeriod;
+  platform?: string;
+  startDate?: string;
+  endDate?: string;
+}) => {
+  const client = getClient();
+  const allEntries: AccountActivityEntry[] = [];
+  let offset = 0;
+  const limit = 100;
+  let hasMore = true;
+
+  while (hasMore) {
+    const response = await client.activity.getLeaderboard({
+      limit,
+      offset,
+      timeframe,
+      startDate,
+      endDate,
+      platforms: [platform as Platform],
+    });
+
+    const entries = response.data?.entries || [];
+    allEntries.push(...entries);
+
+    hasMore = entries.length === limit;
+    offset += limit;
+  }
+
+  return allEntries;
 };
 
 function LeaderboardPage() {
@@ -137,6 +185,72 @@ function LeaderboardPage() {
   // Extract data and metadata from query result
   const data = queryResult?.entries || [];
   const totalEntries = queryResult?.meta?.pagination?.total || data.length; // Fallback to data.length if meta is not available
+
+  // Export fields configuration
+  const exportFields: ExportField<AccountActivityEntry>[] = [
+    { key: "rank", header: "Rank" },
+    { key: "signerId", header: "NEAR Account" },
+    { key: "totalScore", header: "Score" },
+    { key: "totalPosts", header: "Posts" },
+    { key: "totalReplies", header: "Replies" },
+    { key: "totalQuotes", header: "Quotes" },
+    {
+      key: "firstPostTimestamp",
+      header: "First Post",
+      formatter: (value) => {
+        if (!value) return "N/A";
+        try {
+          const date = new Date(value);
+          return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleString();
+        } catch {
+          return "Invalid Date";
+        }
+      },
+    },
+    {
+      key: "lastActive",
+      header: "Last Active",
+      formatter: (value) => {
+        if (!value) return "N/A";
+        try {
+          const date = new Date(value);
+          return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleString();
+        } catch {
+          return "Invalid Date";
+        }
+      },
+    },
+  ];
+
+  const handleExport = async (format: ExportFormat) => {
+    if (!wallet || !signedAccountId) {
+      alert("Wallet not connected");
+      return;
+    }
+
+    try {
+      const allData = await fetchAllLeaderboardData({
+        timeframe: timeframe ?? TimePeriod.ALL,
+        startDate,
+        endDate,
+      });
+
+      if (allData.length === 0) {
+        alert("No data to export");
+        return;
+      }
+
+      const timeframeName = timeframe
+        ? timeframe.toLowerCase().replace("_", "-")
+        : "all-time";
+      const filename = `leaderboard-${timeframeName}`;
+
+      exportData(allData, exportFields, filename, format);
+    } catch (error) {
+      console.error("Export failed:", error);
+      alert("Export failed. Please try again.");
+    }
+  };
 
   const columnHelper = createColumnHelper<AccountActivityEntry>();
   const columns = [
@@ -455,6 +569,20 @@ function LeaderboardPage() {
               >
                 {">>"}
               </Button>
+              {/* Export Button */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button>Export Data</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => handleExport("csv")}>
+                    Export as CSV
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExport("json")}>
+                    Export as JSON
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             <div className="flex items-center gap-2">
