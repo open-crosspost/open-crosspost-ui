@@ -14,39 +14,78 @@ export type NftToken = {
 
 // Shitzu NFT contract ID
 export const SHITZU_CONTRACT_ID = "shitzu.bodega-lab.near";
+export const SHITZU_REWARDS_CONTRACT_ID = "rewards.0xshitzu.near"; // for staked NFTs
 
 // RPC endpoint for NEAR mainnet
 const NEAR_RPC_ENDPOINT = "https://rpc.mainnet.near.org";
 
+interface CheckNFTOwnershipParams {
+  accountId: string;
+  contractId: string;
+  methodName: string;
+  args?: Record<string, any>;
+  validationFn: (result: any) => boolean;
+}
+
 /**
- * Check if an account owns a Shitzu NFT
- * @param accountId The NEAR account ID to check
- * @returns Promise resolving to a boolean indicating ownership
+ * Generic function to check NFT ownership or a similar contract state.
+ * @param accountId The NEAR account ID to check.
+ * @param contractId The contract ID to query.
+ * @param methodName The view method name on the contract.
+ * @param args Optional arguments for the contract method.
+ * @param validationFn A function that takes the method result and returns true if valid.
+ * @returns Promise resolving to a boolean indicating validity based on validationFn.
  */
-export async function hasShitzuNft(accountId: string): Promise<boolean> {
-  if (!accountId) return false;
+export async function checkNFTOwnership({
+  accountId,
+  contractId,
+  methodName,
+  args = { account_id: accountId }, // Default args if common pattern
+  validationFn,
+}: CheckNFTOwnershipParams): Promise<boolean> {
+  if (!accountId || !contractId || !methodName) return false;
 
   try {
     const provider = new providers.JsonRpcProvider({ url: NEAR_RPC_ENDPOINT });
 
+    const queryArgs = args || { account_id: accountId }; // Ensure args are passed
+
     const result = await provider.query({
       request_type: "call_function",
-      account_id: SHITZU_CONTRACT_ID,
-      method_name: "nft_tokens_for_owner",
-      args_base64: btoa(JSON.stringify({ account_id: accountId })),
+      account_id: contractId,
+      method_name: methodName,
+      args_base64: btoa(JSON.stringify(queryArgs)),
       finality: "final",
     });
 
-    if (result && "result" in result) {
-      const tokens = JSON.parse(
+    if (result && "result" in result && (result as any).result) {
+      const parsedResult = JSON.parse(
         Buffer.from((result as any).result).toString(),
-      ) as NftToken[];
-      return tokens.length > 0;
+      );
+      return validationFn(parsedResult);
     }
-
-    return false;
+    return validationFn(null); // Pass null if no result data
   } catch (error) {
-    console.error("Error checking Shitzu NFT ownership:", error);
+    console.error(
+      `Error calling ${methodName} on ${contractId} for ${accountId}:`,
+      error,
+    );
     return false;
   }
+}
+
+/**
+ * Specific function to check if an account owns a Shitzu NFT (staked).
+ * Uses the generic checkNFTOwnership.
+ * @param accountId The NEAR account ID to check
+ * @returns Promise resolving to a boolean indicating ownership
+ */
+export async function hasShitzuNft(accountId: string): Promise<boolean> {
+  return checkNFTOwnership({
+    accountId,
+    contractId: SHITZU_REWARDS_CONTRACT_ID,
+    methodName: "primary_nft_of",
+    args: { account_id: accountId },
+    validationFn: (tokens) => Array.isArray(tokens) && tokens.length > 0,
+  });
 }

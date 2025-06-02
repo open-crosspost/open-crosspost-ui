@@ -40,7 +40,7 @@ export function ShitzuBadge({ accountId, className = "" }: ShitzuBadgeProps) {
           </div>
         </TooltipTrigger>
         <TooltipContent className="rounded-none">
-          <p>Shitzu NFT Owner</p>
+          <p>Shitzu NFT Staker</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
