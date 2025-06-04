@@ -31,7 +31,14 @@ interface CheckNFTOwnershipParams {
   validationFn: (result: any) => boolean;
 }
 
-/* Generic function to check NFT ownership or a similar contract state.
+/**
+ * Generic function to check NFT ownership or a similar contract state.
+ * @param accountId The NEAR account ID to check.
+ * @param contractId The contract ID to query.
+ * @param methodName The view method name on the contract.
+ * @param args Optional arguments for the contract method.
+ * @param validationFn A function that takes the method result and returns true if valid.
+ * @returns Promise resolving to a boolean indicating validity based on validationFn.
  */
 export async function checkNFTOwnership({
   accountId,
@@ -71,7 +78,11 @@ export async function checkNFTOwnership({
   }
 }
 
-/* Check if an account owns a Shitzu NFT (staked).
+/**
+ * Specific function to check if an account owns a Shitzu NFT (staked).
+ * Uses the generic checkNFTOwnership.
+ * @param accountId The NEAR account ID to check
+ * @returns Promise resolving to a boolean indicating ownership
  */
 export async function hasShitzuNft(accountId: string): Promise<boolean> {
   return checkNFTOwnership({
@@ -84,7 +95,18 @@ export async function hasShitzuNft(accountId: string): Promise<boolean> {
 }
 
 /**
- * Check if an account owns a Blackdragon NFT.
+ * Checks if a given NEAR account owns at least one Blackdragon NFT.
+ *
+ * This function queries the `nft_tokens_for_owner` view method on the
+ * `blackdragonforevernft.near` smart contract using the NEAR RPC.
+ *
+ * The result is validated to confirm that the returned data is an array
+ * of tokens and that the array is not empty, indicating ownership of at
+ * least one NFT from the Blackdragon collection.
+ *
+ * @param accountId - The NEAR account ID to verify NFT ownership for.
+ * @returns A Promise that resolves to `true` if the account owns one or more
+ *          Blackdragon NFTs, or `false` otherwise (including on error).
  */
 export async function hasBlackdragonNft(accountId: string): Promise<boolean> {
   return checkNFTOwnership({

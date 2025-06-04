@@ -1,6 +1,6 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { hasBlackdragonNft } from "../../lib/nft"; // Make sure this function exists in your lib
+import { hasBlackdragonNft } from "../../lib/nft";
 import {
   Tooltip,
   TooltipContent,
@@ -11,16 +11,6 @@ import {
 interface BlackdragonBadgeProps {
   accountId: string;
   className?: string;
-}
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      div: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
-      img: React.DetailedHTMLProps<React.ImgHTMLAttributes<HTMLImageElement>, HTMLImageElement>;
-      p: React.DetailedHTMLProps<React.HTMLAttributes<HTMLParagraphElement>, HTMLParagraphElement>;
-    }
-  }
 }
 
 export function BlackdragonBadge({
