@@ -1,6 +1,6 @@
 import React from "react";
 import { ShitzuBadge } from "./shitzu-badge";
-import { BlackdragonBadge } from "./blackdragon-badge"; // <-- added
+import { BlackdragonBadge } from "./blackdragon-badge";
 
 interface InlineBadgesProps {
   accountId: string;
@@ -19,7 +19,7 @@ export function InlineBadges({ accountId, className = "" }: InlineBadgesProps) {
   return (
     <div className={`inline-flex items-center gap-1 ${className}`}>
       <ShitzuBadge accountId={accountId} />
-      <BlackdragonBadge accountId={accountId} /> {/* <-- added */}
+      <BlackdragonBadge accountId={accountId} /> 
     </div>
   );
 }
