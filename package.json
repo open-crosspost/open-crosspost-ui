@@ -33,8 +33,8 @@
   },
   "dependencies": {
     "@builddao/near-social-js": "^1.1.0",
-    "@crosspost/sdk": "^0.2.12",
-    "@crosspost/types": "^0.2.12",
+    "@crosspost/sdk": "link:@crosspost/sdk",
+    "@crosspost/types": "link:@crosspost/types",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",

@@ -1,13 +1,14 @@
-import { ConnectedAccount, Platform } from "@crosspost/types";
+import { AuthRevokeResponse, ConnectedAccount, Platform } from "@crosspost/types";
 import { useWalletSelector } from "@near-wallet-selector/react-hook";
 import { useQuery } from "@tanstack/react-query";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { useAuthorizationStatus } from "../hooks/use-authorization-status";
-import { useToast } from "../hooks/use-toast";
+import { useToast, toast } from "../hooks/use-toast";
 import { createAuthenticatedMutation } from "../lib/authentication-service";
 import { getClient } from "../lib/authorization-service";
 import { NearSocialService } from "../lib/near-social-service";
+import { capitalize } from "../lib/utils/string";
 
 interface PlatformAccountsState {
   selectedAccountIds: string[];
@@ -122,7 +123,7 @@ export const useConnectAccount = createAuthenticatedMutation<
 
 // Disconnect a platform account
 export const useDisconnectAccount = createAuthenticatedMutation<
-  string,
+  AuthRevokeResponse,
   Error,
   { platform: Platform; userId: string }
 >({
@@ -132,8 +133,8 @@ export const useDisconnectAccount = createAuthenticatedMutation<
       platform.toLowerCase() as any,
       userId,
     );
-    if (response.success) {
-      return response;
+    if (response.success && response.data) {
+      return response.data;
     } else {
       throw new Error(
         response.errors?.[0]?.message || "Failed to disconnect account",
@@ -141,17 +142,22 @@ export const useDisconnectAccount = createAuthenticatedMutation<
     }
   },
   getAuthDetails: ({ platform, userId }) => `revokeAuth:${platform}:${userId}`,
-  onSuccess: (userId, _, __, queryClient) => {
+  onSuccess: (data, _, __, queryClient) => {
     // Invalidate the connected accounts query to trigger a refetch
     queryClient.invalidateQueries({ queryKey: ["connectedAccounts"] });
 
     // Also remove from selected accounts if it was selected
     const store = usePlatformAccountsStore.getState();
-    if (
-      typeof userId === "string" &&
-      store.selectedAccountIds.includes(userId)
-    ) {
-      store.unselectAccount(userId);
+    if (store.selectedAccountIds.includes(data.userId)) {
+      store.unselectAccount(data.userId);
+    }
+
+    if (data.success) {
+      toast({
+        title: "Account Disconnected",
+        description: `${capitalize(data.platform)} account successfully disconnected.`,
+        variant: "success",
+      });
     }
   },
 });
