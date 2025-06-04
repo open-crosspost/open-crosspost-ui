@@ -90,9 +90,11 @@ export function createAuthenticatedMutation<
           client.setAuthentication(authData);
 
           const response = await clientMethod(client, variables);
+          
+          console.log("response", response);
 
-          if (response.success && response.data) {
-            return response.data;
+          if (response.success) {
+            return response;
           } else {
             const errorMessage = response.errors?.length
               ? response.errors[0].message
