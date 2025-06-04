@@ -1,4 +1,5 @@
 import { providers } from "near-api-js";
+import { Buffer } from "buffer";
 
 // Define the NFT token type
 export type NftToken = {
@@ -16,6 +17,9 @@ export type NftToken = {
 export const SHITZU_CONTRACT_ID = "shitzu.bodega-lab.near";
 export const SHITZU_REWARDS_CONTRACT_ID = "rewards.0xshitzu.near"; // for staked NFTs
 
+// Blackdragon NFT contract ID
+export const BLACKDRAGON_NFT_CONTRACT_ID = "blackdragonforevernft.near";
+
 // RPC endpoint for NEAR mainnet
 const NEAR_RPC_ENDPOINT = "https://rpc.mainnet.near.org";
 
@@ -27,20 +31,13 @@ interface CheckNFTOwnershipParams {
   validationFn: (result: any) => boolean;
 }
 
-/**
- * Generic function to check NFT ownership or a similar contract state.
- * @param accountId The NEAR account ID to check.
- * @param contractId The contract ID to query.
- * @param methodName The view method name on the contract.
- * @param args Optional arguments for the contract method.
- * @param validationFn A function that takes the method result and returns true if valid.
- * @returns Promise resolving to a boolean indicating validity based on validationFn.
+/* Generic function to check NFT ownership or a similar contract state.
  */
 export async function checkNFTOwnership({
   accountId,
   contractId,
   methodName,
-  args = { account_id: accountId }, // Default args if common pattern
+  args = { account_id: accountId },
   validationFn,
 }: CheckNFTOwnershipParams): Promise<boolean> {
   if (!accountId || !contractId || !methodName) return false;
@@ -48,7 +45,7 @@ export async function checkNFTOwnership({
   try {
     const provider = new providers.JsonRpcProvider({ url: NEAR_RPC_ENDPOINT });
 
-    const queryArgs = args || { account_id: accountId }; // Ensure args are passed
+    const queryArgs = args || { account_id: accountId };
 
     const result = await provider.query({
       request_type: "call_function",
@@ -60,31 +57,40 @@ export async function checkNFTOwnership({
 
     if (result && "result" in result && (result as any).result) {
       const parsedResult = JSON.parse(
-        Buffer.from((result as any).result).toString(),
+        Buffer.from((result as any).result).toString()
       );
       return validationFn(parsedResult);
     }
-    return validationFn(null); // Pass null if no result data
+    return validationFn(null);
   } catch (error) {
     console.error(
       `Error calling ${methodName} on ${contractId} for ${accountId}:`,
-      error,
+      error
     );
     return false;
   }
 }
 
-/**
- * Specific function to check if an account owns a Shitzu NFT (staked).
- * Uses the generic checkNFTOwnership.
- * @param accountId The NEAR account ID to check
- * @returns Promise resolving to a boolean indicating ownership
+/* Check if an account owns a Shitzu NFT (staked).
  */
 export async function hasShitzuNft(accountId: string): Promise<boolean> {
   return checkNFTOwnership({
     accountId,
     contractId: SHITZU_REWARDS_CONTRACT_ID,
     methodName: "primary_nft_of",
+    args: { account_id: accountId },
+    validationFn: (tokens) => Array.isArray(tokens) && tokens.length > 0,
+  });
+}
+
+/**
+ * Check if an account owns a Blackdragon NFT.
+ */
+export async function hasBlackdragonNft(accountId: string): Promise<boolean> {
+  return checkNFTOwnership({
+    accountId,
+    contractId: BLACKDRAGON_NFT_CONTRACT_ID,
+    methodName: "nft_tokens_for_owner",
     args: { account_id: accountId },
     validationFn: (tokens) => Array.isArray(tokens) && tokens.length > 0,
   });

@@ -90,6 +90,7 @@
     "@tanstack/router-plugin": "^1.69.1",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^20.11.0",
+    "@types/react": "^18.2.0",
     "autoprefixer": "^10.4.20",
     "meer-api-js": "^6.6.24",
     "normalize-text": "^2.5.0",
