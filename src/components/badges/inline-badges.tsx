@@ -1,5 +1,6 @@
 import React from "react";
 import { ShitzuBadge } from "./shitzu-badge";
+import { BlackdragonBadge } from "./blackdragon-badge";
 
 interface InlineBadgesProps {
   accountId: string;
@@ -10,6 +11,7 @@ interface InlineBadgesProps {
  * Displays badges for a user in an inline list
  * Currently supports:
  * - Shitzu NFT badge
+ * - Blackdragon NFT badge
  */
 export function InlineBadges({ accountId, className = "" }: InlineBadgesProps) {
   if (!accountId) return null;
@@ -17,7 +19,7 @@ export function InlineBadges({ accountId, className = "" }: InlineBadgesProps) {
   return (
     <div className={`inline-flex items-center gap-1 ${className}`}>
       <ShitzuBadge accountId={accountId} />
-      {/* Additional badges can be added here in the future */}
+      <BlackdragonBadge accountId={accountId} />
     </div>
   );
 }
