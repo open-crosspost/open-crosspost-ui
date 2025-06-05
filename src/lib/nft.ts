@@ -64,7 +64,7 @@ export async function checkNFTOwnership({
 
     if (result && "result" in result && (result as any).result) {
       const parsedResult = JSON.parse(
-        Buffer.from((result as any).result).toString()
+        Buffer.from((result as any).result).toString(),
       );
       return validationFn(parsedResult);
     }
@@ -72,7 +72,7 @@ export async function checkNFTOwnership({
   } catch (error) {
     console.error(
       `Error calling ${methodName} on ${contractId} for ${accountId}:`,
-      error
+      error,
     );
     return false;
   }

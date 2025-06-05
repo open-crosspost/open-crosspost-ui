@@ -19,7 +19,7 @@ export function InlineBadges({ accountId, className = "" }: InlineBadgesProps) {
   return (
     <div className={`inline-flex items-center gap-1 ${className}`}>
       <ShitzuBadge accountId={accountId} />
-      <BlackdragonBadge accountId={accountId} /> 
+      <BlackdragonBadge accountId={accountId} />
     </div>
   );
 }
