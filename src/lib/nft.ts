@@ -1,5 +1,4 @@
 import { providers } from "near-api-js";
-import { Buffer } from "buffer";
 
 // Define the NFT token type
 export type NftToken = {
@@ -63,9 +62,8 @@ export async function checkNFTOwnership({
     });
 
     if (result && "result" in result && (result as any).result) {
-      const parsedResult = JSON.parse(
-        Buffer.from((result as any).result).toString(),
-      );
+      const decoder = new TextDecoder("utf-8");
+      const parsedResult = JSON.parse(decoder.decode((result as any).result));
       return validationFn(parsedResult);
     }
     return validationFn(null);
