@@ -1,4 +1,4 @@
-import { providers } from "near-api-js";
+import { near } from "./near";
 
 // Define the NFT token type
 export type NftToken = {
@@ -18,9 +18,6 @@ export const SHITZU_REWARDS_CONTRACT_ID = "rewards.0xshitzu.near"; // for staked
 
 // Blackdragon NFT contract ID
 export const BLACKDRAGON_NFT_CONTRACT_ID = "blackdragonforevernft.near";
-
-// RPC endpoint for NEAR mainnet
-const NEAR_RPC_ENDPOINT = "https://rpc.mainnet.near.org";
 
 interface CheckNFTOwnershipParams {
   accountId: string;
@@ -49,24 +46,15 @@ export async function checkNFTOwnership({
   if (!accountId || !contractId || !methodName) return false;
 
   try {
-    const provider = new providers.JsonRpcProvider({ url: NEAR_RPC_ENDPOINT });
-
     const queryArgs = args || { account_id: accountId };
 
-    const result = await provider.query({
-      request_type: "call_function",
-      account_id: contractId,
-      method_name: methodName,
-      args_base64: btoa(JSON.stringify(queryArgs)),
-      finality: "final",
+    const result = await near.view({
+      contractId,
+      methodName,
+      args: queryArgs,
     });
 
-    if (result && "result" in result && (result as any).result) {
-      const decoder = new TextDecoder("utf-8");
-      const parsedResult = JSON.parse(decoder.decode((result as any).result));
-      return validationFn(parsedResult);
-    }
-    return validationFn(null);
+    return validationFn(result);
   } catch (error) {
     console.error(
       `Error calling ${methodName} on ${contractId} for ${accountId}:`,
