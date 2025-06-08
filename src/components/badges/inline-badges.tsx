@@ -15,7 +15,11 @@ interface InlineBadgesProps {
  * - Shitzu NFT badge
  * - Blackdragon NFT badge
  */
-export function InlineBadges({ accountId,rank, className = "" }: InlineBadgesProps) {
+export function InlineBadges({
+  accountId,
+  rank,
+  className = "",
+}: InlineBadgesProps) {
   if (!accountId) return null;
 
   return (

@@ -12,7 +12,7 @@ interface OpenCrosspostBadgeProps {
 }
 
 export function OpenCrosspostBadge({
-  isTopUser   ,
+  isTopUser,
   className = "",
 }: OpenCrosspostBadgeProps) {
   if (!isTopUser) {

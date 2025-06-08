@@ -271,8 +271,7 @@ function LeaderboardPage() {
             >
               {accountId}
             </Link>
-            <InlineBadges accountId={accountId}
-            rank={info.row.original.rank} />
+            <InlineBadges accountId={accountId} rank={info.row.original.rank} />
           </div>
         );
       },
