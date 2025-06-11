@@ -1,12 +1,12 @@
 import { AccountPost } from "@crosspost/types";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { createFileRoute, useParams } from "@tanstack/react-router";
 import { Link as LinkIcon, Twitter } from "lucide-react";
 import React from "react";
 import { InlineBadges } from "../../../../components/badges/inline-badges";
 import { Button } from "../../../../components/ui/button";
 import { getClient } from "../../../../lib/authorization-service";
-import { getProfile } from "../../../../lib/social";
+import { getProfile } from "../../../../lib/utils/near-social-node";
 
 export const Route = createFileRoute("/_layout/_crosspost/profile/$accountId")({
   loader: async ({ params }) => {

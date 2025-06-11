@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getProfile, getImageUrl } from "../../lib/social";
+import { getProfile, getImageUrl } from "../../lib/utils/near-social-node";
 
 const fallbackUrl =
   "https://ipfs.near.social/ipfs/bafkreibmiy4ozblcgv3fm3gc6q62s55em33vconbavfd2ekkuliznaq3zm";

@@ -1,20 +1,19 @@
-import React from "react";
+import { ToastAction } from "@/components/ui/toast";
+import { near } from "@/lib/near";
 import {
   ApiErrorCode,
-  ApiResponse,
   ConnectedAccount,
   ErrorDetail,
   MultiStatusData,
   PlatformName,
   SuccessDetail,
 } from "@crosspost/types";
-import { useWalletSelector } from "@near-wallet-selector/react-hook";
 import { useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import React, { useState } from "react";
 import { PostType } from "../components/post-interaction-selector";
 import { NearSocialService } from "../lib/near-social-service";
 import { parseCrosspostError } from "../lib/utils/error-utils";
-import { transformNearSocialPost } from "../lib/utils/near-social-utils";
+import { transformNearSocialPost } from "../lib/near-social-service";
 import {
   detectPlatformFromUrl,
   extractPostIdFromUrl,
@@ -27,7 +26,6 @@ import {
   useReplyPost,
 } from "./use-post-mutations";
 import { toast } from "./use-toast";
-import { ToastAction } from "@/components/ui/toast";
 
 export type SubmitStatus =
   | "idle"
@@ -51,7 +49,7 @@ export interface SubmitResult {
  * Hook to manage the post submission process across platforms
  */
 export function useSubmitPost() {
-  const { wallet, signedAccountId } = useWalletSelector();
+  const isSignedIn = near.authStatus() === "SignedIn";
   const navigate = useNavigate();
   const { setSubmissionOutcome } = useSubmissionResultsStore();
   const [status, setStatus] = useState<SubmitStatus>("idle");
@@ -69,10 +67,10 @@ export function useSubmitPost() {
   ): Promise<SubmitStatus> => {
     let processingAccounts = [...selectedAccounts];
 
-    if (!wallet || !signedAccountId) {
+    if (!isSignedIn) {
       toast({
         title: "Error",
-        description: "Wallet not connected or account ID unavailable.",
+        description: "Wallet not connected.",
         variant: "destructive",
       });
       setStatus("failure");
@@ -173,24 +171,9 @@ export function useSubmitPost() {
     // --- Post to NEAR Social (only for regular posts) ---
     if (nearSocialAccounts.length > 0 && postType === "post") {
       try {
-        const nearSocialService = new NearSocialService(wallet);
+        const nearSocialService = new NearSocialService();
         const combinedText = transformNearSocialPost(nonEmptyPosts);
-        const transaction = await nearSocialService.createPost([
-          { text: combinedText },
-        ]);
-
-        if (!transaction) {
-          throw new Error("Failed to create NEAR Social post transaction");
-        }
-
-        await wallet.signAndSendTransactions({
-          transactions: [
-            {
-              receiverId: transaction.contractId,
-              actions: transaction.actions,
-            },
-          ],
-        });
+        await nearSocialService.createPost([{ text: combinedText }]);
       } catch (error) {
         nearSocialSuccess = false;
         nearSocialError = error;

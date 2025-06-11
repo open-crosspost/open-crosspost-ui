@@ -30,7 +30,6 @@ import {
   Platform,
   TimePeriod,
 } from "@crosspost/types";
-import { useWalletSelector } from "@near-wallet-selector/react-hook";
 import { useQuery } from "@tanstack/react-query";
 import {
   createFileRoute,
@@ -135,7 +134,6 @@ function LeaderboardPage() {
   const search = useSearch({ from: Route.id });
   const { timeframe, platforms, startDate, endDate } = search;
   const navigate = useNavigate({ from: Route.fullPath });
-  const { wallet, signedAccountId } = useWalletSelector();
 
   const parsedStartDate = startDate ? new Date(startDate) : undefined;
   const parsedEndDate = endDate ? new Date(endDate) : undefined;
@@ -162,14 +160,8 @@ function LeaderboardPage() {
       startDate,
       endDate,
       platforms,
-      !!wallet,
-      signedAccountId,
     ],
     queryFn: async () => {
-      if (!wallet || !signedAccountId) {
-        throw new Error("Wallet not connected");
-      }
-
       return fetchLeaderboard({
         limit: pagination.pageSize,
         offset: pagination.pageIndex * pagination.pageSize,
@@ -179,7 +171,6 @@ function LeaderboardPage() {
         // platforms,
       });
     },
-    enabled: !!wallet && !!signedAccountId,
   });
 
   // Extract data and metadata from query result
@@ -223,11 +214,6 @@ function LeaderboardPage() {
   ];
 
   const handleExport = async (format: ExportFormat) => {
-    if (!wallet || !signedAccountId) {
-      alert("Wallet not connected");
-      return;
-    }
-
     try {
       const allData = await fetchAllLeaderboardData({
         timeframe: timeframe ?? TimePeriod.ALL,

@@ -1,5 +1,4 @@
 import { ConnectedAccount, Platform } from "@crosspost/types";
-import { useWalletSelector } from "@near-wallet-selector/react-hook";
 import { useQuery } from "@tanstack/react-query";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
@@ -8,6 +7,7 @@ import { useToast } from "../hooks/use-toast";
 import { createAuthenticatedMutation } from "../lib/authentication-service";
 import { getClient } from "../lib/authorization-service";
 import { NearSocialService } from "../lib/near-social-service";
+import { near } from "@/lib/near";
 
 interface PlatformAccountsState {
   selectedAccountIds: string[];
@@ -62,19 +62,20 @@ export const usePlatformAccountsStore = create<PlatformAccountsState>()(
 );
 
 export function useConnectedAccounts() {
-  const { wallet, signedAccountId } = useWalletSelector();
   const isAuthorized = useAuthorizationStatus();
   const { toast } = useToast();
 
   return useQuery({
     queryKey: ["connectedAccounts"],
     queryFn: async () => {
-      // Ensure wallet and accountId are available
-      if (!wallet || !signedAccountId) {
+      const accountId = near.accountId();
+      if (!accountId) {
         throw new Error("Wallet not connected or account ID unavailable.");
       }
       try {
         const client = getClient();
+
+        client.setAccountHeader(accountId);
 
         const response = await client.auth.getConnectedAccounts();
 
@@ -96,7 +97,7 @@ export function useConnectedAccounts() {
         throw error;
       }
     },
-    enabled: !!signedAccountId && isAuthorized === true && !!wallet,
+    enabled: !!(isAuthorized && near.authStatus() === "SignedIn"),
     retry: 1,
     retryDelay: 1000,
     gcTime: 0,
@@ -233,13 +234,11 @@ export const useCheckAccountStatus = createAuthenticatedMutation<
 
 // Hook to get the current NEAR account
 export function useNearAccount() {
-  const { wallet } = useWalletSelector();
-
   return useQuery({
     queryKey: ["nearAccount"],
     queryFn: async () => {
       try {
-        const nearSocialService = new NearSocialService(wallet);
+        const nearSocialService = new NearSocialService();
         return await nearSocialService.getCurrentAccountProfile();
       } catch (error) {
         console.error("Error fetching NEAR account:", error);

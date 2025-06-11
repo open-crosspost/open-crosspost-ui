@@ -1,14 +1,14 @@
+import { toast } from "@/hooks/use-toast";
+import { near } from "@/lib/near";
 import { useNavigate } from "@tanstack/react-router";
 import { Users } from "lucide-react";
 import * as React from "react";
 import { useCallback } from "react";
 import { Button } from "./ui/button";
-import { useWalletSelector } from "@near-wallet-selector/react-hook";
-import { toast } from "@/hooks/use-toast";
 
 export function ManageAccountsButton(): React.ReactElement {
   const navigate = useNavigate();
-  const { signedAccountId } = useWalletSelector();
+  const signedAccountId = near.accountId();
 
   const handleClick = useCallback(() => {
     if (!signedAccountId) {
