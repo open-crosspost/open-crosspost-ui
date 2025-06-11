@@ -13,14 +13,6 @@ export const Route = createFileRoute("/_layout/_crosspost")({
 function CrosspostContainer() {
   const isAuthorized = useAuthorizationStatus();
 
-  // Maybe this will be a simplification here, idk.
-
-  // Near Auth provider
-  // Takes authorization status, and the client
-  // on account change, will call the setAccountHeader
-  // can provide the token needed for an auth request?
-  // provides isSignedIn
-
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
