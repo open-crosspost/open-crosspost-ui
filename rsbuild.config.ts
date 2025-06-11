@@ -1,5 +1,5 @@
 import { getImageUrl, getProfile } from "./src/lib/utils/near-social-node";
-import { pluginModuleFederation } from "@module-federation/rsbuild-plugin";
+// import { pluginModuleFederation } from "@module-federation/rsbuild-plugin";
 import { defineConfig } from "@rsbuild/core";
 import { pluginReact } from "@rsbuild/plugin-react";
 import { pluginNodePolyfill } from "@rsbuild/plugin-node-polyfill";

@@ -1,4 +1,3 @@
-import "@near-wallet-selector/modal-ui/styles.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import React from "react";
