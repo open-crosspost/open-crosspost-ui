@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_layout/_crosspost/")({
 });
 
 function HomePage() {
-  const { currentAccountId, isUserSignedIn } = useAuth();
+  const { currentAccountId, isSignedIn } = useAuth();
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
@@ -18,7 +18,7 @@ function HomePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        {isUserSignedIn && (
+        {isSignedIn && (
           <div className="flex items-center justify-center mb-4">
             <div className="h-3 w-3 rounded-full bg-green-500 mr-2"></div>
             <p className="text-sm text-green-600 font-medium">

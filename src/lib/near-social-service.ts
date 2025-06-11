@@ -1,14 +1,8 @@
 import { Social } from "@builddao/near-social-js";
 import { getErrorMessage, isPlatformError } from "@crosspost/sdk";
-import {
-  ConnectedAccount,
-  Platform,
-  PlatformName,
-  PostContent,
-} from "@crosspost/types";
+import { PostContent } from "@crosspost/types";
 import { NETWORK_ID } from "../config";
 import { near } from "./near";
-import { getImageUrl, getProfile } from "./utils/near-social-node";
 
 export const SOCIAL_CONTRACT = {
   mainnet: "social.near",
@@ -92,41 +86,6 @@ export function transformNearSocialPost(posts: PostContent[]): string {
 
 export class NearSocialService {
   constructor() {}
-
-  /**
-   * Get the current NEAR account profile
-   * @returns Promise resolving to the platform account or null if not connected
-   */
-  async getCurrentAccountProfile(): Promise<ConnectedAccount | null> {
-    if (near.authStatus() !== "SignedIn") return null;
-    const accountId = near.accountId()!;
-
-    try {
-      const profile = await getProfile(accountId);
-
-      // Get profile image URL or use a fallback
-      const profileImageUrl = profile?.image ? getImageUrl(profile.image) : "";
-
-      return {
-        platform: "Near Social" as PlatformName,
-        userId: accountId,
-        connectedAt: "",
-        profile: {
-          userId: accountId,
-          username: profile?.name || accountId,
-          profileImageUrl,
-          platform: "Near Social" as Platform,
-          lastUpdated: Date.now(),
-        },
-      };
-    } catch (error) {
-      console.error(
-        "Error getting NEAR account profile:",
-        getErrorMessage(error),
-      );
-      return null;
-    }
-  }
 
   /**
    * Create a post on NEAR Social

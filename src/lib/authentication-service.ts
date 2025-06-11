@@ -1,3 +1,4 @@
+import { useAuth } from "@/contexts/auth-context";
 import { getErrorMessage } from "@crosspost/sdk";
 import type { ApiResponse } from "@crosspost/types";
 import {
@@ -71,14 +72,31 @@ export function createAuthenticatedMutation<
 }: CreateAuthenticatedMutationProps<TData, TError, TVariables, TContext>) {
   return () => {
     const queryClient = useQueryClient();
+    const { currentAccountId, isSignedIn } = useAuth();
 
     return useMutation<TData, TError, TVariables, TContext>({
       mutationKey,
       mutationFn: async (variables: TVariables): Promise<TData> => {
         try {
           const client = getClient();
-          const authDetailsString = getAuthDetails(variables);
-          const authToken = await authenticate(authDetailsString);
+          const authDetails = getAuthDetails(variables);
+          if (!isSignedIn) {
+            throw new Error("Wallet not connected or account ID unavailable.");
+          }
+
+          toast({
+            title: "Authenticating...",
+            description: "Please sign the message in your wallet",
+            variant: "default",
+          });
+
+          const message = `Authenticating request for NEAR account: ${currentAccountId}${authDetails ? ` (${authDetails})` : ""}`;
+          const authToken = await sign({
+            signer: near,
+            recipient: "crosspost.near",
+            message,
+          });
+
           client.setAuthentication(authToken);
 
           const response = await clientMethod(client, variables);
@@ -110,32 +128,4 @@ export function createAuthenticatedMutation<
       ...options,
     });
   };
-}
-
-/**
- * Creates the ephemeral authentication data needed for a specific API request.
- * This involves signing a message with the user's NEAR wallet.
- * This data should be generated immediately before making an authenticated API call.
- */
-export async function authenticate(requestDetails?: string): Promise<string> {
-  const accountId = near.accountId();
-  const isSignedIn = near.authStatus() === "SignedIn";
-  if (!isSignedIn) {
-    throw new Error("Wallet not connected or account ID unavailable.");
-  }
-
-  toast({
-    title: "Authenticating...",
-    description: "Please sign the message in your wallet",
-    variant: "default",
-  });
-
-  const message = `Authenticating request for NEAR account: ${accountId}${requestDetails ? ` (${requestDetails})` : ""}`;
-  const authToken = await sign({
-    signer: near,
-    recipient: "crosspost.near",
-    message,
-  });
-
-  return authToken;
 }

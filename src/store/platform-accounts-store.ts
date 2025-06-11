@@ -1,3 +1,7 @@
+import { useAuth } from "@/contexts/auth-context";
+import { near } from "@/lib/near";
+import { getImageUrl, getProfile } from "@/lib/utils/near-social-node";
+import { getErrorMessage } from "@crosspost/sdk";
 import { ConnectedAccount, Platform } from "@crosspost/types";
 import { useQuery } from "@tanstack/react-query";
 import { create } from "zustand";
@@ -6,8 +10,6 @@ import { useAuthorizationStatus } from "../hooks/use-authorization-status";
 import { useToast } from "../hooks/use-toast";
 import { createAuthenticatedMutation } from "../lib/authentication-service";
 import { getClient } from "../lib/authorization-service";
-import { NearSocialService } from "../lib/near-social-service";
-import { near } from "@/lib/near";
 
 interface PlatformAccountsState {
   selectedAccountIds: string[];
@@ -62,6 +64,7 @@ export const usePlatformAccountsStore = create<PlatformAccountsState>()(
 );
 
 export function useConnectedAccounts() {
+  const { isSignedIn } = useAuth();
   const isAuthorized = useAuthorizationStatus();
   const { toast } = useToast();
 
@@ -97,7 +100,7 @@ export function useConnectedAccounts() {
         throw error;
       }
     },
-    enabled: !!(isAuthorized && near.authStatus() === "SignedIn"),
+    enabled: !!(isAuthorized && isSignedIn),
     retry: 1,
     retryDelay: 1000,
     gcTime: 0,
@@ -232,17 +235,38 @@ export const useCheckAccountStatus = createAuthenticatedMutation<
   },
 });
 
-// Hook to get the current NEAR account
-export function useNearAccount() {
+export function useNearSocialAccount() {
   return useQuery({
-    queryKey: ["nearAccount"],
+    queryKey: ["profile"],
     queryFn: async () => {
+      const currentAccountId = near.accountId();
+      const isSignedIn = near.authStatus() === "SignedIn";
+      if (!isSignedIn) return null;
       try {
-        const nearSocialService = new NearSocialService();
-        return await nearSocialService.getCurrentAccountProfile();
+        const profile = await getProfile(currentAccountId!);
+
+        // Get profile image URL or use a fallback
+        const profileImageUrl = profile?.image
+          ? getImageUrl(profile.image)
+          : "";
+
+        return {
+          platform: "Near Social" as Platform,
+          userId: currentAccountId!,
+          connectedAt: "",
+          profile: {
+            userId: currentAccountId!,
+            username: profile?.name || currentAccountId!,
+            profileImageUrl,
+            platform: "Near Social" as Platform,
+            lastUpdated: Date.now(),
+          },
+        } as ConnectedAccount;
       } catch (error) {
-        console.error("Error fetching NEAR account:", error);
-        return null;
+        console.error(
+          "Error getting NEAR Social account profile:",
+          getErrorMessage(error),
+        );
       }
     },
   });
@@ -251,9 +275,9 @@ export function useNearAccount() {
 // Hook to get all available accounts (API accounts + NEAR account)
 export function useAllAccounts() {
   const { data: apiAccounts = [] } = useConnectedAccounts();
-  const { data: nearAccount } = useNearAccount();
+  const { data: profile } = useNearSocialAccount();
 
-  return [...apiAccounts, ...(nearAccount ? [nearAccount] : [])];
+  return [...apiAccounts, ...(profile ? [profile] : [])];
 }
 
 // Hook to get selected accounts

@@ -4,19 +4,20 @@ import React, { useEffect, useState } from "react";
 import { AuthorizationModal } from "../../components/authorization-modal";
 import { ConnectToNearButton } from "../../components/connect-to-near";
 import { useAuthorizationStatus } from "../../hooks/use-authorization-status";
-import { getClient } from "@/lib/authorization-service";
+import { useAuth } from "@/contexts/auth-context";
 
 export const Route = createFileRoute("/_layout/_crosspost")({
   component: CrosspostContainer,
 });
 
 function CrosspostContainer() {
+  const { isSignedIn } = useAuth();
   const isAuthorized = useAuthorizationStatus();
 
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
-    if (near.authStatus() === "SignedIn" && !isAuthorized) {
+    if (isSignedIn && !isAuthorized) {
       setShowAuthModal(true);
     }
   }, [isAuthorized]);
@@ -33,7 +34,7 @@ function CrosspostContainer() {
     <>
       {isAuthorized ? (
         <Outlet />
-      ) : near.authStatus() === "SignedIn" ? (
+      ) : isSignedIn ? (
         <AuthorizationModal
           isOpen={showAuthModal}
           onClose={() => setShowAuthModal(false)}

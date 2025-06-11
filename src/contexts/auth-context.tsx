@@ -19,9 +19,9 @@ import React, {
 
 interface IAuthContext {
   currentAccountId: string | null;
-  isUserSignedIn: boolean;
+  isSignedIn: boolean;
   setCurrentAccountId: Dispatch<SetStateAction<string | null>>;
-  setIsUserSignedIn: Dispatch<SetStateAction<boolean>>;
+  setIsSignedIn: Dispatch<SetStateAction<boolean>>;
   handleSignIn: () => Promise<void>;
   handleSignOut: () => void;
 }
@@ -46,7 +46,7 @@ export function AuthProvider({
   const [currentAccountId, setCurrentAccountId] = useState<string | null>(
     near.accountId() ?? null,
   );
-  const [isUserSignedIn, setIsUserSignedIn] = useState<boolean>(
+  const [isSignedIn, setIsSignedIn] = useState<boolean>(
     near.authStatus() === "SignedIn",
   );
   const isSigningInRef = useRef<boolean>(false);
@@ -59,7 +59,7 @@ export function AuthProvider({
     const client = getClient();
     const accountListener = near.event.onAccount((newAccountId) => {
       setCurrentAccountId(newAccountId);
-      setIsUserSignedIn(!!newAccountId);
+      setIsSignedIn(!!newAccountId);
 
       if (newAccountId) {
         client.setAccountHeader(newAccountId);
@@ -126,9 +126,9 @@ export function AuthProvider({
 
   const contextValue: IAuthContext = {
     currentAccountId,
-    isUserSignedIn,
+    isSignedIn,
     setCurrentAccountId,
-    setIsUserSignedIn,
+    setIsSignedIn,
     handleSignIn,
     handleSignOut,
   };

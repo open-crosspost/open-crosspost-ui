@@ -7,7 +7,7 @@ import { BackButton } from "../../../../components/back-button";
 import { Button } from "../../../../components/ui/button";
 import {
   useConnectedAccounts,
-  useNearAccount,
+  useNearSocialAccount,
   usePlatformAccountsStore,
 } from "../../../../store/platform-accounts-store";
 import { RefreshCw } from "lucide-react";
@@ -21,8 +21,7 @@ export const Route = createFileRoute("/_layout/_crosspost/manage/")({
 function ManageAccountsPage() {
   const navigate = useNavigate();
   const { data: accounts = [], isLoading } = useConnectedAccounts();
-  const { data: nearAccount, isLoading: isLoadingNearAccount } =
-    useNearAccount();
+  const { data: profile, isLoading: isLoadingProfile } = useNearSocialAccount();
   const { selectedAccountIds } = usePlatformAccountsStore();
 
   const handleContinue = () => {
@@ -49,16 +48,13 @@ function ManageAccountsPage() {
               <h2 className="text-xl font-semibold">Near Social Account</h2>
             </div>
 
-            {isLoadingNearAccount ? (
+            {isLoadingProfile ? (
               <div className="flex justify-center py-8">
                 <RefreshCw size={16} className={"animate-spin"} />
               </div>
-            ) : nearAccount ? (
+            ) : profile ? (
               <div className="space-y-4 w-full">
-                <PlatformAccountItem
-                  account={nearAccount}
-                  showActions={false}
-                />
+                <PlatformAccountItem account={profile} showActions={false} />
               </div>
             ) : (
               <div className="rounded-md border-2 border-dashed border-gray-200 p-4 sm:p-8 text-center">

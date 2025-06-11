@@ -1,5 +1,5 @@
 import { ToastAction } from "@/components/ui/toast";
-import { near } from "@/lib/near";
+import { useAuth } from "@/contexts/auth-context";
 import {
   ApiErrorCode,
   ConnectedAccount,
@@ -11,9 +11,11 @@ import {
 import { useNavigate } from "@tanstack/react-router";
 import React, { useState } from "react";
 import { PostType } from "../components/post-interaction-selector";
-import { NearSocialService } from "../lib/near-social-service";
+import {
+  NearSocialService,
+  transformNearSocialPost,
+} from "../lib/near-social-service";
 import { parseCrosspostError } from "../lib/utils/error-utils";
-import { transformNearSocialPost } from "../lib/near-social-service";
 import {
   detectPlatformFromUrl,
   extractPostIdFromUrl,
@@ -49,7 +51,7 @@ export interface SubmitResult {
  * Hook to manage the post submission process across platforms
  */
 export function useSubmitPost() {
-  const isSignedIn = near.authStatus() === "SignedIn";
+  const { isSignedIn } = useAuth();
   const navigate = useNavigate();
   const { setSubmissionOutcome } = useSubmissionResultsStore();
   const [status, setStatus] = useState<SubmitStatus>("idle");
