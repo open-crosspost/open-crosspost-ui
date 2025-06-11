@@ -50,12 +50,6 @@ export default async () => {
       },
       cleanDistPath: true,
       assetPrefix: "/",
-      copy: [
-        {
-          from: "../../fastnear/js-monorepo/packages/api/dist/umd/browser.global.js",
-          to: "js/fastintear.global.js",
-        },
-      ],
     },
     tools: {
       rspack: {
@@ -141,7 +135,7 @@ export default async () => {
     },
     plugins: [
       pluginReact(),
-      pluginNodePolyfill(),
+      pluginNodePolyfill(), // just need to upgrade near-social-js, then can remove
       // pluginModuleFederation({
       //   name: "www",
       //   remotes: {
