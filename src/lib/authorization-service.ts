@@ -2,10 +2,6 @@ import { CrosspostClient } from "@crosspost/sdk";
 import { sign } from "near-sign-verify";
 import { OPEN_CROSSPOST_PROXY_API } from "../config";
 import { toast } from "../hooks/use-toast";
-import {
-  AUTHORIZATION_EVENTS,
-  authorizationEvents,
-} from "./authorization-events";
 import { near } from "./near";
 
 let clientInstance: CrosspostClient | null = null;
@@ -52,10 +48,6 @@ export async function authorize(): Promise<boolean> {
 
     // Check if the response was successful
     if (response.success) {
-      // Persist authorization state
-      localStorage.setItem("crosspost:authorized", "true");
-      // Emit event
-      authorizationEvents.emit(AUTHORIZATION_EVENTS.AUTHORIZED);
     } else {
       const errorMessage = response.errors?.length
         ? response.errors[0].message
@@ -66,8 +58,6 @@ export async function authorize(): Promise<boolean> {
     return true;
   } catch (error) {
     console.error("Authorization error:", error);
-    localStorage.removeItem("crosspost:authorized");
-    authorizationEvents.emit(AUTHORIZATION_EVENTS.AUTHORIZATION_REVOKED);
     throw error; // Re-throw for handling in UI
   }
 }
@@ -96,9 +86,6 @@ export async function unauthorize(): Promise<void> {
     }
 
     // Remove persisted state regardless of backend call success
-    localStorage.removeItem("crosspost:authorized");
-    // Emit event
-    authorizationEvents.emit(AUTHORIZATION_EVENTS.AUTHORIZATION_REVOKED);
 
     toast({
       title: "Authorization Revoked",
@@ -116,7 +103,5 @@ export async function unauthorize(): Promise<void> {
     });
     console.error("Unauthorization error:", error);
     // Even if backend call fails, ensure local state is cleared
-    localStorage.removeItem("crosspost:authorized");
-    authorizationEvents.emit(AUTHORIZATION_EVENTS.AUTHORIZATION_REVOKED);
   }
 }

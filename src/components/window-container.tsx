@@ -4,10 +4,10 @@ import { PenSquare, Trophy } from "lucide-react";
 import * as React from "react";
 import { ConnectToNearButton } from "./connect-to-near";
 import { Button } from "./ui/button";
-import { useAuthorizationStatus } from "../hooks/use-authorization-status";
+import { useAuth } from "@/contexts/auth-context";
 
 export const WindowControls: React.FC = () => {
-  const isAuthorized = useAuthorizationStatus();
+  const { isSignedIn } = useAuth();
 
   return (
     <div className="relative border-b-2 border-gray-800 p-4 sm:p-6">
@@ -20,7 +20,7 @@ export const WindowControls: React.FC = () => {
         </Link>
         <div className="flex flex-col items-center gap-4 sm:flex-row">
           <ConnectToNearButton />
-          {isAuthorized && (
+          {isSignedIn && (
             <>
               <Link to="/leaderboard">
                 <Button className="flex items-center gap-2">

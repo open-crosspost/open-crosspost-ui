@@ -1,6 +1,5 @@
 import { NETWORK_ID } from "@/config";
 import { toast } from "@/hooks/use-toast";
-import { signalAuthorizationRevoked } from "@/lib/authorization-events";
 import { getClient } from "@/lib/authorization-service";
 import { near } from "@/lib/near";
 import { SOCIAL_CONTRACT } from "@/lib/near-social-service";
@@ -64,7 +63,6 @@ export function AuthProvider({
       if (newAccountId) {
         client.setAccountHeader(newAccountId);
       } else {
-        signalAuthorizationRevoked();
         clearSelectedAccounts();
         clearAutoSave();
         if (drafts.length > 0) {

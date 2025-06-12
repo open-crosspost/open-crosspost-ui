@@ -6,7 +6,6 @@ import { ConnectedAccount, Platform } from "@crosspost/types";
 import { useQuery } from "@tanstack/react-query";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { useAuthorizationStatus } from "../hooks/use-authorization-status";
 import { useToast } from "../hooks/use-toast";
 import { createAuthenticatedMutation } from "../lib/authentication-service";
 import { getClient } from "../lib/authorization-service";
@@ -65,7 +64,6 @@ export const usePlatformAccountsStore = create<PlatformAccountsState>()(
 
 export function useConnectedAccounts() {
   const { isSignedIn } = useAuth();
-  const isAuthorized = useAuthorizationStatus();
   const { toast } = useToast();
 
   return useQuery({
@@ -100,7 +98,7 @@ export function useConnectedAccounts() {
         throw error;
       }
     },
-    enabled: !!(isAuthorized && isSignedIn),
+    enabled: !!isSignedIn,
     retry: 1,
     retryDelay: 1000,
     gcTime: 0,
