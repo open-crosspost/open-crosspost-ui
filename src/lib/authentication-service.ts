@@ -1,14 +1,16 @@
-import { generateNonce, NearAuthData } from "near-sign-verify";
-import { toast } from "../hooks/use-toast";
+import { useAuth } from "@/contexts/auth-context";
+import { getErrorMessage } from "@crosspost/sdk";
+import type { ApiResponse } from "@crosspost/types";
 import {
+  QueryClient,
   useMutation,
   UseMutationOptions,
   useQueryClient,
-  QueryClient,
 } from "@tanstack/react-query";
-import { useWalletSelector } from "@near-wallet-selector/react-hook";
+import { sign } from "near-sign-verify";
+import { toast } from "../hooks/use-toast";
 import { getClient } from "./authorization-service";
-import { ApiResponse, getErrorMessage } from "@crosspost/sdk";
+import { near } from "./near";
 
 type ClientMethodExecutor<TData, TVariables> = (
   client: any, // Using any for client type to avoid circular dependencies
@@ -69,25 +71,33 @@ export function createAuthenticatedMutation<
   options,
 }: CreateAuthenticatedMutationProps<TData, TError, TVariables, TContext>) {
   return () => {
-    const { wallet, signedAccountId } = useWalletSelector();
     const queryClient = useQueryClient();
+    const { currentAccountId, isSignedIn } = useAuth();
 
     return useMutation<TData, TError, TVariables, TContext>({
       mutationKey,
       mutationFn: async (variables: TVariables): Promise<TData> => {
-        if (!wallet || !signedAccountId) {
-          throw new Error("Wallet not connected or account ID unavailable.");
-        }
-
         try {
           const client = getClient();
-          const authDetailsString = getAuthDetails(variables);
-          const authData = await authenticate(
-            wallet,
-            signedAccountId,
-            authDetailsString,
-          );
-          client.setAuthentication(authData);
+          const authDetails = getAuthDetails(variables);
+          if (!isSignedIn) {
+            throw new Error("Wallet not connected or account ID unavailable.");
+          }
+
+          toast({
+            title: "Authenticating...",
+            description: "Please sign the message in your wallet",
+            variant: "default",
+          });
+
+          const message = `Authenticating request for NEAR account: ${currentAccountId}${authDetails ? ` (${authDetails})` : ""}`;
+          const authToken = await sign({
+            signer: near,
+            recipient: "crosspost.near",
+            message,
+          });
+
+          client.setAuthentication(authToken);
 
           const response = await clientMethod(client, variables);
 
@@ -117,49 +127,5 @@ export function createAuthenticatedMutation<
       onError: onErrorCallback,
       ...options,
     });
-  };
-}
-
-/**
- * Creates the ephemeral authentication data needed for a specific API request.
- * This involves signing a message with the user's NEAR wallet.
- * This data should be generated immediately before making an authenticated API call.
- */
-export async function authenticate(
-  wallet: any,
-  accountId: string,
-  requestDetails?: string,
-): Promise<NearAuthData> {
-  if (!wallet || !accountId) {
-    throw new Error("Wallet and account ID are required for authentication");
-  }
-
-  const message = `Authenticating request for NEAR account: ${accountId}${requestDetails ? ` (${requestDetails})` : ""}`;
-
-  const nonce = generateNonce();
-  const recipient = "crosspost.near";
-  const callbackUrl = location.href;
-
-  toast({
-    title: "Authenticating...",
-    description: "Please sign the message in your wallet",
-    variant: "default",
-  });
-
-  const signedMessage = await wallet.signMessage({
-    message,
-    nonce: Buffer.from(nonce),
-    recipient,
-    callbackUrl,
-  });
-
-  return {
-    message,
-    nonce,
-    recipient,
-    callback_url: callbackUrl,
-    signature: signedMessage.signature,
-    account_id: signedMessage.accountId,
-    public_key: signedMessage.publicKey,
   };
 }

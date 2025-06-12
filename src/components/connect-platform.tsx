@@ -53,6 +53,7 @@ export function ConnectPlatform({
       });
 
       loadingToast.update({
+        id: loadingToast.id,
         title: `${capitalize(platform)} Account Connected!`,
         description: "Your account is now linked and ready to use.",
         variant: "success",
@@ -74,6 +75,7 @@ export function ConnectPlatform({
       }
 
       loadingToast.update({
+        id: loadingToast.id,
         title: "Connection Failed",
         description: errorMessage,
         variant: "destructive",

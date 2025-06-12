@@ -5,7 +5,7 @@
 
 <div align="center">
 
-<h1 style="font-size: 2.5rem; font-weight: bold;">crosspost</h1>
+<h1 style="font-size: 2.5rem; font-weight: bold;">crosspost ui</h1>
 
   <p>
     <strong>user interface to crosspost across various platforms</strong>
@@ -20,7 +20,6 @@
   - [Installing dependencies](#installing-dependencies)
   - [Running the app](#running-the-app)
   - [Building for production](#building-for-production)
-  - [Running tests](#running-tests)
 - [Contributing](#contributing)
 
 </details>
@@ -46,14 +45,6 @@ bun run dev
 ```bash
 bun run build
 ```
-
-### Running tests
-
-```bash
-bun run test
-```
-
-See the full [testing guide](./playwright-tests/README.md).
 
 ## Contributing
 

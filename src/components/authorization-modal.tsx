@@ -1,10 +1,10 @@
+import { near } from "@/lib/near";
 import {
   getErrorMessage,
   isAuthError,
   isNetworkError,
   isPlatformError,
 } from "@crosspost/sdk";
-import { useWalletSelector } from "@near-wallet-selector/react-hook";
 import { Shield } from "lucide-react";
 import * as React from "react";
 import { useState } from "react";
@@ -19,10 +19,7 @@ import {
 } from "../components/ui/dialog";
 import { APP_NAME } from "../config";
 import { toast } from "../hooks/use-toast";
-import {
-  authorize,
-  createAuthorizationPayload,
-} from "../lib/authorization-service";
+import { authorize } from "../lib/authorization-service";
 
 interface AuthorizationModalProps {
   isOpen: boolean;
@@ -38,21 +35,11 @@ export function AuthorizationModal({
   message,
 }: AuthorizationModalProps) {
   const [isAuthorizing, setIsAuthorizing] = useState(false);
-  const { wallet, signedAccountId } = useWalletSelector();
 
   const handleRequestAuthorization = async () => {
-    if (!wallet || !signedAccountId) {
-      console.error("Wallet not connected");
-      return;
-    }
-
     setIsAuthorizing(true);
     try {
-      const authorizationPayload = await createAuthorizationPayload(
-        wallet,
-        signedAccountId,
-      );
-      await authorize(authorizationPayload);
+      await authorize();
 
       toast({
         title: "Authorization successful",
@@ -134,7 +121,7 @@ export function AuthorizationModal({
             <p className="font-medium text-amber-800">Important:</p>
             <p className="mt-1 text-amber-700">
               Your NEAR account{" "}
-              <span className="font-bold">{signedAccountId}</span> will be used
+              <span className="font-bold">{near.accountId()}</span> will be used
               to sign all requests. You can revoke access at any time by
               disconnecting your accounts.
             </p>

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { motion } from "framer-motion";
-import { useDraftsStore, PostContent } from "../store/drafts-store";
+import { useDraftsStore, EditorContent } from "../store/drafts-store";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "./ui/button";
 import {
@@ -14,7 +14,7 @@ import { ModalWindowControls } from "./modal-window-controls";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
 interface DraftsModalProps {
-  onSelect: (posts: PostContent[]) => void;
+  onSelect: (posts: EditorContent[]) => void;
 }
 
 export function DraftsModal({
@@ -87,8 +87,8 @@ export function DraftsModal({
                       <div className="text-sm text-gray-800">
                         {draft.posts.map((post, i) => (
                           <div key={i} className="mb-2">
-                            {post.text.substring(0, 100)}
-                            {post.text.length > 100 ? "..." : ""}
+                            {post.text?.substring(0, 100)}
+                            {post.text && post.text.length > 100 ? "..." : ""}
                           </div>
                         ))}
                       </div>
