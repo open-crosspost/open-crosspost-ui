@@ -101,8 +101,10 @@ export function createAuthenticatedMutation<
 
           const response = await clientMethod(client, variables);
 
-          if (response.success && response.data) {
-            return response.data;
+          console.log("response", response);
+
+          if (response.success) {
+            return response.data as TData;
           } else {
             const errorMessage = response.errors?.length
               ? response.errors[0].message

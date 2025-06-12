@@ -3,7 +3,8 @@ import { near } from "@/lib/near";
 import { getImageUrl, getProfile } from "@/lib/utils/near-social-node";
 import { getErrorMessage } from "@crosspost/sdk";
 import { ConnectedAccount, Platform } from "@crosspost/types";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { sign } from "near-sign-verify";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { useToast } from "../hooks/use-toast";
@@ -105,22 +106,90 @@ export function useConnectedAccounts() {
   });
 }
 
+// Interface for the variables of useConnectAccount
+interface ConnectAccountVariables {
+  platform: Platform;
+}
+
 // Connect a platform account
-export const useConnectAccount = createAuthenticatedMutation<
-  void,
-  Error,
-  { platform: Platform }
->({
-  mutationKey: ["connectAccount"],
-  clientMethod: async (client, { platform }) => {
-    return await client.auth.loginToPlatform(platform.toLowerCase() as any);
-  },
-  getAuthDetails: ({ platform }) => `loginToPlatform:${platform}`,
-  onSuccess: (_, __, ___, queryClient) => {
-    // Invalidate the connected accounts query to trigger a refetch
-    queryClient.invalidateQueries({ queryKey: ["connectedAccounts"] });
-  },
-});
+export const useConnectAccount = () => {
+  const queryClient = useQueryClient();
+  const { currentAccountId, isSignedIn } = useAuth();
+  const { toast } = useToast();
+
+  return useMutation<void, Error, ConnectAccountVariables>({
+    mutationKey: ["connectAccount"],
+    mutationFn: async ({
+      platform,
+    }: ConnectAccountVariables): Promise<void> => {
+      try {
+        const client = getClient();
+        const authDetails = `loginToPlatform:${platform}`;
+
+        if (!isSignedIn || !currentAccountId) {
+          throw new Error("Wallet not connected or account ID unavailable.");
+        }
+
+        toast({
+          title: "Authenticating...",
+          description: "Please sign the message in your wallet",
+          variant: "default",
+        });
+
+        const message = `Authenticating request for NEAR account: ${currentAccountId}${authDetails ? ` (${authDetails})` : ""}`;
+        const authToken = await sign({
+          signer: near,
+          recipient: "crosspost.near",
+          message,
+        });
+
+        client.setAuthentication(authToken);
+
+        const response: any = await client.auth.loginToPlatform(
+          platform.toLowerCase() as any,
+        );
+
+        if (
+          response &&
+          response.status &&
+          typeof response.status === "object" &&
+          response.status.code === "AUTH_SUCCESS"
+        ) {
+          return; // Success: platform, userId, status.code format
+        } else if (response && typeof response.success === "boolean") {
+          if (response.success) {
+            return; // Success: ApiResponse format (e.g., URL returned)
+          } else {
+            const errorMessage = response.errors?.length
+              ? response.errors[0].message
+              : "Unknown error occurred during platform login (ApiResponse error).";
+            throw new Error(errorMessage);
+          }
+        } else {
+          console.error(
+            "Unexpected response structure from loginToPlatform:",
+            response,
+          );
+          throw new Error(
+            "Unexpected response from server during platform login.",
+          );
+        }
+      } catch (error) {
+        console.error(
+          `API Mutation Error [connectAccount/${platform}]:`,
+          getErrorMessage(error),
+        );
+        if (error instanceof Error) {
+          throw error; // Re-throw original error if it's already an Error instance
+        }
+        throw new Error(getErrorMessage(error)); // Ensure an Error instance is thrown
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["connectedAccounts"] });
+    },
+  });
+};
 
 // Disconnect a platform account
 export const useDisconnectAccount = createAuthenticatedMutation<
