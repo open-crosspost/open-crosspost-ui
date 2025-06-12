@@ -142,7 +142,7 @@ export class NearSocialService {
 
         const functionCall = action.functionCall;
         return near.actions.functionCall({
-          methodName: functionCall.methodName,
+          methodName: "set",
           args: {
             data: {
               [accountId]: {
