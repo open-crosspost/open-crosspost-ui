@@ -248,6 +248,8 @@ function LeaderboardPage() {
       header: "NEAR Account",
       cell: (info) => {
         const accountId = info.getValue();
+        const row = info.row;
+        const isFirst = row.original.rank === 1;
         return (
           <div className="flex items-center gap-2 w-[120px]">
             <Link
@@ -257,7 +259,7 @@ function LeaderboardPage() {
             >
               {accountId}
             </Link>
-            <InlineBadges accountId={accountId} />
+            <InlineBadges accountId={accountId} isLeaderboardFirst={isFirst} />
           </div>
         );
       },
