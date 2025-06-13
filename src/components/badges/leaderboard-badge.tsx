@@ -31,4 +31,4 @@ export function LeaderboardBadge({ className = "" }: LeaderboardBadgeProps) {
       </Tooltip>
     </TooltipProvider>
   );
-} 
+}

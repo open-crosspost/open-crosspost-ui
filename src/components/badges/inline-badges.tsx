@@ -16,7 +16,11 @@ interface InlineBadgesProps {
  * - Blackdragon NFT badge
  * - Leaderboard #1 badge
  */
-export function InlineBadges({ accountId, className = "", isLeaderboardFirst = false }: InlineBadgesProps) {
+export function InlineBadges({
+  accountId,
+  className = "",
+  isLeaderboardFirst = false,
+}: InlineBadgesProps) {
   if (!accountId) return null;
 
   return (
