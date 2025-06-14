@@ -248,6 +248,12 @@ function LeaderboardPage() {
       header: "NEAR Account",
       cell: (info) => {
         const accountId = info.getValue();
+<<<<<<< HEAD
+        const row = info.row;
+        const isFirst = row.original.rank === 1;
+=======
+        const rank = info.row.original.rank;
+>>>>>>> be01c2c (crosspost badge added)
         return (
           <div className="flex items-center gap-2 w-[120px]">
             <Link
@@ -257,7 +263,11 @@ function LeaderboardPage() {
             >
               {accountId}
             </Link>
-            <InlineBadges accountId={accountId} />
+<<<<<<< HEAD
+            <InlineBadges accountId={accountId} isLeaderboardFirst={isFirst} />
+=======
+            <InlineBadges accountId={accountId} rank={rank} />
+>>>>>>> be01c2c (crosspost badge added)
           </div>
         );
       },
