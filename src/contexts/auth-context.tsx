@@ -73,8 +73,13 @@ export function AuthProvider({
       }
     });
 
+    const txListener = near.event.onTx((tx) => {
+      console.log(tx);
+    });
+
     return () => {
       near.event.offAccount(accountListener);
+      near.event.offTx(txListener);
     };
   }, [clearSelectedAccounts, deleteDraft, clearAutoSave, drafts]);
 
