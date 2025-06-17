@@ -64,20 +64,19 @@ export const usePlatformAccountsStore = create<PlatformAccountsState>()(
 );
 
 export function useConnectedAccounts() {
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, currentAccountId } = useAuth();
   const { toast } = useToast();
 
   return useQuery({
     queryKey: ["connectedAccounts"],
     queryFn: async () => {
-      const accountId = near.accountId();
-      if (!accountId) {
+      if (!currentAccountId) {
         throw new Error("Wallet not connected or account ID unavailable.");
       }
       try {
         const client = getClient();
 
-        client.setAccountHeader(accountId);
+        client.setAccountHeader(currentAccountId);
 
         const response = await client.auth.getConnectedAccounts();
 
@@ -303,11 +302,10 @@ export const useCheckAccountStatus = createAuthenticatedMutation<
 });
 
 export function useNearSocialAccount() {
+  const { currentAccountId, isSignedIn } = useAuth();
   return useQuery({
-    queryKey: ["profile"],
+    queryKey: ["profile", currentAccountId],
     queryFn: async () => {
-      const currentAccountId = near.accountId();
-      const isSignedIn = near.authStatus() === "SignedIn";
       if (!isSignedIn) return null;
       try {
         const profile = await getProfile(currentAccountId!);

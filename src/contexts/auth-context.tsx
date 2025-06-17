@@ -37,13 +37,15 @@ export function useAuth(): IAuthContext {
 
 interface AuthProviderProps {
   children: ReactNode;
+  pretendAccountId?: string | null;
 }
 
 export function AuthProvider({
   children,
+  pretendAccountId,
 }: AuthProviderProps): React.ReactElement {
   const [currentAccountId, setCurrentAccountId] = useState<string | null>(
-    near.accountId() ?? null,
+    pretendAccountId ?? near.accountId() ?? null,
   );
   const [isSignedIn, setIsSignedIn] = useState<boolean>(
     near.authStatus() === "SignedIn",
@@ -73,8 +75,13 @@ export function AuthProvider({
       }
     });
 
+    const txListener = near.event.onTx((tx) => {
+      console.log(tx);
+    });
+
     return () => {
       near.event.offAccount(accountListener);
+      near.event.offTx(txListener);
     };
   }, [clearSelectedAccounts, deleteDraft, clearAutoSave, drafts]);
 

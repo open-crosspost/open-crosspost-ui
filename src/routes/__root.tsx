@@ -1,6 +1,11 @@
 import { QueryClient } from "@tanstack/react-query";
-import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
+import {
+  Outlet,
+  createRootRouteWithContext,
+  useSearch,
+} from "@tanstack/react-router";
 import React from "react";
+import { z } from "zod";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/auth-context";
 
@@ -26,17 +31,24 @@ export interface AuthContext {
   userId: string;
 }
 
+const rootSearchSchema = z.object({
+  pretend: z.string().optional(), // optionally pretend to be another user
+});
+
 export const Route = createRootRouteWithContext<{
   auth: AuthContext;
   queryClient: QueryClient;
 }>()({
+  validateSearch: (search) => rootSearchSchema.parse(search),
   component: RootComponent,
   notFoundComponent: () => <>Not found</>,
 });
 
 function RootComponent() {
+  const { pretend } = useSearch({ from: Route.id });
+
   return (
-    <AuthProvider>
+    <AuthProvider pretendAccountId={pretend}>
       <Outlet />
       <Toaster />
       <React.Suspense>

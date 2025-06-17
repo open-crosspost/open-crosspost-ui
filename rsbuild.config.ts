@@ -2,7 +2,6 @@ import { getImageUrl, getProfile } from "./src/lib/utils/near-social-node";
 // import { pluginModuleFederation } from "@module-federation/rsbuild-plugin";
 import { defineConfig } from "@rsbuild/core";
 import { pluginReact } from "@rsbuild/plugin-react";
-import { pluginNodePolyfill } from "@rsbuild/plugin-node-polyfill";
 import { TanStackRouterRspack } from "@tanstack/router-plugin/rspack";
 import bosConfig from "./bos.config.json";
 
@@ -135,7 +134,6 @@ export default async () => {
     },
     plugins: [
       pluginReact(),
-      pluginNodePolyfill(), // just need to upgrade near-social-js, then can remove
       // pluginModuleFederation({
       //   name: "www",
       //   remotes: {
