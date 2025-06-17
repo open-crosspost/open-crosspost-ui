@@ -1,4 +1,9 @@
-import type { IIsWritePermissionGrantedWithAccountIdOptions, IIsWritePermissionGrantedWithPublicKeyOptions, ISocialDBContractIsWritePermissionGrantedArgs, ISocialDBContractStorageBalance } from "@builddao/near-social-js";
+import type {
+  IIsWritePermissionGrantedWithAccountIdOptions,
+  IIsWritePermissionGrantedWithPublicKeyOptions,
+  ISocialDBContractIsWritePermissionGrantedArgs,
+  ISocialDBContractStorageBalance,
+} from "@builddao/near-social-js";
 import { getErrorMessage, isPlatformError } from "@crosspost/sdk";
 import { PostContent } from "@crosspost/types";
 import { NETWORK_ID } from "../config";
@@ -9,16 +14,15 @@ export const SOCIAL_CONTRACT = {
   testnet: "v1.social08.testnet",
 };
 
-export const GAS_FEE_IN_ATOMIC_UNITS = '30000000000000';
-export const MINIMUM_STORAGE_IN_BYTES = '2000';
-export const ONE_YOCTO = '1';
-export const STORAGE_COST_PER_BYTES_IN_ATOMIC_UNITS = '10000000000000000000';
-export const EXTRA_STORAGE_BALANCE = '500';
+export const GAS_FEE_IN_ATOMIC_UNITS = "30000000000000";
+export const MINIMUM_STORAGE_IN_BYTES = "2000";
+export const ONE_YOCTO = "1";
+export const STORAGE_COST_PER_BYTES_IN_ATOMIC_UNITS = "10000000000000000000";
+export const EXTRA_STORAGE_BALANCE = "500";
 export const ESTIMATED_KEY_VALUE_SIZE = 140; // 40 * 3 + 8 + 12
 export const ESTIMATED_NODE_SIZE = 98; // 40 * 2 + 8 + 10
 
-
-import BigNumber from 'bignumber.js';
+import BigNumber from "bignumber.js";
 
 interface IOptions {
   data: Record<string, Record<string, unknown>>;
@@ -34,10 +38,9 @@ export function isObject(value: unknown): boolean {
   return (
     value === Object(value) &&
     !Array.isArray(value) &&
-    typeof value !== 'function'
+    typeof value !== "function"
   );
 }
-
 
 /**
  * Calculates the size of some data.
@@ -46,11 +49,11 @@ export function isObject(value: unknown): boolean {
  * @see {@link https://github.com/NearSocial/VM/blob/6047c6a9b96f3de14e600c1d2b96c432bbb76dd4/src/lib/data/utils.js#L193}
  */
 export function calculateSizeOfData(
-  data: Record<string, unknown> | string
+  data: Record<string, unknown> | string,
 ): bigint {
   const calculate = (
     _data: unknown,
-    previousData?: Record<string, unknown> | string
+    previousData?: Record<string, unknown> | string,
   ): bigint => {
     if (isObject(_data)) {
       return Object.entries(_data as Record<string, unknown>).reduce<bigint>(
@@ -72,15 +75,15 @@ export function calculateSizeOfData(
             BigInt(ESTIMATED_KEY_VALUE_SIZE)
           );
         },
-        BigInt(isObject(previousData) ? 0 : ESTIMATED_NODE_SIZE)
+        BigInt(isObject(previousData) ? 0 : ESTIMATED_NODE_SIZE),
       );
     }
 
     return BigInt(
-      (typeof _data === 'string' ? _data.length : 8) -
-      (previousData && typeof previousData === 'string'
-        ? previousData.length
-        : 0)
+      (typeof _data === "string" ? _data.length : 8) -
+        (previousData && typeof previousData === "string"
+          ? previousData.length
+          : 0),
     );
   };
 
@@ -101,10 +104,10 @@ export function calculateRequiredDeposit({
   storageBalance,
 }: IOptions): BigNumber {
   const minimumStorageCost: BigNumber = new BigNumber(
-    MINIMUM_STORAGE_IN_BYTES
+    MINIMUM_STORAGE_IN_BYTES,
   ).multipliedBy(new BigNumber(STORAGE_COST_PER_BYTES_IN_ATOMIC_UNITS));
   const storageCostOfData: BigNumber = new BigNumber(
-    String(calculateSizeOfData(data))
+    String(calculateSizeOfData(data)),
   )
     .plus(EXTRA_STORAGE_BALANCE) // https://github.com/NearSocial/VM/blob/6047c6a9b96f3de14e600c1d2b96c432bbb76dd4/src/lib/data/commitData.js#L62
     .multipliedBy(STORAGE_COST_PER_BYTES_IN_ATOMIC_UNITS);
@@ -122,7 +125,7 @@ export function calculateRequiredDeposit({
   // if the storage deposit available is less than the cost of storage, use the difference as the required deposit
   return storageDepositAvailable.lt(storageCostOfData)
     ? storageCostOfData.minus(storageDepositAvailable)
-    : new BigNumber('0');
+    : new BigNumber("0");
 }
 
 type TValue = bigint | number | string | Record<string, unknown>;
@@ -143,18 +146,16 @@ type TValue = bigint | number | string | Record<string, unknown>;
  * }
  * output: ['odin.test.near/profile/name', 'odin.test.near/type']
  */
-export function parseKeyFromData(
-  data: Record<string, unknown>
-): string[] {
+export function parseKeyFromData(data: Record<string, unknown>): string[] {
   const parse = (keys: string[], value: TValue): string | string[] => {
     // if the value is not a nested object, we can stop recursing
-    if (typeof value !== 'object') {
-      return keys.join('/');
+    if (typeof value !== "object") {
+      return keys.join("/");
     }
 
     // for each nested object, recursively iterate until the value is reached
     return Object.entries(value).flatMap(([_key, _value]) =>
-      parse([...keys, _key], _value as TValue)
+      parse([...keys, _key], _value as TValue),
     );
   };
 
@@ -163,16 +164,14 @@ export function parseKeyFromData(
 
 function uniqueAccountIdsFromKeys(keys: string[]): string[] {
   return keys.reduce<string[]>((acc, currentValue) => {
-    const accountId = currentValue.split('/')[0] || '';
+    const accountId = currentValue.split("/")[0] || "";
 
-    return acc.find((value) => value === accountId)
-      ? acc
-      : [...acc, accountId];
+    return acc.find((value) => value === accountId) ? acc : [...acc, accountId];
   }, []);
 }
 
 async function storageBalanceOf(
-  accountID: string
+  accountID: string,
 ): Promise<ISocialDBContractStorageBalance | null> {
   const result = await near.view({
     args: {
@@ -187,20 +186,20 @@ async function storageBalanceOf(
   } else if (result === null) {
     return null;
   } else {
-    throw new Error('Unexpected response format from storage_balance_of');
+    throw new Error("Unexpected response format from storage_balance_of");
   }
 }
 
 function isStorageBalance(
-  data: unknown
+  data: unknown,
 ): data is ISocialDBContractStorageBalance {
   return (
-    typeof data === 'object' &&
+    typeof data === "object" &&
     data !== null &&
-    'total' in data &&
-    'available' in data &&
-    typeof (data as ISocialDBContractStorageBalance).total === 'string' &&
-    typeof (data as ISocialDBContractStorageBalance).available === 'string'
+    "total" in data &&
+    "available" in data &&
+    typeof (data as ISocialDBContractStorageBalance).total === "string" &&
+    typeof (data as ISocialDBContractStorageBalance).available === "string"
   );
 }
 
@@ -284,13 +283,13 @@ export function validateAccountId(accountID: string): boolean {
     accountID.length >= 2 &&
     accountID.length <= 64 &&
     new RegExp(/^(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]+$/).test(
-      accountID
+      accountID,
     )
   );
 }
 
 export class NearSocialService {
-  constructor() { }
+  constructor() {}
 
   /**
    * Checks if an account, specified in `options.granteeAccountId`, has been granted write access for a key. If the
@@ -304,7 +303,7 @@ export class NearSocialService {
   public async isWritePermissionGranted(
     options:
       | IIsWritePermissionGrantedWithAccountIdOptions
-      | IIsWritePermissionGrantedWithPublicKeyOptions
+      | IIsWritePermissionGrantedWithPublicKeyOptions,
   ): Promise<boolean> {
     const { key } = options;
 
@@ -315,18 +314,18 @@ export class NearSocialService {
       if (
         !validateAccountId(
           (options as IIsWritePermissionGrantedWithAccountIdOptions)
-            .granteeAccountId
+            .granteeAccountId,
         )
       ) {
         throw new Error(
-          `the grantee account id is not valid: ${(options as IIsWritePermissionGrantedWithAccountIdOptions).granteeAccountId}`
+          `the grantee account id is not valid: ${(options as IIsWritePermissionGrantedWithAccountIdOptions).granteeAccountId}`,
         );
       }
 
       // if the grantee is the key account id, it has permission to write to itself
       if (
         (options as IIsWritePermissionGrantedWithAccountIdOptions)
-          .granteeAccountId === (key.split('/')[0] || '')
+          .granteeAccountId === (key.split("/")[0] || "")
       ) {
         return true;
       }
@@ -352,9 +351,9 @@ export class NearSocialService {
       methodName: "is_write_permission_granted",
     });
 
-    if (typeof result !== 'boolean') {
+    if (typeof result !== "boolean") {
       throw new Error(
-        `Unexpected response format from isWritePermissionGranted: ${JSON.stringify(result)}`
+        `Unexpected response format from isWritePermissionGranted: ${JSON.stringify(result)}`,
       );
     }
 
@@ -370,7 +369,7 @@ export class NearSocialService {
     if (near.authStatus() !== "SignedIn")
       throw new Error("Wallet not connected");
 
-    let deposit: BigNumber = new BigNumber('1');
+    let deposit: BigNumber = new BigNumber("1");
     let storageBalance: ISocialDBContractStorageBalance | null;
     const accountId = near.accountId()!;
     const publicKey = near.publicKey()!;
@@ -398,31 +397,27 @@ export class NearSocialService {
             }),
           },
         },
-      }
+      };
 
       const keys = parseKeyFromData(data);
 
       // for each key, check if the signer has been granted write permission for the key
       for (let i = 0; i < keys.length; i++) {
         if (
-          (keys[i].split('/')[0] || '') !== accountId &&
+          (keys[i].split("/")[0] || "") !== accountId &&
           !(await this.isWritePermissionGranted({
             granteePublicKey: publicKey,
             key: keys[i],
           }))
         ) {
           throw new Error(
-            `the supplied public key has not been granted write permission for "${keys[i]}"`
+            `the supplied public key has not been granted write permission for "${keys[i]}"`,
           );
         }
       }
 
       // if the signer is updating their own data, calculate storage deposit
-      if (
-        uniqueAccountIdsFromKeys(keys).find(
-          (value) => value === accountId
-        )
-      ) {
+      if (uniqueAccountIdsFromKeys(keys).find((value) => value === accountId)) {
         storageBalance = await storageBalanceOf(accountId);
 
         deposit = calculateRequiredDeposit({
@@ -456,7 +451,7 @@ export class NearSocialService {
 
       await near.sendTx({
         receiverId: SOCIAL_CONTRACT[NETWORK_ID],
-        actions: [actions]
+        actions: [actions],
       });
     } catch (error) {
       console.error("Error creating post:", getErrorMessage(error));

@@ -37,13 +37,15 @@ export function useAuth(): IAuthContext {
 
 interface AuthProviderProps {
   children: ReactNode;
+  pretendAccountId?: string | null;
 }
 
 export function AuthProvider({
   children,
+  pretendAccountId,
 }: AuthProviderProps): React.ReactElement {
   const [currentAccountId, setCurrentAccountId] = useState<string | null>(
-    near.accountId() ?? null,
+    pretendAccountId ?? near.accountId() ?? null,
   );
   const [isSignedIn, setIsSignedIn] = useState<boolean>(
     near.authStatus() === "SignedIn",
