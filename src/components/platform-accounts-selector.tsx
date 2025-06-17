@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import React from "react";
-import { PlatformName } from "@crosspost/types";
+import { PlatformName, UserProfile, ConnectedAccount } from "@crosspost/types";
 import {
   useAllAccounts,
   useConnectedAccounts,
@@ -21,10 +21,8 @@ export function PlatformAccountsSelector({
   const { toggleAccountSelection, isAccountSelected } =
     usePlatformAccountsStore();
 
-  // Get loading and error states from the API accounts hook
-  const { isLoading, error } = useConnectedAccounts();
+  const { isLoading, error: globalError } = useConnectedAccounts();
 
-  // Handle connect accounts button click
   const handleConnectAccounts = () => {
     navigate({ to: "/manage" });
   };
@@ -45,7 +43,7 @@ export function PlatformAccountsSelector({
     );
   }
 
-  if (error) {
+  if (globalError) {
     return (
       <div className="border-2 border-red-200 bg-red-50 rounded-md p-3 sm:p-4 w-full">
         <div className="flex justify-between items-center mb-2">
@@ -55,8 +53,8 @@ export function PlatformAccountsSelector({
           </Button>
         </div>
         <p className="text-sm text-red-600">
-          {error instanceof Error
-            ? error.message
+          {globalError instanceof Error
+            ? globalError.message
             : "Failed to load connected accounts"}
         </p>
       </div>
@@ -87,23 +85,35 @@ export function PlatformAccountsSelector({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 w-full">
-        {allAccounts.map((account) => {
+        {allAccounts.map((account: ConnectedAccount) => {
           const isPlatformDisabled = disabledPlatforms.includes(
             account.platform,
           );
+          const accountHasError = !!account.error;
+
+          let itemTitle: string | undefined = undefined;
+          let itemDisabled = isPlatformDisabled;
+
+          if (accountHasError) {
+            itemTitle = `Error with ${account.platform} account: ${account.error}`;
+            itemDisabled = true;
+          } else if (isPlatformDisabled) {
+            itemTitle = `${account.platform} is disabled for this interaction type`;
+          }
           return (
             <AccountItem
               key={account.userId}
               account={account}
               isSelected={isAccountSelected(account.userId)}
-              onSelect={() => toggleAccountSelection(account.userId)}
+              onSelect={() => {
+                if (!itemDisabled) {
+                  toggleAccountSelection(account.userId);
+                }
+              }}
               variant="compact"
-              disabled={isPlatformDisabled}
-              title={
-                isPlatformDisabled
-                  ? `${account.platform} is disabled for this interaction type`
-                  : undefined
-              }
+              disabled={itemDisabled}
+              title={itemTitle}
+              hasError={accountHasError}
             />
           );
         })}
