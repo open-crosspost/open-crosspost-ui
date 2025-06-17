@@ -304,7 +304,7 @@ export const useCheckAccountStatus = createAuthenticatedMutation<
 export function useNearSocialAccount() {
   const { currentAccountId, isSignedIn } = useAuth();
   return useQuery({
-    queryKey: ["profile"],
+    queryKey: ["profile", currentAccountId],
     queryFn: async () => {
       if (!isSignedIn) return null;
       try {

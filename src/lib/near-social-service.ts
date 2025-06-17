@@ -429,21 +429,7 @@ export class NearSocialService {
       const actions = near.actions.functionCall({
         methodName: "set",
         args: {
-          data: {
-            [accountId]: {
-              post: {
-                main: JSON.stringify(content),
-              },
-              index: {
-                post: JSON.stringify({
-                  key: "main",
-                  value: {
-                    type: content.type,
-                  },
-                }),
-              },
-            },
-          },
+          data,
         },
         gas: BigInt(GAS_FEE_IN_ATOMIC_UNITS).toString(),
         deposit: BigInt(deposit.toFixed()).toString(),
