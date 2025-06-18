@@ -25,7 +25,7 @@ export default async () => {
       template: "./index.html",
       templateParameters: {
         // Metadata tags
-        title: profile?.name || "BOS Application",
+        title: profile?.name || bos.account,
         description: profile?.description || "",
         ogImage: `${metadataImage}#og`,
         twitterImage: `${metadataImage}#twitter`,
