@@ -30,7 +30,10 @@ export default async () => {
         favicon: image,
         // near
         networkId: network,
-        fastintear: isProduction || isStaging ? "https://unpkg.com/fastintear@latest/dist/umd/browser.global.js" : "/fastintear/dist/umd/browser.global.js",
+        fastintear:
+          isProduction || isStaging
+            ? "https://unpkg.com/fastintear@latest/dist/umd/browser.global.js"
+            : "/fastintear/dist/umd/browser.global.js",
       },
     },
     source: {
@@ -62,7 +65,7 @@ export default async () => {
       rspack: {
         plugins: [
           // this is workaround to tanstackRouter()
-          // something broke on around version 1.121 
+          // something broke on around version 1.121
           // throws error trying to parse js from index.html
           TanStackRouterGeneratorRspack({
             routesDirectory: "./src/routes",
