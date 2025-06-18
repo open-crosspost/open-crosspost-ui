@@ -70,6 +70,7 @@ export default async () => {
           {
             ...(isProduction || isStaging
               ? tanstackRouter({
+                  autoCodeSplitting: false,
                   routesDirectory: "./src/routes",
                   enableRouteGeneration: true,
                 })
