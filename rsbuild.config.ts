@@ -2,6 +2,7 @@ import { getImageUrl, getProfile } from "./src/lib/utils/near-social-node";
 // import { pluginModuleFederation } from "@module-federation/rsbuild-plugin";
 import { defineConfig } from "@rsbuild/core";
 import { pluginReact } from "@rsbuild/plugin-react";
+import { tanstackRouter } from "@tanstack/router-plugin/rspack";
 import { TanStackRouterGeneratorRspack } from "@tanstack/router-plugin/rspack";
 import bos from "./bos.config.json";
 
@@ -71,6 +72,11 @@ export default async () => {
             routesDirectory: "./src/routes",
             enableRouteGeneration: true,
           }),
+          // broken:
+          // tanstackRouter({
+          //   routesDirectory: "./src/routes",
+          //   enableRouteGeneration: true,
+          // }),
         ],
         module: {
           rules: [

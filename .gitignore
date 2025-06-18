@@ -35,6 +35,8 @@ yarn-error.log*
 # mf
 .__mf__temp
 
+.tanstack
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
