@@ -3,9 +3,32 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://unpkg.com/fastintear@latest/dist/umd/browser.global.js"></script>
+    <title><%= title %></title>
+    <meta name="description" content="<%= description %>" />
+    <!-- Facebook/Meta -->
+    <meta property="og:image" content="<%= ogImage %>" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <!-- Twitter -->
+    <meta name="twitter:image" content="<%= twitterImage %>" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- LinkedIn -->
+    <meta name="linkedin:image" content="<%= linkedinImage %>" />
+
+    <link rel="icon" href="<%= favicon %>" />
+
+    <script src="<%= fastintear %>"></script>
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      window.near && window.near.config({ networkId: "<%= networkId %>" });
+
+      if (typeof window.near !== "undefined") {
+        console.log("NEAR (via global object 'near') is ready!");
+      } else {
+        console.error("NEAR global object 'near' not found!");
+      }
+    </script>
   </body>
 </html>

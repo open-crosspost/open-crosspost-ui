@@ -2,32 +2,36 @@ import { getImageUrl, getProfile } from "./src/lib/utils/near-social-node";
 // import { pluginModuleFederation } from "@module-federation/rsbuild-plugin";
 import { defineConfig } from "@rsbuild/core";
 import { pluginReact } from "@rsbuild/plugin-react";
-import { TanStackRouterRspack } from "@tanstack/router-plugin/rspack";
-import bosConfig from "./bos.config.json";
+import { TanStackRouterGeneratorRspack } from "@tanstack/router-plugin/rspack";
+import bos from "./bos.config.json";
+
+type Network = "mainnet" | "testnet" | "localnet";
+
+const network: Network = bos.network as Network;
+
+const isProduction = process.env.NODE_ENV === "production";
+const isStaging = process.env.NODE_ENV === "staging";
 
 export default async () => {
-  const profile = await getProfile(bosConfig.account);
+  const profile = await getProfile(bos.account);
   const image = getImageUrl(profile?.image);
   const metadataImage = getImageUrl(profile?.backgroundImage);
 
   return defineConfig({
     html: {
       template: "./index.html",
-      title: profile?.name,
-      meta: {
+      templateParameters: {
+        // Metadata tags
+        title: profile?.name || "BOS Application",
         description: profile?.description || "",
-        // Facebook/Meta
-        "og:image": `${metadataImage}#og`,
-        "og:image:width": "1200",
-        "og:image:height": "630",
-        // Twitter
-        "twitter:image": `${metadataImage}#twitter`,
-        "twitter:card": "summary_large_image",
-        // LinkedIn
-        "linkedin:image": `${metadataImage}#linkedin`,
+        ogImage: `${metadataImage}#og`,
+        twitterImage: `${metadataImage}#twitter`,
+        linkedinImage: `${metadataImage}#linkedin`,
+        favicon: image,
+        // near
+        networkId: network,
+        fastintear: isProduction || isStaging ? "https://unpkg.com/fastintear@latest/dist/umd/browser.global.js" : "/fastintear/dist/umd/browser.global.js",
       },
-      favicon: image,
-      inject: "body",
     },
     source: {
       entry: {
@@ -42,6 +46,10 @@ export default async () => {
     server: {
       port: 5170,
       historyApiFallback: true,
+      publicDir: {
+        name: "node_modules",
+        watch: false,
+      },
     },
     output: {
       distPath: {
@@ -53,7 +61,10 @@ export default async () => {
     tools: {
       rspack: {
         plugins: [
-          TanStackRouterRspack({
+          // this is workaround to tanstackRouter()
+          // something broke on around version 1.121 
+          // throws error trying to parse js from index.html
+          TanStackRouterGeneratorRspack({
             routesDirectory: "./src/routes",
             enableRouteGeneration: true,
           }),

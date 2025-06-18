@@ -8,161 +8,209 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as LayoutRouteImport } from './routes/_layout'
+import { Route as LayoutCrosspostRouteImport } from './routes/_layout/_crosspost'
+import { Route as LayoutCrosspostIndexRouteImport } from './routes/_layout/_crosspost/index'
+import { Route as LayoutCrosspostResultsIndexRouteImport } from './routes/_layout/_crosspost/results/index'
+import { Route as LayoutCrosspostProfileIndexRouteImport } from './routes/_layout/_crosspost/profile/index'
+import { Route as LayoutCrosspostManageIndexRouteImport } from './routes/_layout/_crosspost/manage/index'
+import { Route as LayoutCrosspostLeaderboardIndexRouteImport } from './routes/_layout/_crosspost/leaderboard/index'
+import { Route as LayoutCrosspostEditorIndexRouteImport } from './routes/_layout/_crosspost/editor/index'
+import { Route as LayoutCrosspostProfileAccountIdRouteImport } from './routes/_layout/_crosspost/profile/$accountId'
 
-import { Route as rootRoute } from "./routes/__root";
-import { Route as LayoutImport } from "./routes/_layout";
-import { Route as LayoutCrosspostImport } from "./routes/_layout/_crosspost";
-import { Route as LayoutCrosspostIndexImport } from "./routes/_layout/_crosspost/index";
-import { Route as LayoutCrosspostResultsIndexImport } from "./routes/_layout/_crosspost/results/index";
-import { Route as LayoutCrosspostProfileIndexImport } from "./routes/_layout/_crosspost/profile/index";
-import { Route as LayoutCrosspostManageIndexImport } from "./routes/_layout/_crosspost/manage/index";
-import { Route as LayoutCrosspostLeaderboardIndexImport } from "./routes/_layout/_crosspost/leaderboard/index";
-import { Route as LayoutCrosspostEditorIndexImport } from "./routes/_layout/_crosspost/editor/index";
-import { Route as LayoutCrosspostProfileAccountIdImport } from "./routes/_layout/_crosspost/profile/$accountId";
-
-// Create/Update Routes
-
-const LayoutRoute = LayoutImport.update({
-  id: "/_layout",
-  getParentRoute: () => rootRoute,
-} as any);
-
-const LayoutCrosspostRoute = LayoutCrosspostImport.update({
-  id: "/_crosspost",
+const LayoutRoute = LayoutRouteImport.update({
+  id: '/_layout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LayoutCrosspostRoute = LayoutCrosspostRouteImport.update({
+  id: '/_crosspost',
   getParentRoute: () => LayoutRoute,
-} as any);
-
-const LayoutCrosspostIndexRoute = LayoutCrosspostIndexImport.update({
-  id: "/",
-  path: "/",
+} as any)
+const LayoutCrosspostIndexRoute = LayoutCrosspostIndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => LayoutCrosspostRoute,
-} as any);
-
+} as any)
 const LayoutCrosspostResultsIndexRoute =
-  LayoutCrosspostResultsIndexImport.update({
-    id: "/results/",
-    path: "/results/",
+  LayoutCrosspostResultsIndexRouteImport.update({
+    id: '/results/',
+    path: '/results/',
     getParentRoute: () => LayoutCrosspostRoute,
-  } as any);
-
+  } as any)
 const LayoutCrosspostProfileIndexRoute =
-  LayoutCrosspostProfileIndexImport.update({
-    id: "/profile/",
-    path: "/profile/",
+  LayoutCrosspostProfileIndexRouteImport.update({
+    id: '/profile/',
+    path: '/profile/',
     getParentRoute: () => LayoutCrosspostRoute,
-  } as any);
-
-const LayoutCrosspostManageIndexRoute = LayoutCrosspostManageIndexImport.update(
-  {
-    id: "/manage/",
-    path: "/manage/",
+  } as any)
+const LayoutCrosspostManageIndexRoute =
+  LayoutCrosspostManageIndexRouteImport.update({
+    id: '/manage/',
+    path: '/manage/',
     getParentRoute: () => LayoutCrosspostRoute,
-  } as any,
-);
-
+  } as any)
 const LayoutCrosspostLeaderboardIndexRoute =
-  LayoutCrosspostLeaderboardIndexImport.update({
-    id: "/leaderboard/",
-    path: "/leaderboard/",
+  LayoutCrosspostLeaderboardIndexRouteImport.update({
+    id: '/leaderboard/',
+    path: '/leaderboard/',
     getParentRoute: () => LayoutCrosspostRoute,
-  } as any);
-
-const LayoutCrosspostEditorIndexRoute = LayoutCrosspostEditorIndexImport.update(
-  {
-    id: "/editor/",
-    path: "/editor/",
+  } as any)
+const LayoutCrosspostEditorIndexRoute =
+  LayoutCrosspostEditorIndexRouteImport.update({
+    id: '/editor/',
+    path: '/editor/',
     getParentRoute: () => LayoutCrosspostRoute,
-  } as any,
-);
-
+  } as any)
 const LayoutCrosspostProfileAccountIdRoute =
-  LayoutCrosspostProfileAccountIdImport.update({
-    id: "/profile/$accountId",
-    path: "/profile/$accountId",
+  LayoutCrosspostProfileAccountIdRouteImport.update({
+    id: '/profile/$accountId',
+    path: '/profile/$accountId',
     getParentRoute: () => LayoutCrosspostRoute,
-  } as any);
+  } as any)
 
-// Populate the FileRoutesByPath interface
+export interface FileRoutesByFullPath {
+  '/': typeof LayoutCrosspostIndexRoute
+  '/profile/$accountId': typeof LayoutCrosspostProfileAccountIdRoute
+  '/editor': typeof LayoutCrosspostEditorIndexRoute
+  '/leaderboard': typeof LayoutCrosspostLeaderboardIndexRoute
+  '/manage': typeof LayoutCrosspostManageIndexRoute
+  '/profile': typeof LayoutCrosspostProfileIndexRoute
+  '/results': typeof LayoutCrosspostResultsIndexRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof LayoutCrosspostIndexRoute
+  '/profile/$accountId': typeof LayoutCrosspostProfileAccountIdRoute
+  '/editor': typeof LayoutCrosspostEditorIndexRoute
+  '/leaderboard': typeof LayoutCrosspostLeaderboardIndexRoute
+  '/manage': typeof LayoutCrosspostManageIndexRoute
+  '/profile': typeof LayoutCrosspostProfileIndexRoute
+  '/results': typeof LayoutCrosspostResultsIndexRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/_layout': typeof LayoutRouteWithChildren
+  '/_layout/_crosspost': typeof LayoutCrosspostRouteWithChildren
+  '/_layout/_crosspost/': typeof LayoutCrosspostIndexRoute
+  '/_layout/_crosspost/profile/$accountId': typeof LayoutCrosspostProfileAccountIdRoute
+  '/_layout/_crosspost/editor/': typeof LayoutCrosspostEditorIndexRoute
+  '/_layout/_crosspost/leaderboard/': typeof LayoutCrosspostLeaderboardIndexRoute
+  '/_layout/_crosspost/manage/': typeof LayoutCrosspostManageIndexRoute
+  '/_layout/_crosspost/profile/': typeof LayoutCrosspostProfileIndexRoute
+  '/_layout/_crosspost/results/': typeof LayoutCrosspostResultsIndexRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/profile/$accountId'
+    | '/editor'
+    | '/leaderboard'
+    | '/manage'
+    | '/profile'
+    | '/results'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/profile/$accountId'
+    | '/editor'
+    | '/leaderboard'
+    | '/manage'
+    | '/profile'
+    | '/results'
+  id:
+    | '__root__'
+    | '/_layout'
+    | '/_layout/_crosspost'
+    | '/_layout/_crosspost/'
+    | '/_layout/_crosspost/profile/$accountId'
+    | '/_layout/_crosspost/editor/'
+    | '/_layout/_crosspost/leaderboard/'
+    | '/_layout/_crosspost/manage/'
+    | '/_layout/_crosspost/profile/'
+    | '/_layout/_crosspost/results/'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  LayoutRoute: typeof LayoutRouteWithChildren
+}
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/_layout": {
-      id: "/_layout";
-      path: "";
-      fullPath: "";
-      preLoaderRoute: typeof LayoutImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/_layout/_crosspost": {
-      id: "/_layout/_crosspost";
-      path: "";
-      fullPath: "";
-      preLoaderRoute: typeof LayoutCrosspostImport;
-      parentRoute: typeof LayoutImport;
-    };
-    "/_layout/_crosspost/": {
-      id: "/_layout/_crosspost/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof LayoutCrosspostIndexImport;
-      parentRoute: typeof LayoutCrosspostImport;
-    };
-    "/_layout/_crosspost/profile/$accountId": {
-      id: "/_layout/_crosspost/profile/$accountId";
-      path: "/profile/$accountId";
-      fullPath: "/profile/$accountId";
-      preLoaderRoute: typeof LayoutCrosspostProfileAccountIdImport;
-      parentRoute: typeof LayoutCrosspostImport;
-    };
-    "/_layout/_crosspost/editor/": {
-      id: "/_layout/_crosspost/editor/";
-      path: "/editor";
-      fullPath: "/editor";
-      preLoaderRoute: typeof LayoutCrosspostEditorIndexImport;
-      parentRoute: typeof LayoutCrosspostImport;
-    };
-    "/_layout/_crosspost/leaderboard/": {
-      id: "/_layout/_crosspost/leaderboard/";
-      path: "/leaderboard";
-      fullPath: "/leaderboard";
-      preLoaderRoute: typeof LayoutCrosspostLeaderboardIndexImport;
-      parentRoute: typeof LayoutCrosspostImport;
-    };
-    "/_layout/_crosspost/manage/": {
-      id: "/_layout/_crosspost/manage/";
-      path: "/manage";
-      fullPath: "/manage";
-      preLoaderRoute: typeof LayoutCrosspostManageIndexImport;
-      parentRoute: typeof LayoutCrosspostImport;
-    };
-    "/_layout/_crosspost/profile/": {
-      id: "/_layout/_crosspost/profile/";
-      path: "/profile";
-      fullPath: "/profile";
-      preLoaderRoute: typeof LayoutCrosspostProfileIndexImport;
-      parentRoute: typeof LayoutCrosspostImport;
-    };
-    "/_layout/_crosspost/results/": {
-      id: "/_layout/_crosspost/results/";
-      path: "/results";
-      fullPath: "/results";
-      preLoaderRoute: typeof LayoutCrosspostResultsIndexImport;
-      parentRoute: typeof LayoutCrosspostImport;
-    };
+    '/_layout': {
+      id: '/_layout'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof LayoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_layout/_crosspost': {
+      id: '/_layout/_crosspost'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof LayoutCrosspostRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/_crosspost/': {
+      id: '/_layout/_crosspost/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof LayoutCrosspostIndexRouteImport
+      parentRoute: typeof LayoutCrosspostRoute
+    }
+    '/_layout/_crosspost/results/': {
+      id: '/_layout/_crosspost/results/'
+      path: '/results'
+      fullPath: '/results'
+      preLoaderRoute: typeof LayoutCrosspostResultsIndexRouteImport
+      parentRoute: typeof LayoutCrosspostRoute
+    }
+    '/_layout/_crosspost/profile/': {
+      id: '/_layout/_crosspost/profile/'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof LayoutCrosspostProfileIndexRouteImport
+      parentRoute: typeof LayoutCrosspostRoute
+    }
+    '/_layout/_crosspost/manage/': {
+      id: '/_layout/_crosspost/manage/'
+      path: '/manage'
+      fullPath: '/manage'
+      preLoaderRoute: typeof LayoutCrosspostManageIndexRouteImport
+      parentRoute: typeof LayoutCrosspostRoute
+    }
+    '/_layout/_crosspost/leaderboard/': {
+      id: '/_layout/_crosspost/leaderboard/'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LayoutCrosspostLeaderboardIndexRouteImport
+      parentRoute: typeof LayoutCrosspostRoute
+    }
+    '/_layout/_crosspost/editor/': {
+      id: '/_layout/_crosspost/editor/'
+      path: '/editor'
+      fullPath: '/editor'
+      preLoaderRoute: typeof LayoutCrosspostEditorIndexRouteImport
+      parentRoute: typeof LayoutCrosspostRoute
+    }
+    '/_layout/_crosspost/profile/$accountId': {
+      id: '/_layout/_crosspost/profile/$accountId'
+      path: '/profile/$accountId'
+      fullPath: '/profile/$accountId'
+      preLoaderRoute: typeof LayoutCrosspostProfileAccountIdRouteImport
+      parentRoute: typeof LayoutCrosspostRoute
+    }
   }
 }
 
-// Create and export the route tree
-
 interface LayoutCrosspostRouteChildren {
-  LayoutCrosspostIndexRoute: typeof LayoutCrosspostIndexRoute;
-  LayoutCrosspostProfileAccountIdRoute: typeof LayoutCrosspostProfileAccountIdRoute;
-  LayoutCrosspostEditorIndexRoute: typeof LayoutCrosspostEditorIndexRoute;
-  LayoutCrosspostLeaderboardIndexRoute: typeof LayoutCrosspostLeaderboardIndexRoute;
-  LayoutCrosspostManageIndexRoute: typeof LayoutCrosspostManageIndexRoute;
-  LayoutCrosspostProfileIndexRoute: typeof LayoutCrosspostProfileIndexRoute;
-  LayoutCrosspostResultsIndexRoute: typeof LayoutCrosspostResultsIndexRoute;
+  LayoutCrosspostIndexRoute: typeof LayoutCrosspostIndexRoute
+  LayoutCrosspostProfileAccountIdRoute: typeof LayoutCrosspostProfileAccountIdRoute
+  LayoutCrosspostEditorIndexRoute: typeof LayoutCrosspostEditorIndexRoute
+  LayoutCrosspostLeaderboardIndexRoute: typeof LayoutCrosspostLeaderboardIndexRoute
+  LayoutCrosspostManageIndexRoute: typeof LayoutCrosspostManageIndexRoute
+  LayoutCrosspostProfileIndexRoute: typeof LayoutCrosspostProfileIndexRoute
+  LayoutCrosspostResultsIndexRoute: typeof LayoutCrosspostResultsIndexRoute
 }
 
 const LayoutCrosspostRouteChildren: LayoutCrosspostRouteChildren = {
@@ -173,161 +221,26 @@ const LayoutCrosspostRouteChildren: LayoutCrosspostRouteChildren = {
   LayoutCrosspostManageIndexRoute: LayoutCrosspostManageIndexRoute,
   LayoutCrosspostProfileIndexRoute: LayoutCrosspostProfileIndexRoute,
   LayoutCrosspostResultsIndexRoute: LayoutCrosspostResultsIndexRoute,
-};
+}
 
 const LayoutCrosspostRouteWithChildren = LayoutCrosspostRoute._addFileChildren(
   LayoutCrosspostRouteChildren,
-);
+)
 
 interface LayoutRouteChildren {
-  LayoutCrosspostRoute: typeof LayoutCrosspostRouteWithChildren;
+  LayoutCrosspostRoute: typeof LayoutCrosspostRouteWithChildren
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutCrosspostRoute: LayoutCrosspostRouteWithChildren,
-};
+}
 
 const LayoutRouteWithChildren =
-  LayoutRoute._addFileChildren(LayoutRouteChildren);
-
-export interface FileRoutesByFullPath {
-  "": typeof LayoutCrosspostRouteWithChildren;
-  "/": typeof LayoutCrosspostIndexRoute;
-  "/profile/$accountId": typeof LayoutCrosspostProfileAccountIdRoute;
-  "/editor": typeof LayoutCrosspostEditorIndexRoute;
-  "/leaderboard": typeof LayoutCrosspostLeaderboardIndexRoute;
-  "/manage": typeof LayoutCrosspostManageIndexRoute;
-  "/profile": typeof LayoutCrosspostProfileIndexRoute;
-  "/results": typeof LayoutCrosspostResultsIndexRoute;
-}
-
-export interface FileRoutesByTo {
-  "": typeof LayoutRouteWithChildren;
-  "/": typeof LayoutCrosspostIndexRoute;
-  "/profile/$accountId": typeof LayoutCrosspostProfileAccountIdRoute;
-  "/editor": typeof LayoutCrosspostEditorIndexRoute;
-  "/leaderboard": typeof LayoutCrosspostLeaderboardIndexRoute;
-  "/manage": typeof LayoutCrosspostManageIndexRoute;
-  "/profile": typeof LayoutCrosspostProfileIndexRoute;
-  "/results": typeof LayoutCrosspostResultsIndexRoute;
-}
-
-export interface FileRoutesById {
-  __root__: typeof rootRoute;
-  "/_layout": typeof LayoutRouteWithChildren;
-  "/_layout/_crosspost": typeof LayoutCrosspostRouteWithChildren;
-  "/_layout/_crosspost/": typeof LayoutCrosspostIndexRoute;
-  "/_layout/_crosspost/profile/$accountId": typeof LayoutCrosspostProfileAccountIdRoute;
-  "/_layout/_crosspost/editor/": typeof LayoutCrosspostEditorIndexRoute;
-  "/_layout/_crosspost/leaderboard/": typeof LayoutCrosspostLeaderboardIndexRoute;
-  "/_layout/_crosspost/manage/": typeof LayoutCrosspostManageIndexRoute;
-  "/_layout/_crosspost/profile/": typeof LayoutCrosspostProfileIndexRoute;
-  "/_layout/_crosspost/results/": typeof LayoutCrosspostResultsIndexRoute;
-}
-
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths:
-    | ""
-    | "/"
-    | "/profile/$accountId"
-    | "/editor"
-    | "/leaderboard"
-    | "/manage"
-    | "/profile"
-    | "/results";
-  fileRoutesByTo: FileRoutesByTo;
-  to:
-    | ""
-    | "/"
-    | "/profile/$accountId"
-    | "/editor"
-    | "/leaderboard"
-    | "/manage"
-    | "/profile"
-    | "/results";
-  id:
-    | "__root__"
-    | "/_layout"
-    | "/_layout/_crosspost"
-    | "/_layout/_crosspost/"
-    | "/_layout/_crosspost/profile/$accountId"
-    | "/_layout/_crosspost/editor/"
-    | "/_layout/_crosspost/leaderboard/"
-    | "/_layout/_crosspost/manage/"
-    | "/_layout/_crosspost/profile/"
-    | "/_layout/_crosspost/results/";
-  fileRoutesById: FileRoutesById;
-}
-
-export interface RootRouteChildren {
-  LayoutRoute: typeof LayoutRouteWithChildren;
-}
+  LayoutRoute._addFileChildren(LayoutRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   LayoutRoute: LayoutRouteWithChildren,
-};
-
-export const routeTree = rootRoute
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/_layout"
-      ]
-    },
-    "/_layout": {
-      "filePath": "_layout.tsx",
-      "children": [
-        "/_layout/_crosspost"
-      ]
-    },
-    "/_layout/_crosspost": {
-      "filePath": "_layout/_crosspost.tsx",
-      "parent": "/_layout",
-      "children": [
-        "/_layout/_crosspost/",
-        "/_layout/_crosspost/profile/$accountId",
-        "/_layout/_crosspost/editor/",
-        "/_layout/_crosspost/leaderboard/",
-        "/_layout/_crosspost/manage/",
-        "/_layout/_crosspost/profile/",
-        "/_layout/_crosspost/results/"
-      ]
-    },
-    "/_layout/_crosspost/": {
-      "filePath": "_layout/_crosspost/index.tsx",
-      "parent": "/_layout/_crosspost"
-    },
-    "/_layout/_crosspost/profile/$accountId": {
-      "filePath": "_layout/_crosspost/profile/$accountId.tsx",
-      "parent": "/_layout/_crosspost"
-    },
-    "/_layout/_crosspost/editor/": {
-      "filePath": "_layout/_crosspost/editor/index.tsx",
-      "parent": "/_layout/_crosspost"
-    },
-    "/_layout/_crosspost/leaderboard/": {
-      "filePath": "_layout/_crosspost/leaderboard/index.tsx",
-      "parent": "/_layout/_crosspost"
-    },
-    "/_layout/_crosspost/manage/": {
-      "filePath": "_layout/_crosspost/manage/index.tsx",
-      "parent": "/_layout/_crosspost"
-    },
-    "/_layout/_crosspost/profile/": {
-      "filePath": "_layout/_crosspost/profile/index.tsx",
-      "parent": "/_layout/_crosspost"
-    },
-    "/_layout/_crosspost/results/": {
-      "filePath": "_layout/_crosspost/results/index.tsx",
-      "parent": "/_layout/_crosspost"
-    }
-  }
 }
-ROUTE_MANIFEST_END */
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()

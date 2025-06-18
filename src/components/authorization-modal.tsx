@@ -1,4 +1,3 @@
-import { near } from "@/lib/near";
 import {
   getErrorMessage,
   isAuthError,
@@ -20,6 +19,7 @@ import {
 import { APP_NAME } from "../config";
 import { toast } from "../hooks/use-toast";
 import { authorize } from "../lib/authorization-service";
+import { near } from "../lib/near";
 
 interface AuthorizationModalProps {
   isOpen: boolean;
