@@ -3,7 +3,7 @@ import { getImageUrl, getProfile } from "./src/lib/utils/near-social-node";
 import { defineConfig } from "@rsbuild/core";
 import { pluginReact } from "@rsbuild/plugin-react";
 import { tanstackRouter } from "@tanstack/router-plugin/rspack";
-import { TanStackRouterGeneratorRspack } from "@tanstack/router-plugin/rspack";
+// import { TanStackRouterGeneratorRspack } from "@tanstack/router-plugin/rspack";
 import bos from "./bos.config.json";
 
 type Network = "mainnet" | "testnet" | "localnet";
@@ -68,15 +68,15 @@ export default async () => {
           // this is workaround to tanstackRouter()
           // something broke on around version 1.121
           // throws error trying to parse js from index.html
-          TanStackRouterGeneratorRspack({
-            routesDirectory: "./src/routes",
-            enableRouteGeneration: true,
-          }),
-          // broken:
-          // tanstackRouter({
+          // TanStackRouterGeneratorRspack({
           //   routesDirectory: "./src/routes",
           //   enableRouteGeneration: true,
           // }),
+          // broken:
+          tanstackRouter({
+            routesDirectory: "./src/routes",
+            enableRouteGeneration: true,
+          }),
         ],
         module: {
           rules: [
