@@ -2,7 +2,7 @@ import { getImageUrl, getProfile } from "./src/lib/utils/near-social-node";
 // import { pluginModuleFederation } from "@module-federation/rsbuild-plugin";
 import { defineConfig } from "@rsbuild/core";
 import { pluginReact } from "@rsbuild/plugin-react";
-import { TanStackRouterGeneratorRspack } from "@tanstack/router-plugin/rspack";
+import { tanstackRouter } from "@tanstack/router-plugin/rspack";
 import bos from "./bos.config.json";
 
 type Network = "mainnet" | "testnet" | "localnet";
@@ -63,8 +63,13 @@ export default async () => {
     },
     tools: {
       rspack: {
+        // Workaround
+        externals: {
+          "@rspack/binding-linux-x64-musl/rspack.linux-x64-musl.node":
+            "commonjs @rspack/binding-linux-x64-musl/rspack.linux-x64-musl.node",
+        },
         plugins: [
-          TanStackRouterGeneratorRspack({
+          tanstackRouter({
             routesDirectory: "./src/routes",
             enableRouteGeneration: true,
           }),
