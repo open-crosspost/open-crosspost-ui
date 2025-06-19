@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { getClient } from "@/lib/authorization-service";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { LoadingSpinner } from "@/components/loading-spinner";
 
 export const Route = createFileRoute("/_layout/_crosspost")({
   component: CrosspostContainer,
@@ -80,11 +81,7 @@ function CrosspostContainer() {
   }
 
   if (authStatus === "checking") {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        Loading Authorization Status...
-      </div>
-    );
+    return <LoadingSpinner message="Loading Authorization Status..." />;
   }
 
   if (authStatus === "authorized") {

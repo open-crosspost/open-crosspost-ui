@@ -67,7 +67,7 @@ export default async () => {
           TanStackRouterGeneratorRspack({
             routesDirectory: "./src/routes",
             enableRouteGeneration: true,
-          })
+          }),
         ],
         module: {
           rules: [
