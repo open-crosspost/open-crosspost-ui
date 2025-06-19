@@ -63,13 +63,6 @@ export default async () => {
     },
     tools: {
       rspack: {
-        // Workaround
-        externals: {
-          "@rspack/binding-linux-x64-musl/rspack.linux-x64-musl.node":
-            "commonjs @rspack/binding-linux-x64-musl/rspack.linux-x64-musl.node",
-          "@rspack/binding-linux-x64-gnu/rspack.linux-x64-gnu.node ":
-            "commonjs @rspack/binding-linux-x64-gnu/rspack.linux-x64-gnu.node",
-        },
         plugins: [
           TanStackRouterRspack({
             routesDirectory: "./src/routes",
