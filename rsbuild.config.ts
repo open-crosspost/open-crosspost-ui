@@ -49,10 +49,10 @@ export default async () => {
     server: {
       port: 5170,
       historyApiFallback: true,
-      publicDir: {
-        name: "node_modules",
-        watch: false,
-      },
+      // publicDir: {
+      //   name: "node_modules",
+      //   watch: false,
+      // },
     },
     output: {
       distPath: {
