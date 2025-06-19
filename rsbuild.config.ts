@@ -1,8 +1,9 @@
 import { getImageUrl, getProfile } from "./src/lib/utils/near-social-node";
 // import { pluginModuleFederation } from "@module-federation/rsbuild-plugin";
-import { defineConfig } from "@rsbuild/core";
+import { defineConfig, rspack } from "@rsbuild/core";
 import { pluginReact } from "@rsbuild/plugin-react";
 import TanStackRouterRspack from "@tanstack/router-plugin/rspack";
+import path from "path";
 import bos from "./bos.config.json";
 
 type Network = "mainnet" | "testnet" | "localnet";
@@ -33,7 +34,7 @@ export default async () => {
         fastintear:
           isProduction || isStaging
             ? "https://unpkg.com/fastintear@latest/dist/umd/browser.global.js"
-            : "/fastintear/dist/umd/browser.global.js",
+            : "/js/fastintear.js",
       },
     },
     source: {
@@ -68,6 +69,21 @@ export default async () => {
             routesDirectory: "./src/routes",
             enableRouteGeneration: false,
           }),
+          ...(isProduction || isStaging
+            ? []
+            : [
+              new rspack.CopyRspackPlugin({
+                patterns: [
+                  {
+                    from: path.resolve(
+                      __dirname,
+                      "node_modules/fastintear/dist/umd/browser.global.js",
+                    ),
+                    to: "js/fastintear.js",
+                  },
+                ],
+              }),
+            ]),
         ],
         module: {
           rules: [
