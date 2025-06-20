@@ -72,18 +72,18 @@ export default async () => {
           ...(isProduction || isStaging
             ? []
             : [
-              new rspack.CopyRspackPlugin({
-                patterns: [
-                  {
-                    from: path.resolve(
-                      __dirname,
-                      "node_modules/fastintear/dist/umd/browser.global.js",
-                    ),
-                    to: "js/fastintear.js",
-                  },
-                ],
-              }),
-            ]),
+                new rspack.CopyRspackPlugin({
+                  patterns: [
+                    {
+                      from: path.resolve(
+                        __dirname,
+                        "node_modules/fastintear/dist/umd/browser.global.js",
+                      ),
+                      to: "js/fastintear.js",
+                    },
+                  ],
+                }),
+              ]),
         ],
         module: {
           rules: [

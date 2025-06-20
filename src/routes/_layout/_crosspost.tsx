@@ -81,7 +81,7 @@ function CrosspostContainer() {
   }
 
   if (authStatus === "checking") {
-    return <LoadingSpinner message="Loading Authorization Status..." />;
+    return <LoadingSpinner />;
   }
 
   if (authStatus === "authorized") {

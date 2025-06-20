@@ -19,6 +19,11 @@ import {
   EditorMedia,
   useDraftsStore,
 } from "../../../../store/drafts-store";
+
+const DEFAULT_EMPTY_POST: EditorContent = {
+  text: "ㅤ",
+  media: [] as EditorMedia[],
+};
 import { useSelectedAccounts } from "../../../../store/platform-accounts-store";
 import { MediaPreviewModal } from "../../../../components/media-preview-modal";
 
@@ -38,9 +43,7 @@ function EditorPage() {
     isModalOpen,
   } = useDraftsStore();
 
-  const [posts, setPosts] = useState<EditorContent[]>([
-    { text: "", media: [] as EditorMedia[] },
-  ]);
+  const [posts, setPosts] = useState<EditorContent[]>([DEFAULT_EMPTY_POST]);
   const [postType, setPostType] = useState<PostType>("post");
   const [targetUrl, setTargetUrl] = useState("");
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
@@ -75,6 +78,24 @@ function EditorPage() {
   const { handleTextChange, addThread, removeThread, cleanup } =
     usePostManagement(posts, setPosts, saveAutoSave);
 
+  const handleTextFocus = useCallback(
+    (index: number) => {
+      if (posts[index]?.text === "ㅤ") {
+        handleTextChange(index, "");
+      }
+    },
+    [posts, handleTextChange],
+  );
+
+  const handleTextBlur = useCallback(
+    (index: number) => {
+      if (posts[index]?.text === "") {
+        handleTextChange(index, "ㅤ");
+      }
+    },
+    [posts, handleTextChange],
+  );
+
   // Load auto-saved content on mount and handle cleanup
   useEffect(() => {
     if (autosave && autosave.posts && autosave.posts.length > 0) {
@@ -94,7 +115,7 @@ function EditorPage() {
       description: "Your draft has been saved successfully.",
     });
     clearAutoSave();
-    setPosts([{ text: "", media: [] as EditorMedia[] }]);
+    setPosts([DEFAULT_EMPTY_POST]);
   }, [saveDraft, posts, toast, setPosts, clearAutoSave]);
 
   // Helper function to extract MIME type from data URL
@@ -146,7 +167,7 @@ function EditorPage() {
 
     // Only clear form on complete success
     if (postStatus === "success" && editorContents.length > 0) {
-      setPosts([{ text: "", media: [] as EditorMedia[] }]);
+      setPosts([DEFAULT_EMPTY_POST]);
       clearAutoSave();
     }
     // Keep the editor content for partial success or failure
@@ -222,6 +243,8 @@ function EditorPage() {
         onAddThread={addThread}
         onRemoveThread={removeThread}
         onOpenMediaModal={openMediaModal}
+        onTextFocus={handleTextFocus}
+        onTextBlur={handleTextBlur}
       />
 
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mt-4">

@@ -1,12 +1,15 @@
-import { AccountPost } from "@crosspost/types";
-import { useQuery } from "@tanstack/react-query";
+import { AccountPost, PlatformName } from "@crosspost/types";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
-import { Link as LinkIcon, Twitter } from "lucide-react";
+import { Link as LinkIcon, Trash2, Twitter } from "lucide-react";
 import React from "react";
 import { InlineBadges } from "../../../../components/badges/inline-badges";
 import { Button } from "../../../../components/ui/button";
+import { useDeletePost } from "../../../../hooks/use-post-mutations";
+import { toast } from "../../../../hooks/use-toast";
 import { getClient } from "../../../../lib/authorization-service";
 import { getProfile } from "../../../../lib/utils/near-social-node";
+import { useAuth } from "@/contexts/auth-context";
 
 export const Route = createFileRoute("/_layout/_crosspost/profile/$accountId")({
   loader: async ({ params }) => {
@@ -80,6 +83,7 @@ const fetchAccountPosts = async (accountId: string): Promise<AccountPost[]> => {
 };
 
 const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
+  const { currentAccountId } = useAuth();
   const {
     data: posts,
     isLoading,
@@ -90,8 +94,46 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
     queryKey: ["accountPosts", accountId],
     queryFn: () => fetchAccountPosts(accountId),
     enabled: !!accountId,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
+  const queryClient = useQueryClient();
+  const deletePostMutation = useDeletePost();
+
+  const handleDeletePost = async (
+    postId: string,
+    platform: PlatformName,
+    platformUserId: string,
+  ) => {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete this post from ${platform}?`,
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await deletePostMutation.mutateAsync({
+        targets: [{ platform, userId: platformUserId }],
+        posts: [{ platform, userId: platformUserId, postId }],
+      });
+      toast({
+        title: "Post Deleted",
+        description: "The post has been successfully deleted.",
+        variant: "success",
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["accountPosts", accountId],
+      });
+    } catch (err) {
+      toast({
+        title: "Error Deleting Post",
+        description:
+          err instanceof Error ? err.message : "An unexpected error occurred.",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -155,6 +197,19 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
               <span className="text-gray-500">
                 {new Date(post.createdAt).toLocaleDateString()}
               </span>
+              {accountId === currentAccountId && (
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    handleDeletePost(post.id, post.platform, post.userId)
+                  }
+                  disabled={deletePostMutation.isPending}
+                  title="Delete post"
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <Trash2 size={16} />
+                </Button>
+              )}
             </div>
 
             {post.url && (

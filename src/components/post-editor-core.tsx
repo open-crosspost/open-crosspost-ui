@@ -26,6 +26,8 @@ interface PostEditorCoreProps {
   onAddThread: () => void;
   onRemoveThread: (index: number) => void;
   onOpenMediaModal: (src: string, type: string) => void;
+  onTextFocus?: (index: number) => void;
+  onTextBlur?: (index: number) => void;
 }
 
 export function PostEditorCore({
@@ -37,6 +39,8 @@ export function PostEditorCore({
   onAddThread,
   onRemoveThread,
   onOpenMediaModal,
+  onTextFocus,
+  onTextBlur,
 }: PostEditorCoreProps) {
   // Set up DnD sensors
   const sensors = useSensors(
@@ -83,6 +87,8 @@ export function PostEditorCore({
               onMediaRemove={onMediaRemove}
               onRemove={posts.length > 1 ? onRemoveThread : undefined}
               onOpenMediaModal={onOpenMediaModal}
+              onTextFocus={onTextFocus}
+              onTextBlur={onTextBlur}
             />
           ))}
         </SortableContext>

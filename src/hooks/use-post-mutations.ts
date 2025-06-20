@@ -1,5 +1,6 @@
 import {
   CreatePostRequest,
+  DeletePostRequest,
   MultiStatusData,
   QuotePostRequest,
   ReplyToPostRequest,
@@ -43,4 +44,17 @@ export const useQuotePost = createAuthenticatedMutation<
   mutationKey: ["quotePost"],
   clientMethod: (client, params) => client.post.quotePost(params),
   getAuthDetails: () => "quotePost",
+});
+
+/**
+ * Hook for deleting a post
+ */
+export const useDeletePost = createAuthenticatedMutation<
+  unknown,
+  Error,
+  DeletePostRequest
+>({
+  mutationKey: ["deletePost"],
+  clientMethod: (client, params) => client.post.deletePost(params),
+  getAuthDetails: (variables) => `delete posts: ${variables.targets}`,
 });
