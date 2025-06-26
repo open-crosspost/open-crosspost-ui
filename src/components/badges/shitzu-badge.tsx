@@ -33,9 +33,9 @@ export function ShitzuBadge({ accountId, className = "" }: ShitzuBadgeProps) {
             className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${className}`}
           >
             <img
-              src="https://app.shitzuapes.xyz/assets/favicon.ico"
+              src="https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/refs/heads/main/logo/shitzu.webp"
               alt="Shitzu NFT"
-              className="w-4 h-4"
+              className="w-5 h-5 rounded-full"
             />
           </div>
         </TooltipTrigger>

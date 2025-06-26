@@ -28,7 +28,7 @@ export function NekoBadge({ accountId, className = "" }: NekoBadgeProps) {
       <Tooltip>
         <TooltipTrigger>
           <div
-            className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${className}`}
+            className={`inline-flex items-center justify-center w-6 h-6 rounded-full p-0.5 ${className}`}
           >
             <img
               src="/neko-badge.png"
