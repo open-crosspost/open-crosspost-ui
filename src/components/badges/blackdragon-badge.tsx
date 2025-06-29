@@ -7,16 +7,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import { BadgeProps } from "./inline-badges";
 
-interface BlackdragonBadgeProps {
-  accountId: string;
-  className?: string;
-}
-
-export function BlackdragonBadge({
-  accountId,
-  className = "",
-}: BlackdragonBadgeProps) {
+export function BlackdragonBadge({ accountId }: BadgeProps) {
   const { data: hasNft, isLoading } = useQuery({
     queryKey: ["blackdragonNft", accountId],
     queryFn: () => hasBlackdragonNft(accountId),
@@ -33,10 +26,10 @@ export function BlackdragonBadge({
       <Tooltip>
         <TooltipTrigger>
           <div
-            className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${className}`}
+            className={`inline-flex items-center justify-center w-6 h-6 rounded-full`}
           >
             <img
-              src="/blackdragon-badge.png"
+              src="/badges/blackdragon-badge.png"
               alt="Blackdragon NFT"
               className="w-5 h-5 rounded-full"
             />

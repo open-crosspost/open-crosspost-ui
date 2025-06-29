@@ -7,13 +7,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import { BadgeProps } from "./inline-badges";
 
-interface NekoBadgeProps {
-  accountId: string;
-  className?: string;
-}
-
-export function NekoBadge({ accountId, className = "" }: NekoBadgeProps) {
+export function NekoBadge({ accountId }: BadgeProps) {
   const { data: hasBadge, isLoading } = useQuery({
     queryKey: ["nekoCookie", accountId],
     queryFn: () => hasNekoCookie(accountId),
@@ -28,10 +24,10 @@ export function NekoBadge({ accountId, className = "" }: NekoBadgeProps) {
       <Tooltip>
         <TooltipTrigger>
           <div
-            className={`inline-flex items-center justify-center w-6 h-6 rounded-full p-0.5 ${className}`}
+            className={`inline-flex items-center justify-center w-6 h-6 rounded-full`}
           >
             <img
-              src="/neko-badge.png"
+              src="/badges/neko-badge.png"
               alt="Neko COOKIE Holder"
               className="w-5 h-5 rounded-full"
             />

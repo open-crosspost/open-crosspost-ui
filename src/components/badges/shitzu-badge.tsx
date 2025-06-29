@@ -7,13 +7,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import { BadgeProps } from "./inline-badges";
 
-interface ShitzuBadgeProps {
-  accountId: string;
-  className?: string;
-}
-
-export function ShitzuBadge({ accountId, className = "" }: ShitzuBadgeProps) {
+export function ShitzuBadge({ accountId }: BadgeProps) {
   const { data: hasNft, isLoading } = useQuery({
     queryKey: ["shitzuNft", accountId],
     queryFn: () => hasShitzuNft(accountId),
@@ -30,7 +26,7 @@ export function ShitzuBadge({ accountId, className = "" }: ShitzuBadgeProps) {
       <Tooltip>
         <TooltipTrigger>
           <div
-            className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${className}`}
+            className={`inline-flex items-center justify-center w-6 h-6 rounded-full`}
           >
             <img
               src="https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/refs/heads/main/logo/shitzu.webp"

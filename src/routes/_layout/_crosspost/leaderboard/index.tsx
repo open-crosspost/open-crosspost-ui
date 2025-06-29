@@ -49,6 +49,7 @@ import {
 } from "@tanstack/react-table";
 import React, { useState } from "react";
 import { BackButton } from "../../../../components/back-button";
+import { fetchLeaderboard } from "../../../../lib/api/leaderboard";
 import { getClient } from "../../../../lib/authorization-service";
 import {
   exportData,
@@ -60,38 +61,6 @@ export const Route = createFileRoute("/_layout/_crosspost/leaderboard/")({
   component: LeaderboardPage,
   validateSearch: (search) => ActivityLeaderboardQuerySchema.parse(search),
 });
-
-const fetchLeaderboard = async ({
-  limit,
-  offset,
-  timeframe,
-  platform,
-  startDate,
-  endDate,
-}: {
-  limit: number;
-  offset: number;
-  timeframe: TimePeriod;
-  platform?: string;
-  startDate?: string;
-  endDate?: string;
-}) => {
-  const client = getClient();
-
-  const response = await client.activity.getLeaderboard({
-    limit,
-    offset,
-    timeframe,
-    startDate,
-    endDate,
-    platforms: [platform as Platform],
-  });
-
-  return {
-    entries: response.data?.entries || [],
-    meta: response.meta || { pagination: { total: 0, limit, offset } },
-  };
-};
 
 const fetchAllLeaderboardData = async ({
   timeframe,
@@ -162,14 +131,12 @@ function LeaderboardPage() {
       platforms,
     ],
     queryFn: async () => {
-      return fetchLeaderboard({
+      const entries = await fetchLeaderboard({
         limit: pagination.pageSize,
         offset: pagination.pageIndex * pagination.pageSize,
         timeframe: timeframe ?? TimePeriod.ALL,
-        startDate,
-        endDate,
-        // platforms,
       });
+      return { entries };
     },
   });
 
