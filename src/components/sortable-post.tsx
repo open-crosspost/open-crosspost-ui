@@ -49,7 +49,7 @@ function SortablePostComponent({
         <div
           {...attributes}
           {...listeners}
-          className="sticky top-0 h-[150px] w-8 flex items-center justify-center cursor-grab bg-gray-50 rounded-lg base-component touch-manipulation"
+          className="sticky top-0 h-[150px] w-8 flex items-center justify-center cursor-grab bg-gray-50 dark:bg-gray-800 rounded-lg base-component touch-manipulation"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -151,7 +151,7 @@ function SortablePostComponent({
                               playsInline
                             />
                           ) : (
-                            <div className="h-full w-full bg-gray-200 flex items-center justify-center text-xs text-gray-500">
+                            <div className="h-full w-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-500 dark:text-gray-400">
                               ?
                             </div>
                           )}
@@ -172,7 +172,7 @@ function SortablePostComponent({
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <span
-                className={`text-sm ${(post.text || "").length > 280 ? "text-destructive" : "text-gray-500"}`}
+                className={`text-sm ${(post.text || "").length > 280 ? "text-destructive" : "text-gray-500 dark:text-gray-400"}`}
               >
                 {(post.text || "").length}/280 characters
               </span>

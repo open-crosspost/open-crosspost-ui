@@ -29,7 +29,7 @@ export function PlatformAccountsSelector({
 
   if (isLoading) {
     return (
-      <div className="border-2 border-gray-200 rounded-md p-3 sm:p-4 w-full">
+      <div className="border-2 border-gray-200 dark:border-gray-700 rounded-md p-3 sm:p-4 w-full">
         <div className="flex justify-between items-center mb-2">
           <h3 className="font-medium">Connected Accounts</h3>
           <Button size="sm" onClick={handleConnectAccounts}>
@@ -45,14 +45,16 @@ export function PlatformAccountsSelector({
 
   if (globalError) {
     return (
-      <div className="border-2 border-red-200 bg-red-50 rounded-md p-3 sm:p-4 w-full">
+      <div className="border-2 border-red-200 dark:border-red-500 bg-red-50 dark:bg-red-900/20 rounded-md p-3 sm:p-4 w-full">
         <div className="flex justify-between items-center mb-2">
-          <h3 className="font-medium text-red-700">Error Loading Accounts</h3>
+          <h3 className="font-medium text-red-700 dark:text-red-400">
+            Error Loading Accounts
+          </h3>
           <Button size="sm" onClick={handleConnectAccounts}>
             Manage
           </Button>
         </div>
-        <p className="text-sm text-red-600">
+        <p className="text-sm text-red-600 dark:text-red-400">
           {globalError instanceof Error
             ? globalError.message
             : "Failed to load connected accounts"}
@@ -63,12 +65,14 @@ export function PlatformAccountsSelector({
 
   if (allAccounts.length === 0) {
     return (
-      <div className="border-2 border-gray-200 rounded-md p-3 sm:p-4 w-full">
+      <div className="border-2 border-gray-200 dark:border-gray-700 rounded-md p-3 sm:p-4 w-full">
         <div className="flex justify-between items-center mb-2">
           <h3 className="font-medium">Connected Accounts</h3>
         </div>
         <div className="text-center py-4">
-          <p className="text-gray-500 mb-4">No accounts connected yet</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-4">
+            No accounts connected yet
+          </p>
           <Button onClick={handleConnectAccounts}>Connect Accounts</Button>
         </div>
       </div>
@@ -76,7 +80,7 @@ export function PlatformAccountsSelector({
   }
 
   return (
-    <div className="border-2 border-gray-200 rounded-md p-3 sm:p-4 w-full">
+    <div className="border-2 border-gray-200 dark:border-gray-700 rounded-md p-3 sm:p-4 w-full">
       <div className="flex justify-between items-center mb-2">
         <h3 className="font-medium">Post to</h3>
         <Button size="sm" onClick={handleConnectAccounts}>

@@ -49,7 +49,7 @@ export function ProfileCard({
         {profileImageUrl ? (
           <AvatarImage src={profileImageUrl} alt={username} />
         ) : (
-          <AvatarFallback className="bg-gray-200">
+          <AvatarFallback className="bg-gray-200 dark:bg-gray-700">
             {platform === Platform.TWITTER && (
               <Twitter
                 size={size === "sm" ? 14 : size === "md" ? 18 : 22}
@@ -61,10 +61,14 @@ export function ProfileCard({
       </Avatar>
 
       <div className="flex flex-col">
-        <span className={`font-medium ${sizeClasses[size].username}`}>
+        <span
+          className={`font-medium ${sizeClasses[size].username} dark:text-white`}
+        >
           @{username}
         </span>
-        <span className={`text-gray-500 ${sizeClasses[size].platform}`}>
+        <span
+          className={`text-gray-500 dark:text-gray-400 ${sizeClasses[size].platform}`}
+        >
           {capitalize(platform)}
         </span>
       </div>

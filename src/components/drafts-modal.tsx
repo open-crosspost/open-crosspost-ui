@@ -29,7 +29,7 @@ export function DraftsModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.2 }}
-          className="relative w-[calc(100%-0.5rem)] sm:w-full max-w-2xl mx-auto border-2 border-gray-800 bg-white shadow-[2px_2px_0_rgba(0,0,0,1)] sm:shadow-[4px_4px_0_rgba(0,0,0,1)]"
+          className="relative w-[calc(100%-0.5rem)] sm:w-full max-w-2xl mx-auto border-2 border-gray-800 dark:border-gray-200 bg-white dark:bg-gray-900 shadow-[2px_2px_0_rgba(0,0,0,1)] sm:shadow-[4px_4px_0_rgba(0,0,0,1)] dark:shadow-[2px_2px_0_rgba(255,255,255,0.1)] dark:sm:shadow-[4px_4px_0_rgba(255,255,255,0.1)]"
         >
           <ModalWindowControls onClose={() => setModalOpen(false)} />
           <div className="p-3 sm:p-6">
@@ -38,29 +38,29 @@ export function DraftsModal({
                 <DialogTitle className="font-mono text-2xl font-bold">
                   Drafts
                 </DialogTitle>
-                <DialogDescription className="text-gray-600">
+                <DialogDescription className="text-gray-600 dark:text-gray-400">
                   View and manage your saved draft posts
                 </DialogDescription>
               </VisuallyHidden.Root>
             </DialogHeader>
 
             {drafts.length === 0 ? (
-              <p className="text-gray-600 text-center py-8">
+              <p className="text-gray-600 dark:text-gray-400 text-center py-8">
                 No drafts saved yet
               </p>
             ) : (
               <>
-                <p className="text-gray-600 mb-2">
+                <p className="text-gray-600 dark:text-gray-400 mb-2">
                   View and manage your saved draft posts
                 </p>
                 <div className="space-y-4 max-h-[60vh] overflow-y-auto">
                   {drafts.map((draft) => (
                     <div
                       key={draft.id}
-                      className="border-2 border-gray-800 p-3 sm:p-4 shadow-[2px_2px_0_rgba(0,0,0,1)] hover:bg-gray-50"
+                      className="border-2 border-gray-800 dark:border-gray-200 p-3 sm:p-4 shadow-[2px_2px_0_rgba(0,0,0,1)] dark:shadow-[2px_2px_0_rgba(255,255,255,0.1)] hover:bg-gray-50 dark:hover:bg-gray-800"
                     >
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
                           {formatDistanceToNow(new Date(draft.createdAt), {
                             addSuffix: true,
                           })}
@@ -84,7 +84,7 @@ export function DraftsModal({
                           </Button>
                         </div>
                       </div>
-                      <div className="text-sm text-gray-800">
+                      <div className="text-sm text-gray-800 dark:text-gray-200">
                         {draft.posts.map((post, i) => (
                           <div key={i} className="mb-2">
                             {post.text?.substring(0, 100)}
