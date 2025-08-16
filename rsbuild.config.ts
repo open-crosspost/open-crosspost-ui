@@ -33,7 +33,7 @@ export default async () => {
         networkId: network,
         fastintear:
           isProduction || isStaging
-            ? "https://unpkg.com/fastintear@0.1.16/dist/umd/browser.global.js"
+            ? "https://unpkg.com/fastintear@latest/dist/umd/browser.global.js"
             : "/js/fastintear.js",
       },
     },
