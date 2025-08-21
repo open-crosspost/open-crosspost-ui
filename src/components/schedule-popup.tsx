@@ -6,12 +6,7 @@ import { CalendarIcon, Clock, X } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "./ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 
 interface SchedulePopupProps {
   isOpen: boolean;
@@ -28,7 +23,9 @@ export function SchedulePopup({
 }: SchedulePopupProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedHours, setSelectedHours] = useState(new Date().getHours());
-  const [selectedMinutes, setSelectedMinutes] = useState(new Date().getMinutes());
+  const [selectedMinutes, setSelectedMinutes] = useState(
+    new Date().getMinutes(),
+  );
 
   const handleSchedule = () => {
     if (selectedDate) {
@@ -48,7 +45,8 @@ export function SchedulePopup({
   };
 
   const isDateSelected = selectedDate !== undefined;
-  const isPastDate = selectedDate && selectedDate < new Date(new Date().setHours(0, 0, 0, 0));
+  const isPastDate =
+    selectedDate && selectedDate < new Date(new Date().setHours(0, 0, 0, 0));
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -70,7 +68,7 @@ export function SchedulePopup({
                   variant="outline"
                   className={cn(
                     "w-full justify-start text-left font-normal",
-                    !selectedDate && "text-muted-foreground"
+                    !selectedDate && "text-muted-foreground",
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
@@ -82,17 +80,17 @@ export function SchedulePopup({
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
-                                 <Calendar
-                   mode="single"
-                   selected={selectedDate}
-                   onSelect={setSelectedDate}
-                   initialFocus
-                   disabled={(date) => {
-                     const today = new Date();
-                     today.setHours(0, 0, 0, 0);
-                     return date < today;
-                   }}
-                 />
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  initialFocus
+                  disabled={(date) => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    return date < today;
+                  }}
+                />
               </PopoverContent>
             </Popover>
           </div>
@@ -138,14 +136,17 @@ export function SchedulePopup({
                   {isPastDate ? "Past Date" : "Scheduled"}
                 </Badge>
                 <span className="text-sm text-gray-600">
-                  {format(selectedDate, "PPP")} at {selectedHours.toString().padStart(2, "0")}:{selectedMinutes.toString().padStart(2, "0")}
+                  {format(selectedDate, "PPP")} at{" "}
+                  {selectedHours.toString().padStart(2, "0")}:
+                  {selectedMinutes.toString().padStart(2, "0")}
                 </span>
               </div>
-                             {isPastDate && (
-                 <p className="text-sm text-red-600">
-                   This date is in the past. Please select today or a future date.
-                 </p>
-               )}
+              {isPastDate && (
+                <p className="text-sm text-red-600">
+                  This date is in the past. Please select today or a future
+                  date.
+                </p>
+              )}
             </div>
           )}
 
@@ -161,11 +162,7 @@ export function SchedulePopup({
             </Button>
             <Button
               onClick={handleSchedule}
-              disabled={
-                isPosting ||
-                !isDateSelected ||
-                isPastDate
-              }
+              disabled={isPosting || !isDateSelected || isPastDate}
               className="flex-1"
             >
               {isPosting ? "Scheduling..." : "Schedule Post"}

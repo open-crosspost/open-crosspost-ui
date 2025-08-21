@@ -123,7 +123,9 @@ export function useSubmitPost() {
       // In a real implementation, you would store this in a database or queue
       const timeUntilPost = scheduledDate.getTime() - now.getTime();
       const hoursUntilPost = Math.floor(timeUntilPost / (1000 * 60 * 60));
-      const minutesUntilPost = Math.floor((timeUntilPost % (1000 * 60 * 60)) / (1000 * 60));
+      const minutesUntilPost = Math.floor(
+        (timeUntilPost % (1000 * 60 * 60)) / (1000 * 60),
+      );
 
       toast({
         title: "Post Scheduled!",
@@ -132,13 +134,13 @@ export function useSubmitPost() {
       });
 
       setStatus("success");
-      setResult({ 
+      setResult({
         status: "success",
         summary: {
           total: processingAccounts.length,
           succeeded: processingAccounts.length,
           failed: 0,
-        }
+        },
       });
 
       // Store the scheduled post (in a real app, this would go to a database)

@@ -343,9 +343,9 @@ export function useAllAccounts() {
   const { data: apiAccounts = [] } = useConnectedAccounts();
   const { data: profile } = useNearSocialAccount();
 
-  return React.useMemo(() => 
-    [...apiAccounts, ...(profile ? [profile] : [])], 
-    [apiAccounts, profile]
+  return React.useMemo(
+    () => [...apiAccounts, ...(profile ? [profile] : [])],
+    [apiAccounts, profile],
   );
 }
 
@@ -357,9 +357,11 @@ export function useSelectedAccounts() {
   );
 
   // Filter accounts to only include selected ones
-  return React.useMemo(() => 
-    allAccounts.filter((account: ConnectedAccount) =>
-      selectedAccountIds.includes(account.userId),
-    ), [allAccounts, selectedAccountIds]
+  return React.useMemo(
+    () =>
+      allAccounts.filter((account: ConnectedAccount) =>
+        selectedAccountIds.includes(account.userId),
+      ),
+    [allAccounts, selectedAccountIds],
   );
 }

@@ -32,7 +32,8 @@ function HomePage() {
 
         <h1 className="text-2xl sm:text-3xl font-bold mb-4">Open Crosspost</h1>
         <p className="text-gray-500 mb-6 sm:mb-8 max-w-md mx-auto text-sm sm:text-base">
-          Connect your social media accounts and start crossposting your content.
+          Connect your social media accounts and start crossposting your
+          content.
         </p>
 
         <div className="flex flex-col space-y-4 mb-6 sm:mb-8">
@@ -45,7 +46,9 @@ function HomePage() {
             <Button className="w-full h-14 sm:h-16 flex flex-col items-center justify-center gap-1 sm:gap-2 base-component text-sm sm:text-base">
               <Edit size={20} className="sm:w-6 sm:h-6" />
               <span className="font-medium">Create Post</span>
-              <span className="text-xs text-gray-600 hidden sm:block">Write and schedule posts</span>
+              <span className="text-xs text-gray-600 hidden sm:block">
+                Write and schedule posts
+              </span>
             </Button>
           </Link>
 
@@ -53,7 +56,9 @@ function HomePage() {
             <Button className="w-full h-14 sm:h-16 flex flex-col items-center justify-center gap-1 sm:gap-2 base-component text-sm sm:text-base">
               <User size={20} className="sm:w-6 sm:h-6" />
               <span className="font-medium">My Profile</span>
-              <span className="text-xs text-gray-600 hidden sm:block">View your posts and activity</span>
+              <span className="text-xs text-gray-600 hidden sm:block">
+                View your posts and activity
+              </span>
             </Button>
           </Link>
 
@@ -61,7 +66,9 @@ function HomePage() {
             <Button className="w-full h-14 sm:h-16 flex flex-col items-center justify-center gap-1 sm:gap-2 base-component text-sm sm:text-base">
               <Settings size={20} className="sm:w-6 sm:h-6" />
               <span className="font-medium">Manage Accounts</span>
-              <span className="text-xs text-gray-600 hidden sm:block">Connect social media accounts</span>
+              <span className="text-xs text-gray-600 hidden sm:block">
+                Connect social media accounts
+              </span>
             </Button>
           </Link>
         </div>
@@ -69,20 +76,34 @@ function HomePage() {
         {/* Quick Access - Mobile Optimized */}
         {isSignedIn && (
           <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-gray-50 rounded-lg w-full max-w-md mx-auto">
-            <h3 className="text-base sm:text-lg font-semibold mb-2">Quick Access</h3>
+            <h3 className="text-base sm:text-lg font-semibold mb-2">
+              Quick Access
+            </h3>
             <div className="flex flex-wrap justify-center gap-2">
               <Link to="/editor">
-                <Button size="sm" variant="outline" className="text-xs sm:text-sm">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-xs sm:text-sm"
+                >
                   New Post
                 </Button>
               </Link>
               <Link to={`/profile/${currentAccountId}`}>
-                <Button size="sm" variant="outline" className="text-xs sm:text-sm">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-xs sm:text-sm"
+                >
                   View Profile
                 </Button>
               </Link>
               <Link to="/manage">
-                <Button size="sm" variant="outline" className="text-xs sm:text-sm">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-xs sm:text-sm"
+                >
                   Manage Accounts
                 </Button>
               </Link>

@@ -30,8 +30,12 @@ export function PlatformAccountItem({
   const disconnectAccount = useDisconnectAccount();
   const refreshAccount = useRefreshAccount();
   const checkAccountStatus = useCheckAccountStatus();
-  const toggleAccountSelection = usePlatformAccountsStore((state) => state.toggleAccountSelection);
-  const isAccountSelected = usePlatformAccountsStore((state) => state.isAccountSelected);
+  const toggleAccountSelection = usePlatformAccountsStore(
+    (state) => state.toggleAccountSelection,
+  );
+  const isAccountSelected = usePlatformAccountsStore(
+    (state) => state.isAccountSelected,
+  );
 
   const isNearSocial =
     account.platform.toLowerCase() === ("near social" as PlatformName);

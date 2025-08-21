@@ -1,7 +1,15 @@
 import { AccountPost, PlatformName } from "@crosspost/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
-import { Link as LinkIcon, Trash2, Twitter, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import {
+  Link as LinkIcon,
+  Trash2,
+  Twitter,
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+} from "lucide-react";
 import React, { useMemo } from "react";
 import { InlineBadges } from "../../../../components/badges/inline-badges";
 import { Button } from "../../../../components/ui/button";
@@ -11,7 +19,10 @@ import { toast } from "../../../../hooks/use-toast";
 import { getClient } from "../../../../lib/authorization-service";
 import { getProfile } from "../../../../lib/utils/near-social-node";
 import { useAuth } from "@/contexts/auth-context";
-import { useScheduledPostsStore, ScheduledPost } from "@/store/scheduled-posts-store";
+import {
+  useScheduledPostsStore,
+  ScheduledPost,
+} from "@/store/scheduled-posts-store";
 import { format, formatDistanceToNow } from "date-fns";
 
 export const Route = createFileRoute("/_layout/_crosspost/profile/$accountId")({
@@ -81,7 +92,9 @@ const StatusIcon: React.FC<{ status: string; className?: string }> = ({
     case "scheduled":
       return <Clock className={`${className} text-blue-600`} />;
     case "publishing":
-      return <AlertCircle className={`${className} text-yellow-600 animate-pulse`} />;
+      return (
+        <AlertCircle className={`${className} text-yellow-600 animate-pulse`} />
+      );
     case "failed":
       return <XCircle className={`${className} text-red-600`} />;
     default:
@@ -121,7 +134,7 @@ const fetchAccountPosts = async (accountId: string): Promise<AccountPost[]> => {
 // Combined post type for both published and scheduled posts
 interface CombinedPost {
   id: string;
-  type: 'published' | 'scheduled';
+  type: "published" | "scheduled";
   content: string;
   platform: string;
   status: string;
@@ -136,9 +149,13 @@ interface CombinedPost {
 
 const UserPostsFeed: React.FC<{ accountId: string }> = ({ accountId }) => {
   const { currentAccountId } = useAuth();
-  const scheduledPosts = useScheduledPostsStore((state) => state.scheduledPosts);
-  const removeScheduledPost = useScheduledPostsStore((state) => state.removeScheduledPost);
-  
+  const scheduledPosts = useScheduledPostsStore(
+    (state) => state.scheduledPosts,
+  );
+  const removeScheduledPost = useScheduledPostsStore(
+    (state) => state.removeScheduledPost,
+  );
+
   const {
     data: publishedPosts,
     isLoading,
@@ -164,10 +181,10 @@ const UserPostsFeed: React.FC<{ accountId: string }> = ({ accountId }) => {
       publishedPosts.forEach((post) => {
         posts.push({
           id: post.id,
-          type: 'published',
-          content: post.content || 'No content available',
+          type: "published",
+          content: post.content || "No content available",
           platform: post.platform,
-          status: 'published',
+          status: "published",
           createdAt: new Date(post.createdAt),
           url: post.url,
           postType: post.type,
@@ -179,12 +196,12 @@ const UserPostsFeed: React.FC<{ accountId: string }> = ({ accountId }) => {
     if (accountId === currentAccountId) {
       scheduledPosts.forEach((post) => {
         // Get the first platform from selected accounts
-        const platform = post.selectedAccounts[0]?.platform || 'Unknown';
-        
+        const platform = post.selectedAccounts[0]?.platform || "Unknown";
+
         posts.push({
           id: post.id,
-          type: 'scheduled',
-          content: post.content[0]?.text || 'No content available',
+          type: "scheduled",
+          content: post.content[0]?.text || "No content available",
           platform,
           status: post.status,
           createdAt: post.createdAt,
@@ -238,10 +255,12 @@ const UserPostsFeed: React.FC<{ accountId: string }> = ({ accountId }) => {
   };
 
   const handleDeleteScheduledPost = (postId: string) => {
-    if (!window.confirm("Are you sure you want to delete this scheduled post?")) {
+    if (
+      !window.confirm("Are you sure you want to delete this scheduled post?")
+    ) {
       return;
     }
-    
+
     removeScheduledPost(postId);
     toast({
       title: "Scheduled Post Deleted",
@@ -310,23 +329,30 @@ const UserPostsFeed: React.FC<{ accountId: string }> = ({ accountId }) => {
                 </span>
                 <span className="text-gray-400">•</span>
                 <StatusIcon status={post.status} className="w-4 h-4" />
-                <Badge variant={getStatusBadgeVariant(post.status)} className="text-xs">
+                <Badge
+                  variant={getStatusBadgeVariant(post.status)}
+                  className="text-xs"
+                >
                   {post.status}
                 </Badge>
               </div>
-              
+
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-gray-500">
                   {formatDistanceToNow(post.createdAt, { addSuffix: true })}
                 </span>
-                
+
                 {accountId === currentAccountId && (
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={() => {
-                      if (post.type === 'published') {
-                        handleDeletePost(post.id, post.platform as PlatformName, post.id);
+                      if (post.type === "published") {
+                        handleDeletePost(
+                          post.id,
+                          post.platform as PlatformName,
+                          post.id,
+                        );
                       } else {
                         handleDeleteScheduledPost(post.id);
                       }
@@ -343,7 +369,9 @@ const UserPostsFeed: React.FC<{ accountId: string }> = ({ accountId }) => {
 
             {/* Post Content */}
             <div className="mb-3">
-              <p className="text-gray-800 whitespace-pre-wrap">{post.content}</p>
+              <p className="text-gray-800 whitespace-pre-wrap">
+                {post.content}
+              </p>
             </div>
 
             {/* Post Details */}
@@ -351,24 +379,30 @@ const UserPostsFeed: React.FC<{ accountId: string }> = ({ accountId }) => {
               {post.scheduledDate && (
                 <div className="flex items-center gap-1">
                   <Clock size={14} />
-                  <span>Scheduled for {format(post.scheduledDate, "MMM d, yyyy 'at' h:mm a")}</span>
+                  <span>
+                    Scheduled for{" "}
+                    {format(post.scheduledDate, "MMM d, yyyy 'at' h:mm a")}
+                  </span>
                 </div>
               )}
-              
+
               {post.publishedAt && (
                 <div className="flex items-center gap-1">
                   <CheckCircle size={14} />
-                  <span>Published {format(post.publishedAt, "MMM d, yyyy 'at' h:mm a")}</span>
+                  <span>
+                    Published{" "}
+                    {format(post.publishedAt, "MMM d, yyyy 'at' h:mm a")}
+                  </span>
                 </div>
               )}
-              
+
               {post.errorMessage && (
                 <div className="flex items-center gap-1 text-red-600">
                   <XCircle size={14} />
                   <span>Error: {post.errorMessage}</span>
                 </div>
               )}
-              
+
               {post.url && (
                 <a
                   href={post.url}

@@ -53,7 +53,8 @@ export function AuthProvider({
   const isSigningInRef = useRef<boolean>(false);
   const previousAccountIdRef = useRef<string | null>(currentAccountId);
 
-  const clearSelectedAccounts = usePlatformAccountsStore.getState().clearSelectedAccounts;
+  const clearSelectedAccounts =
+    usePlatformAccountsStore.getState().clearSelectedAccounts;
   const deleteDraft = useDraftsStore.getState().deleteDraft;
   const clearAutoSave = useDraftsStore.getState().clearAutoSave;
 

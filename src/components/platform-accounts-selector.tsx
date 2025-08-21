@@ -18,8 +18,12 @@ export function PlatformAccountsSelector({
 }: PlatformAccountsSelectorProps) {
   const navigate = useNavigate();
   const allAccounts = useAllAccounts();
-  const toggleAccountSelection = usePlatformAccountsStore((state) => state.toggleAccountSelection);
-  const isAccountSelected = usePlatformAccountsStore((state) => state.isAccountSelected);
+  const toggleAccountSelection = usePlatformAccountsStore(
+    (state) => state.toggleAccountSelection,
+  );
+  const isAccountSelected = usePlatformAccountsStore(
+    (state) => state.isAccountSelected,
+  );
 
   const { isLoading, error: globalError } = useConnectedAccounts();
 

@@ -16,7 +16,11 @@ import { detectPlatformFromUrl } from "../../../../lib/utils/url-utils";
 import { usePostManagement } from "../../../../hooks/use-post-management";
 import { usePostMedia } from "../../../../hooks/use-post-media";
 import { useSubmitPost } from "../../../../hooks/use-submit-post";
-import { useCreatePost, useReplyPost, useQuotePost } from "../../../../hooks/use-post-mutations";
+import {
+  useCreatePost,
+  useReplyPost,
+  useQuotePost,
+} from "../../../../hooks/use-post-mutations";
 import { toast } from "../../../../hooks/use-toast";
 import {
   EditorContent,
@@ -42,7 +46,9 @@ function EditorPage() {
   const createPostMutation = useCreatePost();
   const replyPostMutation = useReplyPost();
   const quotePostMutation = useQuotePost();
-  const addScheduledPost = useScheduledPostsStore((state) => state.addScheduledPost);
+  const addScheduledPost = useScheduledPostsStore(
+    (state) => state.addScheduledPost,
+  );
   const setModalOpen = useDraftsStore((state) => state.setModalOpen);
   const autosave = useDraftsStore((state) => state.autosave);
   const saveAutoSave = useDraftsStore((state) => state.saveAutoSave);
@@ -87,27 +93,21 @@ function EditorPage() {
   const { handleTextChange, addThread, removeThread, cleanup } =
     usePostManagement(posts, setPosts, saveAutoSave);
 
-  const handleTextFocus = useCallback(
-    (index: number) => {
-      // Only clear placeholder on first focus
-      setPosts((currentPosts) => {
-        if (currentPosts[index]?.text === "ㅤ") {
-          const newPosts = [...currentPosts];
-          newPosts[index] = { ...newPosts[index], text: "" };
-          return newPosts;
-        }
-        return currentPosts;
-      });
-    },
-    [],
-  );
+  const handleTextFocus = useCallback((index: number) => {
+    // Only clear placeholder on first focus
+    setPosts((currentPosts) => {
+      if (currentPosts[index]?.text === "ㅤ") {
+        const newPosts = [...currentPosts];
+        newPosts[index] = { ...newPosts[index], text: "" };
+        return newPosts;
+      }
+      return currentPosts;
+    });
+  }, []);
 
-  const handleTextBlur = useCallback(
-    (index: number) => {
-      // Don't add placeholder back - let user type freely
-    },
-    [],
-  );
+  const handleTextBlur = useCallback((index: number) => {
+    // Don't add placeholder back - let user type freely
+  }, []);
 
   const handlePostsChange = useCallback(
     (newPosts: EditorContent[]) => {
@@ -137,11 +137,17 @@ function EditorPage() {
     }
 
     try {
-      const result = await submitPost(posts, selectedAccounts, postType, targetUrl);
+      const result = await submitPost(
+        posts,
+        selectedAccounts,
+        postType,
+        targetUrl,
+      );
       if (result.success) {
         toast({
           title: "Post published successfully!",
-          description: "Your post has been published to all selected platforms.",
+          description:
+            "Your post has been published to all selected platforms.",
         });
         clearAutoSave();
         setPosts([DEFAULT_EMPTY_POST]);
@@ -150,7 +156,8 @@ function EditorPage() {
       } else {
         toast({
           title: "Failed to publish post",
-          description: result.error || "An error occurred while publishing your post.",
+          description:
+            result.error || "An error occurred while publishing your post.",
           variant: "destructive",
         });
       }
@@ -162,7 +169,15 @@ function EditorPage() {
         variant: "destructive",
       });
     }
-  }, [posts, selectedAccounts, postType, targetUrl, submitPost, clearAutoSave, toast]);
+  }, [
+    posts,
+    selectedAccounts,
+    postType,
+    targetUrl,
+    submitPost,
+    clearAutoSave,
+    toast,
+  ]);
 
   const handleScheduleClick = useCallback(() => {
     if (posts.every((p) => !(p.text || "").trim())) {
@@ -208,7 +223,7 @@ function EditorPage() {
         // Authenticate the scheduled post by making a test API call
         // This will trigger the NEAR wallet popup
         let apiResponse;
-        
+
         if (postType === "reply" && targetUrl) {
           // For reply posts, we need to extract platform and postId from URL
           // This is a simplified version - you might need to implement URL parsing
@@ -265,7 +280,18 @@ function EditorPage() {
         });
       }
     },
-    [posts, selectedAccounts, postType, targetUrl, addScheduledPost, clearAutoSave, toast, createPostMutation, replyPostMutation, quotePostMutation],
+    [
+      posts,
+      selectedAccounts,
+      postType,
+      targetUrl,
+      addScheduledPost,
+      clearAutoSave,
+      toast,
+      createPostMutation,
+      replyPostMutation,
+      quotePostMutation,
+    ],
   );
 
   const handleSaveDraft = useCallback(() => {
@@ -286,7 +312,11 @@ function EditorPage() {
   }, [posts, postType, targetUrl, saveDraft, toast]);
 
   const handleLoadDraft = useCallback(
-    (draft: { content: EditorContent[]; postType: PostType; targetUrl: string }) => {
+    (draft: {
+      content: EditorContent[];
+      postType: PostType;
+      targetUrl: string;
+    }) => {
       setPosts(draft.content);
       setPostType(draft.postType);
       setTargetUrl(draft.targetUrl);
@@ -299,13 +329,10 @@ function EditorPage() {
     [setModalOpen, toast],
   );
 
-  const openMediaModal = useCallback(
-    (src: string, type: string) => {
-      setModalMediaContent({ src, type });
-      setIsMediaModalOpen(true);
-    },
-    [],
-  );
+  const openMediaModal = useCallback((src: string, type: string) => {
+    setModalMediaContent({ src, type });
+    setIsMediaModalOpen(true);
+  }, []);
 
   const closeMediaModal = useCallback(() => {
     setIsMediaModalOpen(false);

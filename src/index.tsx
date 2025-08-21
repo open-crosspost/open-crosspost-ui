@@ -9,6 +9,4 @@ if (!root) {
   throw new Error("Root element not found");
 }
 
-ReactDOMClient.createRoot(root).render(
-  <App />
-);
+ReactDOMClient.createRoot(root).render(<App />);

@@ -20,7 +20,7 @@ export const TabSwitcher: React.FC<TabSwitcherProps> = ({
           "flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all duration-200",
           activeTab === "editor"
             ? "bg-white text-gray-900 shadow-sm border border-gray-200"
-            : "text-gray-600 hover:text-gray-800"
+            : "text-gray-600 hover:text-gray-800",
         )}
       >
         Editor
@@ -31,7 +31,7 @@ export const TabSwitcher: React.FC<TabSwitcherProps> = ({
           "flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all duration-200",
           activeTab === "scheduled"
             ? "bg-white text-gray-900 shadow-sm border border-gray-200"
-            : "text-gray-600 hover:text-gray-800"
+            : "text-gray-600 hover:text-gray-800",
         )}
       >
         Scheduled Posts

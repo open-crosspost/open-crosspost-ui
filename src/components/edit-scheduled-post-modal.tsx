@@ -6,12 +6,7 @@ import { CalendarIcon, Clock, X } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "./ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Textarea } from "./ui/textarea";
 import { ScheduledPost } from "@/store/scheduled-posts-store";
 
@@ -76,7 +71,8 @@ export function EditScheduledPostModal({
   };
 
   const isDateSelected = selectedDate !== undefined;
-  const isPastDate = selectedDate && selectedDate < new Date(new Date().setHours(0, 0, 0, 0));
+  const isPastDate =
+    selectedDate && selectedDate < new Date(new Date().setHours(0, 0, 0, 0));
 
   if (!post) return null;
 
@@ -112,7 +108,7 @@ export function EditScheduledPostModal({
                   variant="outline"
                   className={cn(
                     "w-full justify-start text-left font-normal",
-                    !selectedDate && "text-muted-foreground"
+                    !selectedDate && "text-muted-foreground",
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
@@ -124,17 +120,17 @@ export function EditScheduledPostModal({
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
-                                 <Calendar
-                   mode="single"
-                   selected={selectedDate}
-                   onSelect={setSelectedDate}
-                   initialFocus
-                   disabled={(date) => {
-                     const today = new Date();
-                     today.setHours(0, 0, 0, 0);
-                     return date < today;
-                   }}
-                 />
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  initialFocus
+                  disabled={(date) => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    return date < today;
+                  }}
+                />
               </PopoverContent>
             </Popover>
           </div>
@@ -180,14 +176,17 @@ export function EditScheduledPostModal({
                   {isPastDate ? "Past Date" : "Scheduled"}
                 </Badge>
                 <span className="text-sm text-gray-600">
-                  {format(selectedDate, "PPP")} at {selectedHours.toString().padStart(2, "0")}:{selectedMinutes.toString().padStart(2, "0")}
+                  {format(selectedDate, "PPP")} at{" "}
+                  {selectedHours.toString().padStart(2, "0")}:
+                  {selectedMinutes.toString().padStart(2, "0")}
                 </span>
               </div>
-                             {isPastDate && (
-                 <p className="text-sm text-red-600">
-                   This date is in the past. Please select today or a future date.
-                 </p>
-               )}
+              {isPastDate && (
+                <p className="text-sm text-red-600">
+                  This date is in the past. Please select today or a future
+                  date.
+                </p>
+              )}
             </div>
           )}
 

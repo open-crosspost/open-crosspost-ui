@@ -70,7 +70,9 @@ function CrosspostContainer() {
   if (!isSignedIn) {
     return (
       <div className="flex flex-col items-center justify-center h-screen gap-4 px-4">
-        <h2 className="text-xl font-semibold text-center">Welcome to Open Crosspost</h2>
+        <h2 className="text-xl font-semibold text-center">
+          Welcome to Open Crosspost
+        </h2>
         <p className="text-center max-w-md mb-4 text-sm sm:text-base">
           Please connect your NEAR wallet to get started.
         </p>

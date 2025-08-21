@@ -43,7 +43,8 @@ export function ConnectPlatform({
     if (platform === Platform.TWITTER) {
       toast({
         title: "Twitter Temporarily Unavailable",
-        description: "Twitter API configuration is being updated. Please try again later.",
+        description:
+          "Twitter API configuration is being updated. Please try again later.",
         variant: "destructive",
       });
       return;
@@ -131,7 +132,7 @@ export function ConnectPlatform({
             )}
             {isConnecting || connectAccount.isPending
               ? "Connecting..."
-              : platform === Platform.TWITTER 
+              : platform === Platform.TWITTER
                 ? "Twitter Temporarily Unavailable"
                 : `Connect ${capitalize(platform)} Account`}
           </Button>
