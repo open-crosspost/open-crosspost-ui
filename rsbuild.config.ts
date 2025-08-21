@@ -45,6 +45,9 @@ export default async () => {
         "process.env.OPEN_CROSSPOST_PROXY_API": JSON.stringify(
           process.env.OPEN_CROSSPOST_PROXY_API,
         ),
+         "process.env.TAPESTRY_API_KEY": JSON.stringify(
+          process.env.TAPESTRY_API_KEY,
+        ),
       },
     },
     server: {

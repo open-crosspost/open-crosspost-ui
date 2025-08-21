@@ -4,6 +4,7 @@ import { createFileRoute, useParams } from "@tanstack/react-router";
 import { Link as LinkIcon, Trash2, Twitter } from "lucide-react";
 import React from "react";
 import { InlineBadges } from "../../../../components/badges/inline-badges";
+import TapestryProfile from "../../../../components/social/tapestry-profile";
 import { Button } from "../../../../components/ui/button";
 import { useDeletePost } from "../../../../hooks/use-post-mutations";
 import { toast } from "../../../../hooks/use-toast";
@@ -50,6 +51,7 @@ export function ProfilePage() {
           <span>{accountId}</span>
           <InlineBadges accountId={accountId} />
         </h1>
+        <TapestryProfile accountId={accountId} />
       </div>
       <AccountPostsList accountId={accountId || "Anonymous"} />
     </div>

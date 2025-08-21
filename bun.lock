@@ -36,6 +36,7 @@
         "react-dom": "^18.3.1",
         "react-markdown": "^9.0.3",
         "react-player": "^2.16.0",
+        "socialfi": "^0.1.14",
         "zustand": "^5.0.3",
       },
       "devDependencies": {
@@ -1188,6 +1189,8 @@
     "signal-exit": ["signal-exit@4.1.0", "", {}, "sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw=="],
 
     "simple-swizzle": ["simple-swizzle@0.2.2", "", { "dependencies": { "is-arrayish": "^0.3.1" } }, "sha512-JA//kQgZtbuY83m+xT+tXJkmJncGMTFT+C+g2h2R9uxkYIrE2yy9sgmcLhCnw57/WSD+Eh3J97FPEDFnbXnDUg=="],
+
+    "socialfi": ["socialfi@0.1.14", "", { "dependencies": { "axios": "^1.6.0" } }, "sha512-TWBQ1W2DUh0L4GsI5WbYjVuUBfAtfFhkSVMOKWbGT6vKIyxyGYdPnGsbyVC3gaPtO8fxRPDOpzXWFQKAlLAfjg=="],
 
     "solid-js": ["solid-js@1.9.7", "", { "dependencies": { "csstype": "^3.1.0", "seroval": "~1.3.0", "seroval-plugins": "~1.3.0" } }, "sha512-/saTKi8iWEM233n5OSi1YHCCuh66ZIQ7aK2hsToPe4tqGm7qAejU1SwNuTPivbWAYq7SjuHVVYxxuZQNRbICiw=="],
 
