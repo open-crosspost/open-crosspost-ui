@@ -5,7 +5,6 @@ import { ConnectToNearButton } from "../../components/connect-to-near";
 import { useAuth } from "@/contexts/auth-context";
 import { getClient } from "@/lib/authorization-service";
 import { toast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/loading-spinner";
 
 export const Route = createFileRoute("/_layout/_crosspost")({
@@ -66,13 +65,13 @@ function CrosspostContainer() {
       setAuthStatus("idle");
       setShowAuthModal(false);
     }
-  }, [isSignedIn, currentAccountId, navigate]);
+  }, [isSignedIn, currentAccountId]);
 
   if (!isSignedIn) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen gap-4">
-        <h2 className="text-xl font-semibold">Welcome to Open Crosspost</h2>
-        <p className="text-center max-w-md mb-4">
+      <div className="flex flex-col items-center justify-center h-screen gap-4 px-4">
+        <h2 className="text-xl font-semibold text-center">Welcome to Open Crosspost</h2>
+        <p className="text-center max-w-md mb-4 text-sm sm:text-base">
           Please connect your NEAR wallet to get started.
         </p>
         <ConnectToNearButton />
@@ -85,7 +84,14 @@ function CrosspostContainer() {
   }
 
   if (authStatus === "authorized") {
-    return <Outlet />;
+    return (
+      <div className="min-h-screen">
+        {/* Main Content */}
+        <main className="px-3 sm:px-4">
+          <Outlet />
+        </main>
+      </div>
+    );
   }
 
   if (authStatus === "unauthorized") {
@@ -103,8 +109,8 @@ function CrosspostContainer() {
       );
     } else {
       return (
-        <div className="flex flex-col items-center justify-center h-screen gap-4">
-          <p className="text-lg">
+        <div className="flex flex-col items-center justify-center h-screen gap-4 px-4">
+          <p className="text-lg text-center">
             Authorization is required to use this application.
           </p>
           <Button onClick={() => setShowAuthModal(true)} size="lg">

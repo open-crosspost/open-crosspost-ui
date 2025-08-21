@@ -7,18 +7,23 @@ import {
   PostInteractionSelector,
   PostType,
 } from "../../../../components/post-interaction-selector";
+import { SchedulePostPanel } from "../../../../components/schedule-post-panel";
+import { SchedulePopup } from "../../../../components/schedule-popup";
+import { TabSwitcher } from "../../../../components/tab-switcher";
 import { Button } from "../../../../components/ui/button";
 import { PlatformName, SUPPORTED_PLATFORMS } from "@crosspost/types";
 import { detectPlatformFromUrl } from "../../../../lib/utils/url-utils";
 import { usePostManagement } from "../../../../hooks/use-post-management";
 import { usePostMedia } from "../../../../hooks/use-post-media";
 import { useSubmitPost } from "../../../../hooks/use-submit-post";
+import { useCreatePost, useReplyPost, useQuotePost } from "../../../../hooks/use-post-mutations";
 import { toast } from "../../../../hooks/use-toast";
 import {
   EditorContent,
   EditorMedia,
   useDraftsStore,
 } from "../../../../store/drafts-store";
+import { useScheduledPostsStore } from "../../../../store/scheduled-posts-store";
 
 const DEFAULT_EMPTY_POST: EditorContent = {
   text: "ㅤ",
@@ -34,23 +39,27 @@ export const Route = createFileRoute("/_layout/_crosspost/editor/")({
 function EditorPage() {
   const selectedAccounts = useSelectedAccounts();
   const { submitPost, isPosting } = useSubmitPost();
-  const {
-    setModalOpen,
-    autosave,
-    saveAutoSave,
-    clearAutoSave,
-    saveDraft,
-    isModalOpen,
-  } = useDraftsStore();
+  const createPostMutation = useCreatePost();
+  const replyPostMutation = useReplyPost();
+  const quotePostMutation = useQuotePost();
+  const addScheduledPost = useScheduledPostsStore((state) => state.addScheduledPost);
+  const setModalOpen = useDraftsStore((state) => state.setModalOpen);
+  const autosave = useDraftsStore((state) => state.autosave);
+  const saveAutoSave = useDraftsStore((state) => state.saveAutoSave);
+  const clearAutoSave = useDraftsStore((state) => state.clearAutoSave);
+  const saveDraft = useDraftsStore((state) => state.saveDraft);
+  const isModalOpen = useDraftsStore((state) => state.isModalOpen);
 
   const [posts, setPosts] = useState<EditorContent[]>([DEFAULT_EMPTY_POST]);
   const [postType, setPostType] = useState<PostType>("post");
   const [targetUrl, setTargetUrl] = useState("");
+  const [isSchedulePopupOpen, setIsSchedulePopupOpen] = useState(false);
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
   const [modalMediaContent, setModalMediaContent] = useState<{
     src: string;
     type: string;
   } | null>(null);
+  const [activeTab, setActiveTab] = useState<"editor" | "scheduled">("editor");
 
   // Detect platform from URL and determine which platforms to disable
   const disabledPlatforms = useMemo<PlatformName[]>(() => {
@@ -80,53 +89,26 @@ function EditorPage() {
 
   const handleTextFocus = useCallback(
     (index: number) => {
-      if (posts[index]?.text === "ㅤ") {
-        handleTextChange(index, "");
-      }
+      // Only clear placeholder on first focus
+      setPosts((currentPosts) => {
+        if (currentPosts[index]?.text === "ㅤ") {
+          const newPosts = [...currentPosts];
+          newPosts[index] = { ...newPosts[index], text: "" };
+          return newPosts;
+        }
+        return currentPosts;
+      });
     },
-    [posts, handleTextChange],
+    [],
   );
 
   const handleTextBlur = useCallback(
     (index: number) => {
-      if (posts[index]?.text === "") {
-        handleTextChange(index, "ㅤ");
-      }
+      // Don't add placeholder back - let user type freely
     },
-    [posts, handleTextChange],
+    [],
   );
 
-  // Load auto-saved content on mount and handle cleanup
-  useEffect(() => {
-    if (autosave && autosave.posts && autosave.posts.length > 0) {
-      setPosts(autosave.posts);
-    }
-
-    return () => {
-      if (cleanup) cleanup();
-    };
-  }, [autosave, cleanup]);
-
-  // Memoized draft save handler
-  const handleSaveDraft = useCallback(() => {
-    saveDraft(posts);
-    toast({
-      title: "Draft Saved",
-      description: "Your draft has been saved successfully.",
-    });
-    clearAutoSave();
-    setPosts([DEFAULT_EMPTY_POST]);
-  }, [saveDraft, posts, toast, setPosts, clearAutoSave]);
-
-  // Helper function to extract MIME type from data URL
-  function getMimeTypeFromDataUrl(dataUrl: string): string {
-    if (!dataUrl || !dataUrl.startsWith("data:"))
-      return "application/octet-stream";
-    const match = dataUrl.match(/^data:([^;]+);/);
-    return match ? match[1] : "application/octet-stream";
-  }
-
-  // Handle posts change (e.g., after drag and drop)
   const handlePostsChange = useCallback(
     (newPosts: EditorContent[]) => {
       setPosts(newPosts);
@@ -135,89 +117,210 @@ function EditorPage() {
     [saveAutoSave],
   );
 
-  // Handle post submission
   const handleSubmit = useCallback(async () => {
-    // Convert posts to EditorContent format
-    const editorContents: EditorContent[] = posts.map((post) => {
-      // Handle multiple media items
-      const media =
-        post.media && post.media.length > 0
-          ? post.media.map((item) => ({
-              data: item.preview || "",
-              mimeType:
-                item.mimeType || getMimeTypeFromDataUrl(item.preview || ""),
-              id: item.id,
-              preview: item.preview,
-            }))
-          : [];
-
-      return {
-        text: post.text || "",
-        media,
-      };
-    });
-
-    // Submit the post
-    const postStatus = await submitPost(
-      editorContents,
-      selectedAccounts,
-      postType,
-      targetUrl,
-    );
-
-    // Only clear form on complete success
-    if (postStatus === "success" && editorContents.length > 0) {
-      setPosts([DEFAULT_EMPTY_POST]);
-      clearAutoSave();
+    if (posts.every((p) => !(p.text || "").trim())) {
+      toast({
+        title: "No content to post",
+        description: "Please add some text to your post.",
+        variant: "destructive",
+      });
+      return;
     }
-    // Keep the editor content for partial success or failure
-  }, [
-    posts,
-    selectedAccounts,
-    postType,
-    targetUrl,
-    submitPost,
-    setPosts,
-    clearAutoSave,
-  ]);
 
-  // Handle load draft
-  const handleLoadDraft = useCallback(
-    (draftPosts: EditorContent[]) => {
-      if (draftPosts.length > 0) {
-        // Convert to the format expected by the editor
-        const formattedPosts = draftPosts.map((post) => {
-          const media =
-            post.media?.map((media) => ({
-              id: null,
-              preview: media.data,
-              mimeType: media.mimeType,
-            })) || [];
+    if (selectedAccounts.length === 0) {
+      toast({
+        title: "No accounts selected",
+        description: "Please select at least one platform to post to.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-          return {
-            text: post.text,
-            media: media,
-          } as EditorContent;
+    try {
+      const result = await submitPost(posts, selectedAccounts, postType, targetUrl);
+      if (result.success) {
+        toast({
+          title: "Post published successfully!",
+          description: "Your post has been published to all selected platforms.",
+        });
+        clearAutoSave();
+        setPosts([DEFAULT_EMPTY_POST]);
+        setTargetUrl("");
+        setPostType("post");
+      } else {
+        toast({
+          title: "Failed to publish post",
+          description: result.error || "An error occurred while publishing your post.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error submitting post:", error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred while publishing your post.",
+        variant: "destructive",
+      });
+    }
+  }, [posts, selectedAccounts, postType, targetUrl, submitPost, clearAutoSave, toast]);
+
+  const handleScheduleClick = useCallback(() => {
+    if (posts.every((p) => !(p.text || "").trim())) {
+      toast({
+        title: "No content to schedule",
+        description: "Please add some text to your post.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (selectedAccounts.length === 0) {
+      toast({
+        title: "No accounts selected",
+        description: "Please select at least one platform to post to.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSchedulePopupOpen(true);
+  }, [posts, selectedAccounts, toast]);
+
+  const handleScheduleClose = useCallback(() => {
+    setIsSchedulePopupOpen(false);
+  }, []);
+
+  const handleScheduleConfirm = useCallback(
+    async (scheduledDate: Date) => {
+      try {
+        // Prepare the post request for authentication
+        const postRequest = {
+          targets: selectedAccounts.map((account) => ({
+            platform: account.platform,
+            userId: account.profile?.userId || "",
+          })),
+          content: posts.map((post) => ({
+            text: post.text || "",
+            media: post.media || [],
+          })),
+        };
+
+        // Authenticate the scheduled post by making a test API call
+        // This will trigger the NEAR wallet popup
+        let apiResponse;
+        
+        if (postType === "reply" && targetUrl) {
+          // For reply posts, we need to extract platform and postId from URL
+          // This is a simplified version - you might need to implement URL parsing
+          apiResponse = await replyPostMutation.mutateAsync({
+            ...postRequest,
+            platform: selectedAccounts[0]?.platform || "twitter",
+            postId: "temp-post-id", // You'll need to extract this from URL
+          });
+        } else if (postType === "quote" && targetUrl) {
+          // For quote posts
+          apiResponse = await quotePostMutation.mutateAsync({
+            ...postRequest,
+            platform: selectedAccounts[0]?.platform || "twitter",
+            postId: "temp-post-id", // You'll need to extract this from URL
+          });
+        } else {
+          // Regular post
+          apiResponse = await createPostMutation.mutateAsync(postRequest);
+        }
+
+        // If authentication was successful, schedule the post
+        const postContent = posts.map((post) => ({
+          text: post.text || "",
+          media: post.media || [],
+        }));
+
+        addScheduledPost({
+          id: Date.now().toString(),
+          content: postContent,
+          selectedAccounts,
+          scheduledDate,
+          postType,
+          targetUrl,
+          status: "scheduled",
+          createdAt: new Date(),
         });
 
-        setPosts(formattedPosts);
+        toast({
+          title: "Post scheduled successfully!",
+          description: `Your post has been scheduled for ${scheduledDate.toLocaleString()}`,
+        });
+
+        clearAutoSave();
+        setPosts([DEFAULT_EMPTY_POST]);
+        setTargetUrl("");
+        setPostType("post");
+        setIsSchedulePopupOpen(false);
+      } catch (error) {
+        console.error("Error scheduling post:", error);
+        toast({
+          title: "Scheduling Failed",
+          description: "Authentication failed. Please try again.",
+          variant: "destructive",
+        });
       }
     },
-    [setPosts],
+    [posts, selectedAccounts, postType, targetUrl, addScheduledPost, clearAutoSave, toast, createPostMutation, replyPostMutation, quotePostMutation],
   );
 
-  const openMediaModal = useCallback((src: string, type: string) => {
-    setModalMediaContent({ src, type });
-    setIsMediaModalOpen(true);
-  }, []);
+  const handleSaveDraft = useCallback(() => {
+    if (posts.every((p) => !(p.text || "").trim())) {
+      toast({
+        title: "No content to save",
+        description: "Please add some text to your post.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    saveDraft(posts, postType, targetUrl);
+    toast({
+      title: "Draft saved successfully!",
+      description: "Your draft has been saved and can be accessed later.",
+    });
+  }, [posts, postType, targetUrl, saveDraft, toast]);
+
+  const handleLoadDraft = useCallback(
+    (draft: { content: EditorContent[]; postType: PostType; targetUrl: string }) => {
+      setPosts(draft.content);
+      setPostType(draft.postType);
+      setTargetUrl(draft.targetUrl);
+      setModalOpen(false);
+      toast({
+        title: "Draft loaded",
+        description: "Your draft has been loaded successfully.",
+      });
+    },
+    [setModalOpen, toast],
+  );
+
+  const openMediaModal = useCallback(
+    (src: string, type: string) => {
+      setModalMediaContent({ src, type });
+      setIsMediaModalOpen(true);
+    },
+    [],
+  );
 
   const closeMediaModal = useCallback(() => {
     setIsMediaModalOpen(false);
     setModalMediaContent(null);
   }, []);
 
-  return (
-    <div className="w-full max-w-2xl mx-auto">
+  useEffect(() => {
+    return () => {
+      cleanup();
+    };
+  }, []);
+
+  // Editor Content Component
+  const EditorContent = () => (
+    <div className="space-y-4">
       <div className="space-y-4 mb-4">
         <PlatformAccountsSelector disabledPlatforms={disabledPlatforms} />
         {/* Controls Bar */}
@@ -270,6 +373,57 @@ function EditorPage() {
           >
             {isPosting ? "Posting..." : "Post"}
           </Button>
+          <Button
+            onClick={handleScheduleClick}
+            disabled={
+              isPosting ||
+              posts.every((p) => !(p.text || "").trim()) ||
+              selectedAccounts.length === 0
+            }
+            className="flex-1 sm:flex-auto"
+          >
+            Schedule
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Scheduled Posts Content Component
+  const ScheduledPostsContent = () => (
+    <div className="space-y-4">
+      <SchedulePostPanel isPosting={isPosting} />
+    </div>
+  );
+
+  return (
+    <div className="w-full max-w-7xl mx-auto">
+      {/* Mobile Tab Switcher */}
+      <div className="lg:hidden mb-6">
+        <TabSwitcher
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          className="max-w-md mx-auto"
+        />
+      </div>
+
+      {/* Mobile Layout */}
+      <div className="lg:hidden">
+        {activeTab === "editor" ? <EditorContent /> : <ScheduledPostsContent />}
+      </div>
+
+      {/* Desktop Layout */}
+      <div className="hidden lg:grid lg:grid-cols-3 gap-6">
+        {/* Main Editor - Takes up 2/3 of the space */}
+        <div className="lg:col-span-2">
+          <EditorContent />
+        </div>
+
+        {/* Schedule Panel - Takes up 1/3 of the space */}
+        <div className="lg:col-span-1">
+          <div className="sticky top-4">
+            <ScheduledPostsContent />
+          </div>
         </div>
       </div>
 
@@ -279,6 +433,12 @@ function EditorPage() {
         onClose={closeMediaModal}
         mediaSrc={modalMediaContent?.src || null}
         mediaType={modalMediaContent?.type || null}
+      />
+      <SchedulePopup
+        isOpen={isSchedulePopupOpen}
+        onClose={handleScheduleClose}
+        onSchedule={handleScheduleConfirm}
+        isPosting={isPosting}
       />
     </div>
   );

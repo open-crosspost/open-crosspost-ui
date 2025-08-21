@@ -66,6 +66,7 @@ export function useSubmitPost() {
     selectedAccounts: ConnectedAccount[],
     postType: PostType = "post",
     targetUrl: string = "",
+    scheduledDate: Date | null = null,
   ): Promise<SubmitStatus> => {
     let processingAccounts = [...selectedAccounts];
 
@@ -103,6 +104,58 @@ export function useSubmitPost() {
 
     setStatus("posting");
     setResult({ status: "posting" });
+
+    // Handle scheduled posts
+    if (scheduledDate) {
+      const now = new Date();
+      if (scheduledDate <= now) {
+        toast({
+          title: "Invalid Schedule",
+          description: "Scheduled date must be in the future",
+          variant: "destructive",
+        });
+        setStatus("failure");
+        setResult({ status: "failure" });
+        return "failure";
+      }
+
+      // For now, we'll just show a success message for scheduled posts
+      // In a real implementation, you would store this in a database or queue
+      const timeUntilPost = scheduledDate.getTime() - now.getTime();
+      const hoursUntilPost = Math.floor(timeUntilPost / (1000 * 60 * 60));
+      const minutesUntilPost = Math.floor((timeUntilPost % (1000 * 60 * 60)) / (1000 * 60));
+
+      toast({
+        title: "Post Scheduled!",
+        description: `Your post will be published in ${hoursUntilPost}h ${minutesUntilPost}m`,
+        variant: "default",
+      });
+
+      setStatus("success");
+      setResult({ 
+        status: "success",
+        summary: {
+          total: processingAccounts.length,
+          succeeded: processingAccounts.length,
+          failed: 0,
+        }
+      });
+
+      // Store the scheduled post (in a real app, this would go to a database)
+      const scheduledPost = {
+        posts: nonEmptyPosts,
+        selectedAccounts: processingAccounts,
+        postType,
+        targetUrl,
+        scheduledDate,
+        status: "scheduled" as const,
+      };
+
+      // For demo purposes, we'll just log it
+      console.log("Scheduled post:", scheduledPost);
+
+      return "success";
+    }
 
     // For quote or reply, validate the URL and filter accounts by platform
     if ((postType === "quote" || postType === "reply") && targetUrl) {

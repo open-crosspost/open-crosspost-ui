@@ -53,8 +53,9 @@ export function AuthProvider({
   const isSigningInRef = useRef<boolean>(false);
   const previousAccountIdRef = useRef<string | null>(currentAccountId);
 
-  const { clearSelectedAccounts } = usePlatformAccountsStore();
-  const { drafts, deleteDraft, clearAutoSave } = useDraftsStore();
+  const clearSelectedAccounts = usePlatformAccountsStore.getState().clearSelectedAccounts;
+  const deleteDraft = useDraftsStore.getState().deleteDraft;
+  const clearAutoSave = useDraftsStore.getState().clearAutoSave;
 
   useEffect(() => {
     const client = getClient();
@@ -67,8 +68,10 @@ export function AuthProvider({
       } else {
         clearSelectedAccounts();
         clearAutoSave();
-        if (drafts.length > 0) {
-          drafts.forEach((draft) => {
+        // Get current drafts state when needed instead of depending on it
+        const currentDrafts = useDraftsStore.getState().drafts;
+        if (currentDrafts.length > 0) {
+          currentDrafts.forEach((draft) => {
             deleteDraft(draft.id);
           });
         }
@@ -83,7 +86,7 @@ export function AuthProvider({
       near.event.offAccount(accountListener);
       near.event.offTx(txListener);
     };
-  }, [clearSelectedAccounts, deleteDraft, clearAutoSave, drafts]);
+  }, []);
 
   useEffect(() => {
     if (currentAccountId && currentAccountId !== previousAccountIdRef.current) {

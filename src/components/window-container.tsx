@@ -1,13 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { PenSquare, Trophy } from "lucide-react";
+import { PenSquare, Trophy, User } from "lucide-react";
 import * as React from "react";
 import { ConnectToNearButton } from "./connect-to-near";
 import { Button } from "./ui/button";
 import { useAuth } from "@/contexts/auth-context";
 
 export const WindowControls: React.FC = () => {
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, currentAccountId } = useAuth();
 
   return (
     <div className="relative border-b-2 border-gray-800 p-4 sm:p-6">
@@ -22,6 +22,12 @@ export const WindowControls: React.FC = () => {
           <ConnectToNearButton />
           {isSignedIn && (
             <>
+              <Link to={`/profile/${currentAccountId}`}>
+                <Button className="flex items-center gap-2">
+                  <User size={16} />
+                  Profile
+                </Button>
+              </Link>
               <Link to="/leaderboard">
                 <Button className="flex items-center gap-2">
                   <Trophy size={16} />
@@ -42,12 +48,12 @@ interface WindowContainerProps {
 
 export function WindowContainer({ children }: WindowContainerProps) {
   return (
-    <div className="min-h-screen p-1 sm:p-2 md:p-8 relative">
+    <div className="min-h-screen p-4 sm:p-6 md:p-12 relative">
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="mx-auto min-h-[calc(100vh-0.5rem)] sm:min-h-[790px] w-full sm:max-w-4xl border-2 border-gray-800 bg-white shadow-[2px_2px_0_rgba(0,0,0,1)] sm:shadow-[4px_4px_0_rgba(0,0,0,1)]"
+        className="mx-auto min-h-[calc(100vh-2rem)] sm:min-h-[calc(100vh-3rem)] md:min-h-[calc(100vh-6rem)] w-full border-2 border-gray-800 bg-white shadow-[2px_2px_0_rgba(0,0,0,1)] sm:shadow-[4px_4px_0_rgba(0,0,0,1)]"
       >
         <WindowControls />
         <div className="p-2 sm:p-4 md:p-8">{children}</div>

@@ -22,7 +22,7 @@ function ManageAccountsPage() {
   const navigate = useNavigate();
   const { data: accounts = [], isLoading } = useConnectedAccounts();
   const { data: profile, isLoading: isLoadingProfile } = useNearSocialAccount();
-  const { selectedAccountIds } = usePlatformAccountsStore();
+  const selectedAccountIds = usePlatformAccountsStore((state) => state.selectedAccountIds);
 
   const handleContinue = () => {
     navigate({ to: "/editor" });

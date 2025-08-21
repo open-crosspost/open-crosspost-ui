@@ -1,3 +1,4 @@
+import React from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { near } from "@/lib/near";
 import { getImageUrl, getProfile } from "@/lib/utils/near-social-node";
@@ -342,7 +343,10 @@ export function useAllAccounts() {
   const { data: apiAccounts = [] } = useConnectedAccounts();
   const { data: profile } = useNearSocialAccount();
 
-  return [...apiAccounts, ...(profile ? [profile] : [])];
+  return React.useMemo(() => 
+    [...apiAccounts, ...(profile ? [profile] : [])], 
+    [apiAccounts, profile]
+  );
 }
 
 // Hook to get selected accounts
@@ -353,7 +357,9 @@ export function useSelectedAccounts() {
   );
 
   // Filter accounts to only include selected ones
-  return allAccounts.filter((account: ConnectedAccount) =>
-    selectedAccountIds.includes(account.userId),
+  return React.useMemo(() => 
+    allAccounts.filter((account: ConnectedAccount) =>
+      selectedAccountIds.includes(account.userId),
+    ), [allAccounts, selectedAccountIds]
   );
 }

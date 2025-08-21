@@ -78,8 +78,8 @@ function SortablePostComponent({
           onFocus={() => onTextFocus?.(index)}
           onBlur={() => onTextBlur?.(index)}
           placeholder={`Thread part ${index + 1}`}
-          className={`min-h-[150px] w-full rounded-lg resize-none focus:ring-2 focus:ring-blue-500 ${
-            post.text && post.text.length > 280 ? "border-destructive" : ""
+          className={`min-h-[150px] w-full rounded-lg resize-none border-2 border-gray-800 bg-white shadow-[2px_2px_0_rgba(0,0,0,1)] focus:outline-none focus:ring-0 focus:border-gray-800 focus:shadow-[2px_2px_0_rgba(0,0,0,1)] ${
+            post.text && post.text.length > 280 ? "border-red-500" : ""
           }`}
         />
         <div className="flex flex-col gap-2 mt-2">

@@ -40,6 +40,15 @@ export function ConnectPlatform({
   const handleConnect = async () => {
     if (isConnecting) return;
 
+    if (platform === Platform.TWITTER) {
+      toast({
+        title: "Twitter Temporarily Unavailable",
+        description: "Twitter API configuration is being updated. Please try again later.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsConnecting(true);
     const loadingToast = toast({
       title: `Connecting to ${capitalize(platform)}...`,
@@ -122,7 +131,9 @@ export function ConnectPlatform({
             )}
             {isConnecting || connectAccount.isPending
               ? "Connecting..."
-              : `Connect ${capitalize(platform)} Account`}
+              : platform === Platform.TWITTER 
+                ? "Twitter Temporarily Unavailable"
+                : `Connect ${capitalize(platform)} Account`}
           </Button>
         </TooltipTrigger>
         <TooltipContent>
