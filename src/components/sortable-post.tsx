@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useCallback, useRef, useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Button } from "./ui/button";
@@ -37,11 +37,66 @@ function SortablePostComponent({
     isDragging,
   } = useSortable({ id: `post-${index}` });
 
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
+
+  // Handle paste events for images
+  const handlePaste = useCallback(
+    (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
+      const items = event.clipboardData?.items;
+      if (!items) return;
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.type.startsWith("image/")) {
+          event.preventDefault();
+          const file = item.getAsFile();
+          if (file) {
+            onMediaUpload(index, file);
+          }
+        }
+      }
+    },
+    [onMediaUpload, index],
+  );
+
+  // Handle drag and drop events
+  const handleDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    setIsDragOver(false);
+  }, []);
+
+  const handleDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+      setIsDragOver(false);
+
+      const files = event.dataTransfer.files;
+      if (files.length > 0) {
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          if (
+            file.type.startsWith("image/") ||
+            file.type.startsWith("video/")
+          ) {
+            onMediaUpload(index, file);
+          }
+        }
+      }
+    },
+    [onMediaUpload, index],
+  );
 
   return (
     <div ref={setNodeRef} style={style} className="flex gap-2 w-full">
@@ -49,7 +104,7 @@ function SortablePostComponent({
         <div
           {...attributes}
           {...listeners}
-          className="sticky top-0 h-[150px] w-8 flex items-center justify-center cursor-grab bg-gray-50 rounded-lg base-component touch-manipulation"
+          className="sticky top-0 h-[150px] w-8 flex items-center justify-center cursor-grab bg-gray-50 dark:bg-gray-800 rounded-lg base-component touch-manipulation"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -72,16 +127,32 @@ function SortablePostComponent({
         </div>
       </div>
       <div className="flex-1 w-full">
-        <Textarea
-          value={post.text}
-          onChange={(e) => onTextChange(index, e.target.value)}
-          onFocus={() => onTextFocus?.(index)}
-          onBlur={() => onTextBlur?.(index)}
-          placeholder={`Thread part ${index + 1}`}
-          className={`min-h-[150px] w-full rounded-lg resize-none focus:ring-2 focus:ring-blue-500 ${
-            post.text && post.text.length > 280 ? "border-destructive" : ""
-          }`}
-        />
+        <div
+          className={`relative ${isDragOver ? "ring-2 ring-blue-500 ring-opacity-50" : ""}`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          <Textarea
+            ref={textareaRef}
+            value={post.text}
+            onChange={(e) => onTextChange(index, e.target.value)}
+            onPaste={handlePaste}
+            onFocus={() => onTextFocus?.(index)}
+            onBlur={() => onTextBlur?.(index)}
+            placeholder={`Thread part ${index + 1}`}
+            className={`min-h-[150px] w-full rounded-lg resize-none focus:ring-2 focus:ring-blue-500 ${
+              post.text && post.text.length > 280 ? "border-destructive" : ""
+            }`}
+          />
+          {isDragOver && (
+            <div className="absolute inset-0 bg-blue-500 bg-opacity-10 border-2 border-dashed border-blue-500 rounded-lg flex items-center justify-center pointer-events-none">
+              <div className="text-blue-600 dark:text-blue-400 font-medium">
+                Drop images or videos here
+              </div>
+            </div>
+          )}
+        </div>
         <div className="flex flex-col gap-2 mt-2">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
             <div className="flex flex-row flex-wrap gap-2">
@@ -151,7 +222,7 @@ function SortablePostComponent({
                               playsInline
                             />
                           ) : (
-                            <div className="h-full w-full bg-gray-200 flex items-center justify-center text-xs text-gray-500">
+                            <div className="h-full w-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-500 dark:text-gray-400">
                               ?
                             </div>
                           )}
@@ -172,7 +243,7 @@ function SortablePostComponent({
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <span
-                className={`text-sm ${(post.text || "").length > 280 ? "text-destructive" : "text-gray-500"}`}
+                className={`text-sm ${(post.text || "").length > 280 ? "text-destructive" : "text-gray-500 dark:text-gray-400"}`}
               >
                 {(post.text || "").length}/280 characters
               </span>

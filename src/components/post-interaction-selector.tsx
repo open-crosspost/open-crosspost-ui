@@ -36,7 +36,7 @@ export function PostInteractionSelector({
               className={cn(
                 "capitalize",
                 postType === type &&
-                  "bg-green-100 text-black hover:bg-green-200",
+                  "bg-green-200 dark:bg-green-900/30 text-black dark:text-white hover:bg-green-300 dark:hover:bg-green-900/50",
               )}
             >
               {type}

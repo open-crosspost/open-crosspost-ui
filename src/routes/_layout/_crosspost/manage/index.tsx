@@ -5,6 +5,7 @@ import { PlatformAccountItem } from "../../../../components/platform-account";
 import { PlatformAccountList } from "../../../../components/platform-account-list";
 import { BackButton } from "../../../../components/back-button";
 import { Button } from "../../../../components/ui/button";
+
 import {
   useConnectedAccounts,
   useNearSocialAccount,
@@ -32,11 +33,11 @@ function ManageAccountsPage() {
     <>
       <div className="w-full max-w-2xl mx-auto">
         <div className="border-b pb-4 mb-6">
-          <div className="flex items-center mb-4">
+          <div className="flex items-center justify-between mb-4">
             <BackButton />
           </div>
           <h1 className="text-2xl font-bold">Manage Social Accounts</h1>
-          <p className="text-gray-500">
+          <p className="text-gray-500 dark:text-gray-400">
             Connect and manage your social media accounts for crossposting
           </p>
         </div>
@@ -57,11 +58,11 @@ function ManageAccountsPage() {
                 <PlatformAccountItem account={profile} showActions={false} />
               </div>
             ) : (
-              <div className="rounded-md border-2 border-dashed border-gray-200 p-4 sm:p-8 text-center">
-                <h3 className="mt-2 text-lg font-medium text-gray-900">
+              <div className="rounded-md border-2 border-dashed border-gray-200 dark:border-gray-600 p-4 sm:p-8 text-center">
+                <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-gray-100">
                   No NEAR account connected
                 </h3>
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                   Please sign in with your NEAR wallet to use NEAR Social
                 </p>
               </div>

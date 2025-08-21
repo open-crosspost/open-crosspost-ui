@@ -220,7 +220,7 @@ function LeaderboardPage() {
             <Link
               to={`/profile/$accountId`}
               params={{ accountId }}
-              className="text-blue-600 hover:text-blue-800 hover:underline transition-colors block truncate"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline transition-colors block truncate"
             >
               {accountId}
             </Link>
@@ -313,7 +313,9 @@ function LeaderboardPage() {
   return (
     <div className="container mx-auto">
       <div className="flex items-center justify-between mb-4">
-        <BackButton />
+        <div className="flex items-center gap-4">
+          <BackButton />
+        </div>
         {/* Filters */}
         <div className="flex flex-wrap gap-4 mb-6">
           {/* Custom Date Range Pickers */}
@@ -420,7 +422,7 @@ function LeaderboardPage() {
 
       {/* Error message */}
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <div className="bg-red-100 dark:bg-red-900/20 border border-red-400 dark:border-red-500 text-red-700 dark:text-red-400 px-4 py-3 rounded mb-4">
           {getErrorMessage(error, "Failed to fetch leaderboard data")}
         </div>
       )}
@@ -435,13 +437,13 @@ function LeaderboardPage() {
           {/* Table */}
           <div className="overflow-x-auto base-component rounded-lg">
             <Table className="min-w-full">
-              <TableHeader className="bg-gray-50">
+              <TableHeader className="bg-gray-50 dark:bg-gray-800">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
                       <TableHead
                         key={header.id}
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
                         onClick={header.column.getToggleSortingHandler()}
                       >
                         <div className="flex items-center gap-1">
@@ -460,14 +462,17 @@ function LeaderboardPage() {
                   </TableRow>
                 ))}
               </TableHeader>
-              <TableBody className="bg-white divide-y divide-gray-200">
+              <TableBody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
                 {table.getRowModel()?.rows?.length > 0 ? (
                   table.getRowModel()?.rows?.map((row) => (
-                    <TableRow key={row.id} className="hover:bg-gray-50">
+                    <TableRow
+                      key={row.id}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-800"
+                    >
                       {row.getVisibleCells()?.map((cell) => (
                         <TableCell
                           key={cell.id}
-                          className="px-6 py-4 whitespace-nowrap text-sm"
+                          className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100"
                         >
                           {flexRender(
                             cell.column.columnDef.cell,
@@ -481,7 +486,7 @@ function LeaderboardPage() {
                   <TableRow>
                     <TableCell
                       colSpan={columns.length}
-                      className="px-6 py-4 text-center text-sm text-gray-500"
+                      className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400"
                     >
                       No data available
                     </TableCell>

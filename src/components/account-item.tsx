@@ -37,12 +37,12 @@ export function AccountItem({
       <div
         className={`flex items-center p-3 rounded-md transition-colors ${
           hasError
-            ? "border-2 border-red-500 bg-red-50 opacity-80 cursor-not-allowed"
+            ? "border-2 border-red-500 dark:border-red-400 bg-red-50 dark:bg-red-900/20 opacity-80 cursor-not-allowed"
             : disabled
-              ? "border-2 border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed"
+              ? "border-2 border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 opacity-60 cursor-not-allowed"
               : isSelected
-                ? "border-2 border-green-500 bg-green-50 cursor-pointer"
-                : "border-2 border-gray-200 hover:bg-gray-50 cursor-pointer"
+                ? "border-2 border-green-500 dark:border-green-400 bg-green-50 dark:bg-green-900/20 cursor-pointer"
+                : "border-2 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
         }`}
         onClick={handleClick}
         title={title}
@@ -50,15 +50,15 @@ export function AccountItem({
         <div className="flex-grow overflow-hidden">
           {hasError ? (
             <div>
-              <p className="font-medium text-sm text-red-700 truncate">
+              <p className="font-medium text-sm text-red-700 dark:text-red-400 truncate">
                 {account.platform}
               </p>
-              <p className="text-xs text-red-600 truncate">
+              <p className="text-xs text-red-600 dark:text-red-400 truncate">
                 ID: {account.userId}
               </p>
               {account.error && (
                 <p
-                  className="text-xs text-red-500 truncate"
+                  className="text-xs text-red-500 dark:text-red-400 truncate"
                   title={account.error}
                 >
                   {account.error}
@@ -67,10 +67,12 @@ export function AccountItem({
             </div>
           ) : !account.profile ? (
             <div>
-              <p className="font-medium text-sm text-gray-700 truncate">
+              <p className="font-medium text-sm text-gray-700 dark:text-gray-300 truncate">
                 {account.platform}
               </p>
-              <p className="text-xs text-gray-500">Profile unavailable</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Profile unavailable
+              </p>
             </div>
           ) : (
             <ProfileCard account={account} size="sm" />
@@ -81,10 +83,10 @@ export function AccountItem({
           <div
             className={`w-6 h-6 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center ${
               hasError || disabled
-                ? "border-gray-300 bg-gray-200"
+                ? "border-gray-300 dark:border-gray-500 bg-gray-200 dark:bg-gray-600"
                 : isSelected
-                  ? "border-green-500 bg-green-500"
-                  : "border-gray-300"
+                  ? "border-green-500 dark:border-green-400 bg-green-500 dark:bg-green-400"
+                  : "border-gray-300 dark:border-gray-500"
             }`}
           >
             {isSelected && !hasError && !disabled && (
@@ -111,27 +113,27 @@ export function AccountItem({
     <div
       className={`flex flex-col sm:flex-row sm:items-center sm:justify-between rounded-md border-2 p-3 sm:p-4 gap-3 ${
         hasError
-          ? "border-red-500 bg-red-50 opacity-80"
+          ? "border-red-500 dark:border-red-400 bg-red-50 dark:bg-red-900/20 opacity-80"
           : disabled
-            ? "border-gray-200 bg-gray-100 opacity-60"
+            ? "border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 opacity-60"
             : isSelected
-              ? "border-green-500 bg-green-50"
-              : "border-gray-200"
+              ? "border-green-500 dark:border-green-400 bg-green-50 dark:bg-green-900/20"
+              : "border-gray-200 dark:border-gray-600"
       }`}
       title={title}
     >
       <div className="flex items-center space-x-4 overflow-hidden">
         {hasError ? (
           <div>
-            <p className="font-medium text-red-700 truncate">
+            <p className="font-medium text-red-700 dark:text-red-400 truncate">
               {account.platform}
             </p>
-            <p className="text-sm text-red-600 truncate">
+            <p className="text-sm text-red-600 dark:text-red-400 truncate">
               ID: {account.userId}
             </p>
             {account.error && (
               <p
-                className="text-xs text-red-500 truncate"
+                className="text-xs text-red-500 dark:text-red-400 truncate"
                 title={account.error}
               >
                 {account.error}
@@ -140,10 +142,12 @@ export function AccountItem({
           </div>
         ) : !account.profile ? (
           <div>
-            <p className="font-medium text-gray-700 truncate">
+            <p className="font-medium text-gray-700 dark:text-gray-300 truncate">
               {account.platform}
             </p>
-            <p className="text-sm text-gray-500">Profile unavailable</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Profile unavailable
+            </p>
           </div>
         ) : (
           <ProfileCard account={account} size="md" />
@@ -158,7 +162,7 @@ export function AccountItem({
           disabled={disabled || hasError}
           className={
             isSelected && !hasError
-              ? "bg-green-200 text-black hover:bg-green-300"
+              ? "bg-green-200 dark:bg-green-600 text-black dark:text-white hover:bg-green-300 dark:hover:bg-green-500"
               : ""
           }
         >

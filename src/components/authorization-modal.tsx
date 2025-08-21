@@ -108,7 +108,7 @@ export function AuthorizationModal({
         </DialogHeader>
 
         <div className="space-y-4 py-3 sm:py-4">
-          <div className="rounded-md border-2 border-gray-200 p-3 sm:p-4">
+          <div className="rounded-md border-2 border-gray-200 dark:border-gray-600 p-3 sm:p-4">
             <h3 className="font-medium">You are authorizing {APP_NAME} to:</h3>
             <ul className="mt-2 list-disc pl-5 text-sm">
               <li>Post content to social platforms you connect</li>
@@ -117,9 +117,11 @@ export function AuthorizationModal({
             </ul>
           </div>
 
-          <div className="rounded-md bg-amber-50 p-3 sm:p-4 text-sm">
-            <p className="font-medium text-amber-800">Important:</p>
-            <p className="mt-1 text-amber-700">
+          <div className="rounded-md bg-amber-50 dark:bg-amber-900/20 p-3 sm:p-4 text-sm">
+            <p className="font-medium text-amber-800 dark:text-amber-200">
+              Important:
+            </p>
+            <p className="mt-1 text-amber-700 dark:text-amber-300">
               Your NEAR account{" "}
               <span className="font-bold">{near.accountId()}</span> will be used
               to sign all requests. You can revoke access at any time by

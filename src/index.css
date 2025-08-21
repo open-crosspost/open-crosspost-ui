@@ -9,6 +9,10 @@
   transition: opacity 0.2s;
 }
 
+.dark .markdown a {
+  color: white;
+}
+
 .markdown a:hover {
   opacity: 0.7;
 }
@@ -65,8 +69,14 @@
   color: #4a22a5;
   text-decoration: underline;
 }
+.dark .markdown-content a {
+  color: #a78bfa;
+}
 .markdown-content a:hover {
   color: #3a1a84;
+}
+.dark .markdown-content a:hover {
+  color: #c4b5fd;
 }
 .markdown-content blockquote {
   border-left: 3px solid #ccc;
@@ -74,17 +84,27 @@
   padding-left: 1em;
   font-style: italic;
 }
+.dark .markdown-content blockquote {
+  border-left: 3px solid #6b7280;
+}
 .markdown-content code {
   background-color: #f0f0f0;
   padding: 0.2em 0.4em;
   border-radius: 3px;
   font-family: monospace;
 }
+.dark .markdown-content code {
+  background-color: #374151;
+  color: #f3f4f6;
+}
 .markdown-content pre {
   background-color: #f0f0f0;
   padding: 0.8em;
   overflow-x: auto;
   border-radius: 5px;
+}
+.dark .markdown-content pre {
+  background-color: #374151;
 }
 .markdown-content pre code {
   background-color: transparent;
@@ -95,6 +115,9 @@
   border-top: 1px solid #ccc;
   margin: 0.5em 0;
 }
+.dark .markdown-content hr {
+  border-top: 1px solid #6b7280;
+}
 .markdown-content table {
   border-collapse: collapse;
   margin: 0.5em 0;
@@ -104,6 +127,10 @@
   border: 1px solid #ccc;
   padding: 0.3em;
 }
+.dark .markdown-content th,
+.dark .markdown-content td {
+  border: 1px solid #6b7280;
+}
 .markdown-content img {
   max-width: 100%;
   height: auto;
@@ -111,11 +138,11 @@
 
 @layer components {
   .base-component {
-    @apply border-2 border-gray-800 bg-white shadow-custom;
+    @apply border-2 border-gray-800 bg-white shadow-custom dark:border-gray-200 dark:bg-gray-900;
   }
 
   .base-component-hover {
-    @apply hover:bg-gray-100;
+    @apply hover:bg-gray-100 dark:hover:bg-gray-800;
   }
 
   .base-component-ghost {
@@ -143,6 +170,11 @@ body {
     Helvetica Neue,
     sans-serif;
   background-color: rgb(243 244 246); /* bg-gray-100 */
+}
+
+.dark html,
+.dark body {
+  background-color: rgb(17 24 39); /* bg-gray-900 */
 }
 
 @layer base {

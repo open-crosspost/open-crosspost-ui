@@ -10,6 +10,7 @@ import { AlertCircle, CheckCircle2, Info, RefreshCw } from "lucide-react";
 import React from "react";
 import { BackButton } from "../../../../components/back-button";
 import { Button } from "../../../../components/ui/button";
+
 import { useSubmitPost } from "../../../../hooks/use-submit-post";
 import { useSubmissionResultsStore } from "../../../../store/submission-results-store";
 
@@ -76,9 +77,12 @@ function ResultsPage() {
   if (!summary && results.length === 0 && errors.length === 0) {
     return (
       <div className="w-full max-w-2xl mx-auto text-center py-10">
-        <Info size={48} className="mx-auto mb-4 text-gray-400" />
+        <Info
+          size={48}
+          className="mx-auto mb-4 text-gray-400 dark:text-gray-500"
+        />
         <h1 className="text-2xl font-bold mb-2">No Submission Results</h1>
-        <p className="text-gray-500 mb-6">
+        <p className="text-gray-500 dark:text-gray-400 mb-6">
           It looks like you haven't submitted any posts yet, or the results have
           been cleared.
         </p>
@@ -120,12 +124,12 @@ function ResultsPage() {
   return (
     <div className="w-full max-w-2xl mx-auto">
       <div className="border-b pb-4 mb-6">
-        <div className="flex items-center mb-4">
+        <div className="flex items-center justify-between mb-4">
           <BackButton cleanup={handleDone} />
         </div>
         <h1 className="text-2xl font-bold">Submission Results</h1>
         {summary && (
-          <p className="text-gray-500">
+          <p className="text-gray-500 dark:text-gray-400">
             {`Attempted: ${summary.total} | Succeeded: ${summary.succeeded} | Failed: ${summary.failed}`}
           </p>
         )}
@@ -144,18 +148,18 @@ function ResultsPage() {
               return (
                 <div
                   key={index}
-                  className="p-4 border rounded-md bg-green-50 border-green-200"
+                  className="p-4 border rounded-md bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-500"
                 >
                   {account ? (
                     <ProfileCard account={account} size="md" />
                   ) : (
-                    <p className="font-medium text-green-700">
+                    <p className="font-medium text-green-700 dark:text-green-400">
                       Successfully posted to {success.platform} (User ID:{" "}
                       {success.userId})
                     </p>
                   )}
                   {success.details && typeof success.details === "string" && (
-                    <p className="text-sm text-green-600 mt-1">
+                    <p className="text-sm text-green-600 dark:text-green-400 mt-1">
                       {success.details}
                     </p>
                   )}
@@ -163,7 +167,7 @@ function ResultsPage() {
                     typeof success.details === "object" &&
                     "message" in success.details &&
                     typeof success.details.message === "string" && (
-                      <p className="text-sm text-green-600 mt-1">
+                      <p className="text-sm text-green-600 dark:text-green-400 mt-1">
                         {success.details.message}
                       </p>
                     )}
@@ -187,14 +191,14 @@ function ResultsPage() {
               return (
                 <div
                   key={index}
-                  className="p-4 border rounded-md bg-red-50 border-red-200"
+                  className="p-4 border rounded-md bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-500"
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-grow mr-4">
                       {account ? (
                         <ProfileCard account={account} size="md" />
                       ) : (
-                        <p className="font-medium text-red-700">
+                        <p className="font-medium text-red-700 dark:text-red-400">
                           Failed to post to{" "}
                           {(error.details?.platform as string) ||
                             "Unknown Platform"}{" "}
@@ -202,8 +206,8 @@ function ResultsPage() {
                           {(error.details?.userId as string) || "Unknown User"})
                         </p>
                       )}
-                      <div className="mt-2 text-red-700">
-                        <p className="text-sm text-red-500 mt-1">
+                      <div className="mt-2 text-red-700 dark:text-red-400">
+                        <p className="text-sm text-red-500 dark:text-red-400 mt-1">
                           {`${error.code}: `}
                         </p>
                         <p className="text-base font-semibold">

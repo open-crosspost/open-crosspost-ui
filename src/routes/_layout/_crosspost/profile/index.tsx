@@ -8,7 +8,8 @@ export const Route = createFileRoute("/_layout/_crosspost/profile/")({
 
 export function ProfileIndexPage() {
   return (
-    <div className="p-8 text-center">
+    <div className="p-8 text-center relative">
+      <div className="absolute top-4 right-4"></div>
       <h1 className="text-2xl font-bold mb-4">Profiles</h1>
       <p className="mb-6">
         View a profile by navigating to <code>/profile/accountId</code>

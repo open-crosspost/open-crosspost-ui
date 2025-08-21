@@ -26,6 +26,7 @@ const DEFAULT_EMPTY_POST: EditorContent = {
 };
 import { useSelectedAccounts } from "../../../../store/platform-accounts-store";
 import { MediaPreviewModal } from "../../../../components/media-preview-modal";
+import { LivePreviewModal } from "../../../../components/live-preview-modal";
 
 export const Route = createFileRoute("/_layout/_crosspost/editor/")({
   component: EditorPage,
@@ -51,6 +52,7 @@ function EditorPage() {
     src: string;
     type: string;
   } | null>(null);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
 
   // Detect platform from URL and determine which platforms to disable
   const disabledPlatforms = useMemo<PlatformName[]>(() => {
@@ -228,9 +230,18 @@ function EditorPage() {
             onPostTypeChange={setPostType}
             onTargetUrlChange={setTargetUrl}
           />
-          <Button onClick={() => setModalOpen(true)} size="sm">
-            Drafts
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button onClick={() => setModalOpen(true)} size="sm">
+              Drafts
+            </Button>
+            <Button
+              onClick={() => setIsPreviewModalOpen(true)}
+              size="sm"
+              disabled={posts.every((p) => !(p.text || "").trim())}
+            >
+              Preview
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -248,7 +259,7 @@ function EditorPage() {
       />
 
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mt-4">
-        <span className="text-sm text-gray-500 order-2 sm:order-1 text-center sm:text-left">
+        <span className="text-sm text-gray-500 dark:text-gray-400 order-2 sm:order-1 text-center sm:text-left">
           {`${posts.length} parts`}
         </span>
         <div className="flex gap-2 order-1 sm:order-2">
@@ -279,6 +290,13 @@ function EditorPage() {
         onClose={closeMediaModal}
         mediaSrc={modalMediaContent?.src || null}
         mediaType={modalMediaContent?.type || null}
+      />
+      <LivePreviewModal
+        isOpen={isPreviewModalOpen}
+        onClose={() => setIsPreviewModalOpen(false)}
+        posts={posts}
+        postType={postType}
+        targetUrl={targetUrl}
       />
     </div>
   );

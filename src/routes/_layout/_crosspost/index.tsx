@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import React from "react";
 import { ManageAccountsButton } from "../../../components/manage-accounts-button";
+
 import { useAuth } from "../../../contexts/auth-context";
 
 export const Route = createFileRoute("/_layout/_crosspost/")({
@@ -13,6 +14,7 @@ function HomePage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
+      <div className="absolute top-4 right-4"></div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -21,14 +23,14 @@ function HomePage() {
         {isSignedIn && (
           <div className="flex items-center justify-center mb-4">
             <div className="h-3 w-3 rounded-full bg-green-500 mr-2"></div>
-            <p className="text-sm text-green-600 font-medium">
+            <p className="text-sm text-green-600 dark:text-green-400 font-medium">
               Connected as @{currentAccountId}
             </p>
           </div>
         )}
 
         <h1 className="text-3xl font-bold mb-4">Connect Your Accounts</h1>
-        <p className="text-gray-500 mb-8 max-w-md">
+        <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md">
           Connect your social media accounts to start crossposting.
         </p>
 
