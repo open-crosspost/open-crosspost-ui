@@ -194,8 +194,8 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
                   {post.type ?? "post"}
                 </span>
               </div>
-              <span className="text-gray-500">
-                {new Date(post.createdAt).toLocaleDateString()}
+              <span className="text-gray-500 text-xs">
+                {new Date(post.createdAt).toLocaleDateString()} • {new Date(post.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
               {accountId === currentAccountId && (
                 <Button

@@ -19,13 +19,10 @@ import {
   EditorMedia,
   useDraftsStore,
 } from "../../../../store/drafts-store";
-
-const DEFAULT_EMPTY_POST: EditorContent = {
-  text: "ㅤ",
-  media: [] as EditorMedia[],
-};
 import { useSelectedAccounts } from "../../../../store/platform-accounts-store";
 import { MediaPreviewModal } from "../../../../components/media-preview-modal";
+import { SchedulePostModal } from "../../../../components/schedule-post-modal";
+import { ScheduledPostsFeed } from "../../../../components/scheduled-posts-feed";
 
 export const Route = createFileRoute("/_layout/_crosspost/editor/")({
   component: EditorPage,
@@ -51,6 +48,7 @@ function EditorPage() {
     src: string;
     type: string;
   } | null>(null);
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
 
   // Detect platform from URL and determine which platforms to disable
   const disabledPlatforms = useMemo<PlatformName[]>(() => {
@@ -117,6 +115,11 @@ function EditorPage() {
     clearAutoSave();
     setPosts([DEFAULT_EMPTY_POST]);
   }, [saveDraft, posts, toast, setPosts, clearAutoSave]);
+
+  const handleSchedulePost = useCallback(() => {
+    setPosts([DEFAULT_EMPTY_POST]);
+    clearAutoSave();
+  }, [clearAutoSave]);
 
   // Helper function to extract MIME type from data URL
   function getMimeTypeFromDataUrl(dataUrl: string): string {
@@ -217,59 +220,80 @@ function EditorPage() {
   }, []);
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      <div className="space-y-4 mb-4">
-        <PlatformAccountsSelector disabledPlatforms={disabledPlatforms} />
-        {/* Controls Bar */}
-        <div className="flex justify-between items-center mb-2">
-          <PostInteractionSelector
-            postType={postType}
-            targetUrl={targetUrl}
-            onPostTypeChange={setPostType}
-            onTargetUrlChange={setTargetUrl}
-          />
-          <Button onClick={() => setModalOpen(true)} size="sm">
-            Drafts
-          </Button>
+    <div className="flex flex-col lg:flex-row gap-6 w-full max-w-7xl mx-auto">
+      {/* Left Side - Editor */}
+      <div className="flex-1 min-w-0">
+        <div className="space-y-4 mb-4">
+          <PlatformAccountsSelector disabledPlatforms={disabledPlatforms} />
+          {/* Controls Bar */}
+          <div className="flex justify-between items-center mb-2">
+            <PostInteractionSelector
+              postType={postType}
+              targetUrl={targetUrl}
+              onPostTypeChange={setPostType}
+              onTargetUrlChange={setTargetUrl}
+            />
+            <Button onClick={() => setModalOpen(true)} size="sm">
+              Drafts
+            </Button>
+          </div>
+        </div>
+
+        <PostEditorCore
+          posts={posts}
+          onPostsChange={handlePostsChange}
+          onTextChange={handleTextChange}
+          onMediaUpload={handleMediaUpload}
+          onMediaRemove={removeMedia}
+          onAddThread={addThread}
+          onRemoveThread={removeThread}
+          onOpenMediaModal={openMediaModal}
+          onTextFocus={handleTextFocus}
+          onTextBlur={handleTextBlur}
+        />
+
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mt-4">
+          <span className="text-sm text-gray-500 order-2 sm:order-1 text-left">
+            {`${posts.length} parts`}
+          </span>
+          <div className="flex gap-2 order-1 sm:order-2">
+            <Button
+              onClick={handleSaveDraft}
+              disabled={posts.every((p) => !(p.text || "").trim())}
+              className="flex-1 sm:flex-auto"
+            >
+              Save Draft
+            </Button>
+            <Button
+              onClick={() => setIsScheduleModalOpen(true)}
+              disabled={
+                posts.every((p) => !(p.text || "").trim()) ||
+                selectedAccounts.length === 0
+              }
+              className="flex-1 sm:flex-auto border-2 border-black"
+              variant="outline"
+            >
+              Schedule
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              disabled={
+                isPosting ||
+                posts.every((p) => !(p.text || "").trim()) ||
+                selectedAccounts.length === 0
+              }
+              className="flex-1 sm:flex-auto"
+            >
+              {isPosting ? "Posting..." : "Post"}
+            </Button>
+          </div>
         </div>
       </div>
 
-      <PostEditorCore
-        posts={posts}
-        onPostsChange={handlePostsChange}
-        onTextChange={handleTextChange}
-        onMediaUpload={handleMediaUpload}
-        onMediaRemove={removeMedia}
-        onAddThread={addThread}
-        onRemoveThread={removeThread}
-        onOpenMediaModal={openMediaModal}
-        onTextFocus={handleTextFocus}
-        onTextBlur={handleTextBlur}
-      />
-
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mt-4">
-        <span className="text-sm text-gray-500 order-2 sm:order-1 text-center sm:text-left">
-          {`${posts.length} parts`}
-        </span>
-        <div className="flex gap-2 order-1 sm:order-2">
-          <Button
-            onClick={handleSaveDraft}
-            disabled={posts.every((p) => !(p.text || "").trim())}
-            className="flex-1 sm:flex-auto"
-          >
-            Save Draft
-          </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={
-              isPosting ||
-              posts.every((p) => !(p.text || "").trim()) ||
-              selectedAccounts.length === 0
-            }
-            className="flex-1 sm:flex-auto"
-          >
-            {isPosting ? "Posting..." : "Post"}
-          </Button>
+      {/* Right Side - Scheduled Posts Queue */}
+      <div className="w-full lg:w-96 lg:flex-shrink-0">
+        <div className="lg:sticky lg:top-4">
+          <ScheduledPostsFeed />
         </div>
       </div>
 
@@ -280,6 +304,18 @@ function EditorPage() {
         mediaSrc={modalMediaContent?.src || null}
         mediaType={modalMediaContent?.type || null}
       />
+      <SchedulePostModal
+        isOpen={isScheduleModalOpen}
+        onClose={() => setIsScheduleModalOpen(false)}
+        posts={posts}
+        selectedPlatforms={selectedAccounts.map(account => account.platform)}
+        onScheduled={handleSchedulePost}
+      />
     </div>
   );
 }
+
+const DEFAULT_EMPTY_POST: EditorContent = {
+  text: "ㅤ",
+  media: [] as EditorMedia[],
+};
