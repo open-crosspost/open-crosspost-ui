@@ -9,8 +9,4 @@ if (!root) {
   throw new Error("Root element not found");
 }
 
-ReactDOMClient.createRoot(root).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-);
+ReactDOMClient.createRoot(root).render(<App />);

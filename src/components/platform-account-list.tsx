@@ -16,7 +16,9 @@ export function PlatformAccountList({
   accounts,
   isLoading,
 }: PlatformAccountListProps) {
-  const { isAccountSelected } = usePlatformAccountsStore();
+  const isAccountSelected = usePlatformAccountsStore(
+    (state) => state.isAccountSelected,
+  );
   const filteredAccounts = accounts.filter(
     (account) => account.platform === platform.toLowerCase(),
   );

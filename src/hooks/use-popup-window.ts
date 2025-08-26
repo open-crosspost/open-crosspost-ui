@@ -91,7 +91,7 @@ export function usePopupWindow<T>({
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [type, onSuccess, onError]);
+  }, [type, onSuccess, onError, queryClient]);
 
   const openPopup = (url: string, options: PopupWindowOptions = {}) => {
     // Reset success state when opening new popup
