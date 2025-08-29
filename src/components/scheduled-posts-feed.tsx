@@ -1,10 +1,25 @@
 import React, { useState } from "react";
-import { Calendar, Clock, Edit, Trash2, Play, AlertCircle, CheckCircle2, XCircle, ChevronDown } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Edit,
+  Trash2,
+  Play,
+  AlertCircle,
+  CheckCircle2,
+  XCircle,
+  ChevronDown,
+} from "lucide-react";
 import { Button } from "./ui/button";
-import { useScheduledPostsStore, ScheduledPost } from "../store/scheduled-posts-store";
+import {
+  useScheduledPostsStore,
+  ScheduledPost,
+} from "../store/scheduled-posts-store";
 import { toast } from "../hooks/use-toast";
 
-const StatusIcon: React.FC<{ status: ScheduledPost["status"] }> = ({ status }) => {
+const StatusIcon: React.FC<{ status: ScheduledPost["status"] }> = ({
+  status,
+}) => {
   switch (status) {
     case "pending":
       return <Clock size={16} className="text-blue-500" />;
@@ -19,7 +34,9 @@ const StatusIcon: React.FC<{ status: ScheduledPost["status"] }> = ({ status }) =
   }
 };
 
-const StatusBadge: React.FC<{ status: ScheduledPost["status"] }> = ({ status }) => {
+const StatusBadge: React.FC<{ status: ScheduledPost["status"] }> = ({
+  status,
+}) => {
   const getStatusColor = () => {
     switch (status) {
       case "pending":
@@ -36,7 +53,9 @@ const StatusBadge: React.FC<{ status: ScheduledPost["status"] }> = ({ status }) 
   };
 
   return (
-    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor()}`}>
+    <span
+      className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor()}`}
+    >
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>
   );
@@ -48,14 +67,20 @@ interface ScheduledPostItemProps {
   onEdit?: (post: ScheduledPost) => void;
 }
 
-const ScheduledPostItem: React.FC<ScheduledPostItemProps> = ({ post, onDelete, onEdit }) => {
+const ScheduledPostItem: React.FC<ScheduledPostItemProps> = ({
+  post,
+  onDelete,
+  onEdit,
+}) => {
   const scheduledDate = new Date(post.scheduledFor);
   const now = new Date();
   const isPast = scheduledDate < now;
   const isUpcoming = scheduledDate > now && post.status === "pending";
 
   const handleDelete = () => {
-    if (window.confirm("Are you sure you want to delete this scheduled post?")) {
+    if (
+      window.confirm("Are you sure you want to delete this scheduled post?")
+    ) {
       onDelete(post.id);
     }
   };
@@ -68,9 +93,7 @@ const ScheduledPostItem: React.FC<ScheduledPostItemProps> = ({ post, onDelete, o
           <StatusBadge status={post.status} />
         </div>
         <Button
-
-        bu
-        
+          bu
           size="sm"
           variant="outline"
           onClick={handleDelete}
@@ -82,16 +105,16 @@ const ScheduledPostItem: React.FC<ScheduledPostItemProps> = ({ post, onDelete, o
       </div>
 
       <div className="space-y-2">
-
-
         {post.posts && post.posts.length > 0 && (
           <div className="p-3 bg-gray-50 rounded">
             <div className="text-gray-700 line-clamp-2">
-              {post.posts[0]?.text?.replace("ㅤ", "").trim() || "No text content"}
+              {post.posts[0]?.text?.replace("ㅤ", "").trim() ||
+                "No text content"}
             </div>
             {post.posts[0]?.media && post.posts[0].media.length > 0 && (
               <div className="text-gray-500 text-xs mt-1">
-                + {post.posts[0].media.length} media file{post.posts[0].media.length !== 1 ? "s" : ""}
+                + {post.posts[0].media.length} media file
+                {post.posts[0].media.length !== 1 ? "s" : ""}
               </div>
             )}
           </div>
@@ -105,7 +128,12 @@ const ScheduledPostItem: React.FC<ScheduledPostItemProps> = ({ post, onDelete, o
 
         {post.executedAt && (
           <div className="text-xs text-gray-500 mt-3">
-            {post.status === "completed" ? "Completed" : "Failed"} at: {new Date(post.executedAt).toLocaleDateString()} • {new Date(post.executedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            {post.status === "completed" ? "Completed" : "Failed"} at:{" "}
+            {new Date(post.executedAt).toLocaleDateString()} •{" "}
+            {new Date(post.executedAt).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
           </div>
         )}
       </div>
@@ -115,9 +143,11 @@ const ScheduledPostItem: React.FC<ScheduledPostItemProps> = ({ post, onDelete, o
 
 export const ScheduledPostsFeed: React.FC = () => {
   const { scheduledPosts, deleteScheduledPost } = useScheduledPostsStore();
-  const [filter, setFilter] = useState<"all" | "pending" | "completed" | "failed">("all");
+  const [filter, setFilter] = useState<
+    "all" | "pending" | "completed" | "failed"
+  >("all");
 
-  const filteredPosts = scheduledPosts.filter(post => {
+  const filteredPosts = scheduledPosts.filter((post) => {
     if (filter === "all") return true;
     return post.status === filter;
   });
@@ -126,7 +156,9 @@ export const ScheduledPostsFeed: React.FC = () => {
     // Sort by scheduled time, with pending posts first
     if (a.status === "pending" && b.status !== "pending") return -1;
     if (b.status === "pending" && a.status !== "pending") return 1;
-    return new Date(a.scheduledFor).getTime() - new Date(b.scheduledFor).getTime();
+    return (
+      new Date(a.scheduledFor).getTime() - new Date(b.scheduledFor).getTime()
+    );
   });
 
   const handleDelete = (id: string) => {
@@ -138,18 +170,28 @@ export const ScheduledPostsFeed: React.FC = () => {
     });
   };
 
-  const pendingCount = scheduledPosts.filter(p => p.status === "pending").length;
-  const completedCount = scheduledPosts.filter(p => p.status === "completed").length;
-  const failedCount = scheduledPosts.filter(p => p.status === "failed").length;
+  const pendingCount = scheduledPosts.filter(
+    (p) => p.status === "pending",
+  ).length;
+  const completedCount = scheduledPosts.filter(
+    (p) => p.status === "completed",
+  ).length;
+  const failedCount = scheduledPosts.filter(
+    (p) => p.status === "failed",
+  ).length;
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold">Scheduled Posts</h2>
         <div className="relative">
-          <select 
-            value={filter} 
-            onChange={(e) => setFilter(e.target.value as "all" | "pending" | "completed" | "failed")}
+          <select
+            value={filter}
+            onChange={(e) =>
+              setFilter(
+                e.target.value as "all" | "pending" | "completed" | "failed",
+              )
+            }
             className="appearance-none inline-flex items-center justify-start gap-2 whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:shadow-[1px_1px_0_rgba(0,0,0,1)] hover:translate-y-0.5 min-h-[36px] touch-manipulation bg-white text-primary border-2 border-primary hover:bg-secondary/90 base-component h-9 px-3 py-2 pr-10 cursor-pointer text-left max-w-32"
           >
             <option value="all">All ({scheduledPosts.length})</option>
@@ -157,7 +199,10 @@ export const ScheduledPostsFeed: React.FC = () => {
             <option value="completed">Completed ({completedCount})</option>
             <option value="failed">Failed ({failedCount})</option>
           </select>
-          <ChevronDown size={14} className="absolute right-1 top-1/2 transform -translate-y-1/2 pointer-events-none" />
+          <ChevronDown
+            size={14}
+            className="absolute right-1 top-1/2 transform -translate-y-1/2 pointer-events-none"
+          />
         </div>
       </div>
 
@@ -166,10 +211,9 @@ export const ScheduledPostsFeed: React.FC = () => {
           <Calendar size={48} className="mx-auto mb-4 text-gray-300" />
           <p className="text-lg font-medium mb-2">No scheduled posts</p>
           <p>
-            {filter === "all" 
+            {filter === "all"
               ? "You haven't scheduled any posts yet. Use the editor to schedule your first post!"
-              : `No ${filter} scheduled posts found.`
-            }
+              : `No ${filter} scheduled posts found.`}
           </p>
         </div>
       ) : (

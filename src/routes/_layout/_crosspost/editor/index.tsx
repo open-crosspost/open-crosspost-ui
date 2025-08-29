@@ -250,7 +250,9 @@ function EditorPage() {
 
       <div className="flex flex-col lg:flex-row lg:gap-8 w-full h-full">
         {/* Left Side - Editor (50%) */}
-        <div className={`flex-1 lg:w-1/2 min-w-0 px-4 lg:px-0 ${activeTab === "editor" ? "block" : "hidden lg:block"}`}>
+        <div
+          className={`flex-1 lg:w-1/2 min-w-0 px-4 lg:px-0 ${activeTab === "editor" ? "block" : "hidden lg:block"}`}
+        >
           <div className="h-full flex flex-col">
             <div className="space-y-4 mb-4">
               <PlatformAccountsSelector disabledPlatforms={disabledPlatforms} />
@@ -323,7 +325,9 @@ function EditorPage() {
         </div>
 
         {/* Right Side - Scheduled Posts Queue (50%) */}
-        <div className={`flex-1 lg:w-1/2 px-4 lg:px-0 ${activeTab === "scheduled" ? "block" : "hidden lg:block"}`}>
+        <div
+          className={`flex-1 lg:w-1/2 px-4 lg:px-0 ${activeTab === "scheduled" ? "block" : "hidden lg:block"}`}
+        >
           <div className="h-full overflow-auto">
             <ScheduledPostsFeed />
           </div>
@@ -341,7 +345,7 @@ function EditorPage() {
         isOpen={isScheduleModalOpen}
         onClose={() => setIsScheduleModalOpen(false)}
         posts={posts}
-        selectedPlatforms={selectedAccounts.map(account => account.platform)}
+        selectedPlatforms={selectedAccounts.map((account) => account.platform)}
         onScheduled={handleSchedulePost}
       />
     </div>

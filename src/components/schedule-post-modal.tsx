@@ -74,24 +74,27 @@ export function SchedulePostModal({
 
     try {
       setIsAuthenticating(true);
-      
+
       // Save scheduled post without pre-authentication
       // Authentication will happen at execution time
       saveScheduledPost(posts, selectedPlatforms, scheduledDateTime);
-      
+
       toast({
         title: "Post Scheduled",
         description: `Your post has been scheduled for ${scheduledDateTime.toLocaleString()} with fresh authentication.`,
         variant: "success",
       });
-      
+
       onScheduled();
       onClose();
     } catch (error) {
       console.error("Scheduling authentication error:", error);
       toast({
         title: "Scheduling Failed",
-        description: error instanceof Error ? error.message : "Failed to authenticate or schedule the post. Please try again.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to authenticate or schedule the post. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -137,10 +140,12 @@ export function SchedulePostModal({
 
           <div className="bg-gray-50 p-3 rounded">
             <p className="text-sm text-gray-600 mb-2">
-              <strong>Platforms:</strong> {selectedPlatforms?.join(", ") || "None selected"}
+              <strong>Platforms:</strong>{" "}
+              {selectedPlatforms?.join(", ") || "None selected"}
             </p>
             <p className="text-sm text-gray-600">
-              <strong>Posts:</strong> {posts?.length || 0} part{(posts?.length || 0) !== 1 ? "s" : ""}
+              <strong>Posts:</strong> {posts?.length || 0} part
+              {(posts?.length || 0) !== 1 ? "s" : ""}
             </p>
           </div>
 
@@ -148,24 +153,26 @@ export function SchedulePostModal({
             <div className="bg-blue-50 p-3 rounded">
               <p className="text-sm text-blue-800 flex items-center gap-2">
                 <Clock size={16} />
-                Scheduled for: {new Date(`${selectedDate}T${selectedTime}`).toLocaleString()}
+                Scheduled for:{" "}
+                {new Date(`${selectedDate}T${selectedTime}`).toLocaleString()}
               </p>
             </div>
           )}
         </div>
 
         <div className="flex gap-2 mt-6">
-          <Button
-            onClick={onClose}
-            className="flex-1"
-            variant="outline"
-          >
+          <Button onClick={onClose} className="flex-1" variant="outline">
             Cancel
           </Button>
           <Button
             onClick={handleSchedule}
             className="flex-1"
-            disabled={!selectedDate || !selectedTime || selectedPlatforms.length === 0 || isAuthenticating}
+            disabled={
+              !selectedDate ||
+              !selectedTime ||
+              selectedPlatforms.length === 0 ||
+              isAuthenticating
+            }
           >
             {isAuthenticating ? "Authenticating..." : "Schedule Post"}
           </Button>

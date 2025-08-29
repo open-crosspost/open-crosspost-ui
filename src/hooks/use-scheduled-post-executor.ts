@@ -10,13 +10,9 @@ import { sign } from "near-sign-verify";
 import { near } from "../lib/near";
 
 export function useScheduledPostExecutor() {
-  const { 
-    getPendingPosts, 
-    markAsExecuting, 
-    markAsCompleted, 
-    markAsFailed 
-  } = useScheduledPostsStore();
-  
+  const { getPendingPosts, markAsExecuting, markAsCompleted, markAsFailed } =
+    useScheduledPostsStore();
+
   const { submitPost } = useSubmitPost();
   const connectedAccounts = useAllAccounts();
   const { currentAccountId, isSignedIn } = useAuth();
@@ -25,42 +21,63 @@ export function useScheduledPostExecutor() {
   const executeScheduledPost = async (scheduledPost: any) => {
     try {
       markAsExecuting(scheduledPost.id);
-      
+
       // Check if connectedAccounts is available
       if (!connectedAccounts || connectedAccounts.length === 0) {
         throw new Error("No connected accounts available");
       }
-      
-      console.log("Scheduled post execution - Available accounts:", connectedAccounts.map(acc => ({ platform: acc.platform, userId: acc.userId })));
+
+      console.log(
+        "Scheduled post execution - Available accounts:",
+        connectedAccounts.map((acc) => ({
+          platform: acc.platform,
+          userId: acc.userId,
+        })),
+      );
       console.log("Scheduled post platforms:", scheduledPost.platforms);
-      
+
       // Find connected accounts that match the scheduled platforms
       // Use case-insensitive matching to handle platform name variations
-      const selectedAccounts = connectedAccounts.filter((account: ConnectedAccount) => 
-        scheduledPost.platforms.some((platform: string) => 
-          platform.toLowerCase() === account.platform.toLowerCase()
-        )
+      const selectedAccounts = connectedAccounts.filter(
+        (account: ConnectedAccount) =>
+          scheduledPost.platforms.some(
+            (platform: string) =>
+              platform.toLowerCase() === account.platform.toLowerCase(),
+          ),
       );
 
-      console.log("Matched accounts for scheduled post:", selectedAccounts.map(acc => ({ platform: acc.platform, userId: acc.userId })));
+      console.log(
+        "Matched accounts for scheduled post:",
+        selectedAccounts.map((acc) => ({
+          platform: acc.platform,
+          userId: acc.userId,
+        })),
+      );
 
       if (selectedAccounts.length === 0) {
-        throw new Error("No connected accounts found for the scheduled platforms");
+        throw new Error(
+          "No connected accounts found for the scheduled platforms",
+        );
       }
 
-      console.log("Executing scheduled post with content:", scheduledPost.posts);
+      console.log(
+        "Executing scheduled post with content:",
+        scheduledPost.posts,
+      );
 
       // Execute the post
       console.log("About to call submitPost with:", {
         posts: scheduledPost.posts,
         accounts: selectedAccounts,
         postType: "post",
-        hasAuthToken: !!scheduledPost.authToken
+        hasAuthToken: !!scheduledPost.authToken,
       });
 
       // Ensure fresh authentication before executing scheduled post
       if (!isSignedIn || !currentAccountId) {
-        throw new Error("NEAR wallet not connected. Please reconnect your wallet.");
+        throw new Error(
+          "NEAR wallet not connected. Please reconnect your wallet.",
+        );
       }
 
       try {
@@ -75,48 +92,61 @@ export function useScheduledPostExecutor() {
         // Set fresh authentication on the client
         const client = getClient();
         client.setAuthentication(authToken);
-        
-        console.log("Fresh authentication token generated for scheduled post execution");
+
+        console.log(
+          "Fresh authentication token generated for scheduled post execution",
+        );
       } catch (authError) {
-        throw new Error(`Authentication failed: ${authError instanceof Error ? authError.message : 'Unknown auth error'}`);
+        throw new Error(
+          `Authentication failed: ${authError instanceof Error ? authError.message : "Unknown auth error"}`,
+        );
       }
 
       const result = await submitPost(
         scheduledPost.posts,
         selectedAccounts,
         "post", // Default to regular post
-        "" // No target URL for scheduled posts
+        "", // No target URL for scheduled posts
       );
 
       console.log("Scheduled post submission result:", result);
 
       if (result === "success") {
         markAsCompleted(scheduledPost.id);
-        toast({ 
-          title: "Scheduled Post Published", 
+        toast({
+          title: "Scheduled Post Published",
           description: "Your scheduled post was published successfully!",
-          variant: "success" 
+          variant: "success",
         });
       } else if (result === "partial-success") {
         markAsCompleted(scheduledPost.id);
-        toast({ 
-          title: "Scheduled Post Partially Published", 
+        toast({
+          title: "Scheduled Post Partially Published",
           description: "Some platforms may have failed",
-          variant: "default" 
+          variant: "default",
         });
       } else {
         throw new Error(`Post submission failed with status: ${result}`);
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-      
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
+
       // Check if error is related to authentication/signature
-      if (errorMessage.includes("signature") || errorMessage.includes("authentication") || errorMessage.includes("Invalid")) {
+      if (
+        errorMessage.includes("signature") ||
+        errorMessage.includes("authentication") ||
+        errorMessage.includes("Invalid")
+      ) {
         console.error("Authentication error in scheduled post:", errorMessage);
-        markAsFailed(scheduledPost.id, `Authentication failed: ${errorMessage}. Please reconnect your wallet.`);
+        markAsFailed(
+          scheduledPost.id,
+          `Authentication failed: ${errorMessage}. Please reconnect your wallet.`,
+        );
         toast({
           title: "Authentication Error",
-          description: "Your wallet signature has expired. Please sign out and sign back in to refresh authentication.",
+          description:
+            "Your wallet signature has expired. Please sign out and sign back in to refresh authentication.",
           variant: "destructive",
         });
       } else {
@@ -135,9 +165,9 @@ export function useScheduledPostExecutor() {
     if (!connectedAccounts || connectedAccounts.length === 0) {
       return;
     }
-    
+
     const pendingPosts = getPendingPosts();
-    
+
     for (const post of pendingPosts) {
       await executeScheduledPost(post);
     }

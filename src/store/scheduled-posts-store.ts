@@ -17,7 +17,11 @@ export interface ScheduledPost {
 
 interface ScheduledPostsState {
   scheduledPosts: ScheduledPost[];
-  saveScheduledPost: (posts: EditorContent[], platforms: PlatformName[], scheduledFor: Date) => string;
+  saveScheduledPost: (
+    posts: EditorContent[],
+    platforms: PlatformName[],
+    scheduledFor: Date,
+  ) => string;
   updateScheduledPost: (id: string, updates: Partial<ScheduledPost>) => void;
   deleteScheduledPost: (id: string) => void;
   getUpcomingPosts: () => ScheduledPost[];
@@ -52,7 +56,7 @@ export const useScheduledPostsStore = create<ScheduledPostsState>()(
       updateScheduledPost: (id, updates) => {
         set((state) => ({
           scheduledPosts: state.scheduledPosts.map((post) =>
-            post.id === id ? { ...post, ...updates } : post
+            post.id === id ? { ...post, ...updates } : post,
           ),
         }));
       },
@@ -65,21 +69,30 @@ export const useScheduledPostsStore = create<ScheduledPostsState>()(
 
       getUpcomingPosts: () => {
         const now = new Date();
-        return get().scheduledPosts
-          .filter((post) => new Date(post.scheduledFor) > now && post.status === "pending")
-          .sort((a, b) => new Date(a.scheduledFor).getTime() - new Date(b.scheduledFor).getTime());
+        return get()
+          .scheduledPosts.filter(
+            (post) =>
+              new Date(post.scheduledFor) > now && post.status === "pending",
+          )
+          .sort(
+            (a, b) =>
+              new Date(a.scheduledFor).getTime() -
+              new Date(b.scheduledFor).getTime(),
+          );
       },
 
       getPendingPosts: () => {
         const now = new Date();
-        return get().scheduledPosts
-          .filter((post) => new Date(post.scheduledFor) <= now && post.status === "pending");
+        return get().scheduledPosts.filter(
+          (post) =>
+            new Date(post.scheduledFor) <= now && post.status === "pending",
+        );
       },
 
       markAsExecuting: (id) => {
         set((state) => ({
           scheduledPosts: state.scheduledPosts.map((post) =>
-            post.id === id ? { ...post, status: "executing" as const } : post
+            post.id === id ? { ...post, status: "executing" as const } : post,
           ),
         }));
       },
@@ -87,13 +100,13 @@ export const useScheduledPostsStore = create<ScheduledPostsState>()(
       markAsCompleted: (id) => {
         set((state) => ({
           scheduledPosts: state.scheduledPosts.map((post) =>
-            post.id === id 
-              ? { 
-                  ...post, 
-                  status: "completed" as const, 
-                  executedAt: new Date().toISOString() 
-                } 
-              : post
+            post.id === id
+              ? {
+                  ...post,
+                  status: "completed" as const,
+                  executedAt: new Date().toISOString(),
+                }
+              : post,
           ),
         }));
       },
@@ -101,14 +114,14 @@ export const useScheduledPostsStore = create<ScheduledPostsState>()(
       markAsFailed: (id, error) => {
         set((state) => ({
           scheduledPosts: state.scheduledPosts.map((post) =>
-            post.id === id 
-              ? { 
-                  ...post, 
-                  status: "failed" as const, 
+            post.id === id
+              ? {
+                  ...post,
+                  status: "failed" as const,
                   error,
-                  executedAt: new Date().toISOString() 
-                } 
-              : post
+                  executedAt: new Date().toISOString(),
+                }
+              : post,
           ),
         }));
       },
@@ -116,6 +129,6 @@ export const useScheduledPostsStore = create<ScheduledPostsState>()(
     {
       name: "crosspost-scheduled-posts",
       storage: createJSONStorage(() => localStorage),
-    }
-  )
+    },
+  ),
 );

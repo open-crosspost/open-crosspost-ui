@@ -20,7 +20,7 @@ export const WindowControls: React.FC = () => {
             <h1 className="text-3xl font-bold">crosspost</h1>
           </div>
         </Link>
-        <div className="flex flex-col items-center gap-4 sm:flex-row">
+        <div className="flex items-center gap-4">
           {!isSignedIn && <ConnectToNearButton />}
           {isSignedIn && currentAccountId && (
             <>
@@ -30,10 +30,10 @@ export const WindowControls: React.FC = () => {
                   Leaderboard
                 </Button>
               </Link>
-              
+
               {/* Profile Dropdown - visible dropdown */}
               <div className="relative">
-                <Button 
+                <Button
                   className="flex items-center gap-2"
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 >
@@ -41,11 +41,11 @@ export const WindowControls: React.FC = () => {
                   Profile
                   <ChevronDown size={14} />
                 </Button>
-                
+
                 {isDropdownOpen && (
                   <div className="absolute right-0 top-full mt-2 w-48 bg-white border-2 border-gray-800 shadow-[4px_4px_0_rgba(0,0,0,1)] z-50">
-                    <Link 
-                      to="/profile/$accountId" 
+                    <Link
+                      to="/profile/$accountId"
                       params={{ accountId: currentAccountId }}
                       onClick={() => setIsDropdownOpen(false)}
                     >
@@ -54,7 +54,7 @@ export const WindowControls: React.FC = () => {
                         Profile
                       </div>
                     </Link>
-                    <div 
+                    <div
                       className="flex items-center gap-2 px-4 py-3 hover:bg-gray-50 cursor-pointer text-red-600"
                       onClick={() => {
                         handleSignOut();
@@ -71,11 +71,11 @@ export const WindowControls: React.FC = () => {
           )}
         </div>
       </div>
-      
+
       {/* Overlay to close dropdown when clicking outside */}
       {isDropdownOpen && (
-        <div 
-          className="fixed inset-0 z-40" 
+        <div
+          className="fixed inset-0 z-40"
           onClick={() => setIsDropdownOpen(false)}
         />
       )}
