@@ -1,43 +1,84 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { PenSquare, Trophy, User, Calendar } from "lucide-react";
+import { PenSquare, Trophy, User, LogOut, ChevronDown } from "lucide-react";
 import * as React from "react";
+import { useState } from "react";
 import { ConnectToNearButton } from "./connect-to-near";
 import { Button } from "./ui/button";
 import { useAuth } from "@/contexts/auth-context";
 
 export const WindowControls: React.FC = () => {
-  const { isSignedIn, currentAccountId } = useAuth();
+  const { isSignedIn, currentAccountId, handleSignOut } = useAuth();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   return (
     <div className="relative border-b-2 border-gray-800 p-4 sm:p-6">
       <div className="flex flex-col items-center space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
-        <Link to="/">
+        <Link to="/editor">
           <div className="flex items-center gap-2">
             <PenSquare size={24} />
             <h1 className="text-3xl font-bold">crosspost</h1>
           </div>
         </Link>
         <div className="flex flex-col items-center gap-4 sm:flex-row">
-          <ConnectToNearButton />
+          {!isSignedIn && <ConnectToNearButton />}
           {isSignedIn && currentAccountId && (
             <>
-              <Link to="/profile/$accountId" params={{ accountId: currentAccountId }}>
-                <Button className="flex items-center gap-2">
-                  <User size={16} />
-                  Profile
-                </Button>
-              </Link>
               <Link to="/leaderboard">
                 <Button className="flex items-center gap-2">
                   <Trophy size={16} />
                   Leaderboard
                 </Button>
               </Link>
+              
+              {/* Profile Dropdown - visible dropdown */}
+              <div className="relative">
+                <Button 
+                  className="flex items-center gap-2"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                >
+                  <User size={16} />
+                  Profile
+                  <ChevronDown size={14} />
+                </Button>
+                
+                {isDropdownOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-white border-2 border-gray-800 shadow-[4px_4px_0_rgba(0,0,0,1)] z-50">
+                    <Link 
+                      to="/profile/$accountId" 
+                      params={{ accountId: currentAccountId }}
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      <div className="flex items-center gap-2 px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-200">
+                        <User size={16} />
+                        Profile
+                      </div>
+                    </Link>
+                    <div 
+                      className="flex items-center gap-2 px-4 py-3 hover:bg-gray-50 cursor-pointer text-red-600"
+                      onClick={() => {
+                        handleSignOut();
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      <LogOut size={16} />
+                      Disconnect
+                    </div>
+                  </div>
+                )}
+              </div>
             </>
           )}
         </div>
       </div>
+      
+      {/* Overlay to close dropdown when clicking outside */}
+      {isDropdownOpen && (
+        <div 
+          className="fixed inset-0 z-40" 
+          onClick={() => setIsDropdownOpen(false)}
+        />
+      )}
     </div>
   );
 };

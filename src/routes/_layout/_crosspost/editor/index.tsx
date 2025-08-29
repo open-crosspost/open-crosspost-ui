@@ -49,6 +49,7 @@ function EditorPage() {
     type: string;
   } | null>(null);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"editor" | "scheduled">("editor");
 
   // Detect platform from URL and determine which platforms to disable
   const disabledPlatforms = useMemo<PlatformName[]>(() => {
@@ -220,80 +221,112 @@ function EditorPage() {
   }, []);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 w-full max-w-7xl mx-auto">
-      {/* Left Side - Editor */}
-      <div className="flex-1 min-w-0">
-        <div className="space-y-4 mb-4">
-          <PlatformAccountsSelector disabledPlatforms={disabledPlatforms} />
-          {/* Controls Bar */}
-          <div className="flex justify-between items-center mb-2">
-            <PostInteractionSelector
-              postType={postType}
-              targetUrl={targetUrl}
-              onPostTypeChange={setPostType}
-              onTargetUrlChange={setTargetUrl}
-            />
-            <Button onClick={() => setModalOpen(true)} size="sm">
-              Drafts
-            </Button>
-          </div>
-        </div>
-
-        <PostEditorCore
-          posts={posts}
-          onPostsChange={handlePostsChange}
-          onTextChange={handleTextChange}
-          onMediaUpload={handleMediaUpload}
-          onMediaRemove={removeMedia}
-          onAddThread={addThread}
-          onRemoveThread={removeThread}
-          onOpenMediaModal={openMediaModal}
-          onTextFocus={handleTextFocus}
-          onTextBlur={handleTextBlur}
-        />
-
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mt-4">
-          <span className="text-sm text-gray-500 order-2 sm:order-1 text-left">
-            {`${posts.length} parts`}
-          </span>
-          <div className="flex gap-2 order-1 sm:order-2">
-            <Button
-              onClick={handleSaveDraft}
-              disabled={posts.every((p) => !(p.text || "").trim())}
-              className="flex-1 sm:flex-auto"
-            >
-              Save Draft
-            </Button>
-            <Button
-              onClick={() => setIsScheduleModalOpen(true)}
-              disabled={
-                posts.every((p) => !(p.text || "").trim()) ||
-                selectedAccounts.length === 0
-              }
-              className="flex-1 sm:flex-auto border-2 border-black"
-              variant="outline"
-            >
-              Schedule
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={
-                isPosting ||
-                posts.every((p) => !(p.text || "").trim()) ||
-                selectedAccounts.length === 0
-              }
-              className="flex-1 sm:flex-auto"
-            >
-              {isPosting ? "Posting..." : "Post"}
-            </Button>
-          </div>
+    <div className="w-full h-full lg:px-6 lg:pb-6">
+      {/* Mobile Tab Navigation - Only visible on mobile */}
+      <div className="lg:hidden border-b border-gray-200 mb-6">
+        <div className="flex">
+          <button
+            className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === "editor"
+                ? "border-black text-black bg-gray-50"
+                : "border-transparent text-gray-500 hover:text-gray-700"
+            }`}
+            onClick={() => setActiveTab("editor")}
+          >
+            Editor
+          </button>
+          <button
+            className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === "scheduled"
+                ? "border-black text-black bg-gray-50"
+                : "border-transparent text-gray-500 hover:text-gray-700"
+            }`}
+            onClick={() => setActiveTab("scheduled")}
+          >
+            Scheduled Posts
+          </button>
         </div>
       </div>
 
-      {/* Right Side - Scheduled Posts Queue */}
-      <div className="w-full lg:w-96 lg:flex-shrink-0">
-        <div className="lg:sticky lg:top-4">
-          <ScheduledPostsFeed />
+      <div className="flex flex-col lg:flex-row lg:gap-8 w-full h-full">
+        {/* Left Side - Editor (50%) */}
+        <div className={`flex-1 lg:w-1/2 min-w-0 px-4 lg:px-0 ${activeTab === "editor" ? "block" : "hidden lg:block"}`}>
+          <div className="h-full flex flex-col">
+            <div className="space-y-4 mb-4">
+              <PlatformAccountsSelector disabledPlatforms={disabledPlatforms} />
+              {/* Controls Bar */}
+              <div className="flex justify-between items-center mb-2">
+                <PostInteractionSelector
+                  postType={postType}
+                  targetUrl={targetUrl}
+                  onPostTypeChange={setPostType}
+                  onTargetUrlChange={setTargetUrl}
+                />
+                <Button onClick={() => setModalOpen(true)} size="sm">
+                  Drafts
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex-1 flex flex-col">
+              <PostEditorCore
+                posts={posts}
+                onPostsChange={handlePostsChange}
+                onTextChange={handleTextChange}
+                onMediaUpload={handleMediaUpload}
+                onMediaRemove={removeMedia}
+                onAddThread={addThread}
+                onRemoveThread={removeThread}
+                onOpenMediaModal={openMediaModal}
+                onTextFocus={handleTextFocus}
+                onTextBlur={handleTextBlur}
+              />
+
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mt-4">
+                <span className="text-sm text-gray-500 order-2 sm:order-1 text-left">
+                  {`${posts.length} parts`}
+                </span>
+                <div className="flex gap-2 order-1 sm:order-2">
+                  <Button
+                    onClick={handleSaveDraft}
+                    disabled={posts.every((p) => !(p.text || "").trim())}
+                    className="flex-1 sm:flex-auto"
+                  >
+                    Save Draft
+                  </Button>
+                  <Button
+                    onClick={() => setIsScheduleModalOpen(true)}
+                    disabled={
+                      posts.every((p) => !(p.text || "").trim()) ||
+                      selectedAccounts.length === 0
+                    }
+                    className="flex-1 sm:flex-auto border-2 border-black"
+                    variant="outline"
+                  >
+                    Schedule
+                  </Button>
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={
+                      isPosting ||
+                      posts.every((p) => !(p.text || "").trim()) ||
+                      selectedAccounts.length === 0
+                    }
+                    className="flex-1 sm:flex-auto"
+                  >
+                    {isPosting ? "Posting..." : "Post"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side - Scheduled Posts Queue (50%) */}
+        <div className={`flex-1 lg:w-1/2 px-4 lg:px-0 ${activeTab === "scheduled" ? "block" : "hidden lg:block"}`}>
+          <div className="h-full overflow-auto">
+            <ScheduledPostsFeed />
+          </div>
         </div>
       </div>
 

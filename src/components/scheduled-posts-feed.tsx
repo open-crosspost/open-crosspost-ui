@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Calendar, Clock, Edit, Trash2, Play, AlertCircle, CheckCircle2, XCircle } from "lucide-react";
+import { Calendar, Clock, Edit, Trash2, Play, AlertCircle, CheckCircle2, XCircle, ChevronDown } from "lucide-react";
 import { Button } from "./ui/button";
 import { useScheduledPostsStore, ScheduledPost } from "../store/scheduled-posts-store";
 import { toast } from "../hooks/use-toast";
@@ -62,59 +62,30 @@ const ScheduledPostItem: React.FC<ScheduledPostItemProps> = ({ post, onDelete, o
 
   return (
     <div className="p-4 base-component rounded-md hover:bg-gray-50 transition-colors">
-      <div className="flex justify-between items-start mb-3">
+      <div className="flex justify-between items-center mb-3">
         <div className="flex items-center gap-2">
           <StatusIcon status={post.status} />
           <StatusBadge status={post.status} />
         </div>
-        <div className="flex items-center gap-2">
-          {post.status === "pending" && onEdit && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => onEdit(post)}
-              className="p-1 base-component"
-              title="Edit scheduled post"
-            >
-              <Edit size={14} />
-            </Button>
-          )}
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleDelete}
-            className="p-1 text-red-500 hover:text-red-700 base-component"
-            title="Delete scheduled post"
-          >
-            <Trash2 size={14} />
-          </Button>
-        </div>
+        <Button
+
+        bu
+        
+          size="sm"
+          variant="outline"
+          onClick={handleDelete}
+          className="p-0 w-9 h-9 text-red-500 hover:text-red-700 base-component flex items-center justify-center border-2 border-black min-w-[36px] min-h-[36px] max-w-[36px] max-h-[36px]"
+          title="Delete scheduled post"
+        >
+          <Trash2 size={16} />
+        </Button>
       </div>
 
       <div className="space-y-2">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Calendar size={14} />
-          <span>
-            {scheduledDate.toLocaleDateString()} • {scheduledDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </span>
-          {isUpcoming && (
-            <span className="text-blue-600 font-medium">
-              (in {Math.ceil((scheduledDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))} days)
-            </span>
-          )}
-        </div>
 
-        <div className="text-sm text-gray-600">
-          <strong>Platforms:</strong> {post.platforms?.join(", ") || "None"}
-        </div>
-
-        <div className="text-sm text-gray-600">
-          <strong>Posts:</strong> {post.posts?.length || 0} part{(post.posts?.length || 0) !== 1 ? "s" : ""}
-        </div>
 
         {post.posts && post.posts.length > 0 && (
-          <div className="mt-2 p-2 bg-gray-50 rounded text-sm">
-            <div className="font-medium mb-1">Preview:</div>
+          <div className="p-3 bg-gray-50 rounded">
             <div className="text-gray-700 line-clamp-2">
               {post.posts[0]?.text?.replace("ㅤ", "").trim() || "No text content"}
             </div>
@@ -133,8 +104,8 @@ const ScheduledPostItem: React.FC<ScheduledPostItemProps> = ({ post, onDelete, o
         )}
 
         {post.executedAt && (
-          <div className="text-xs text-gray-500">
-            {post.status === "completed" ? "Completed" : "Failed"} at: {new Date(post.executedAt).toLocaleString()}
+          <div className="text-xs text-gray-500 mt-3">
+            {post.status === "completed" ? "Completed" : "Failed"} at: {new Date(post.executedAt).toLocaleDateString()} • {new Date(post.executedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </div>
         )}
       </div>
@@ -175,39 +146,18 @@ export const ScheduledPostsFeed: React.FC = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold">Scheduled Posts</h2>
-        <div className="flex gap-2">
-          <Button
-            size="sm"
-            variant={filter === "all" ? "default" : "outline"}
-            onClick={() => setFilter("all")}
-            className="base-component"
+        <div className="relative">
+          <select 
+            value={filter} 
+            onChange={(e) => setFilter(e.target.value as "all" | "pending" | "completed" | "failed")}
+            className="appearance-none inline-flex items-center justify-start gap-2 whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:shadow-[1px_1px_0_rgba(0,0,0,1)] hover:translate-y-0.5 min-h-[36px] touch-manipulation bg-white text-primary border-2 border-primary hover:bg-secondary/90 base-component h-9 px-3 py-2 pr-10 cursor-pointer text-left max-w-32"
           >
-            All ({scheduledPosts.length})
-          </Button>
-          <Button
-            size="sm"
-            variant={filter === "pending" ? "default" : "outline"}
-            onClick={() => setFilter("pending")}
-            className="base-component border-2 border-black"
-          >
-            Pending ({pendingCount})
-          </Button>
-          <Button
-            size="sm"
-            variant={filter === "completed" ? "default" : "outline"}
-            onClick={() => setFilter("completed")}
-            className="base-component border-2 border-black"
-          >
-            Completed ({completedCount})
-          </Button>
-          <Button
-            size="sm"
-            variant={filter === "failed" ? "default" : "outline"}
-            onClick={() => setFilter("failed")}
-            className="base-component border-2 border-black"
-          >
-            Failed ({failedCount})
-          </Button>
+            <option value="all">All ({scheduledPosts.length})</option>
+            <option value="pending">Pending ({pendingCount})</option>
+            <option value="completed">Completed ({completedCount})</option>
+            <option value="failed">Failed ({failedCount})</option>
+          </select>
+          <ChevronDown size={14} className="absolute right-1 top-1/2 transform -translate-y-1/2 pointer-events-none" />
         </div>
       </div>
 
