@@ -1,5 +1,4 @@
 import { Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
 import { PenSquare, Trophy, User, LogOut, ChevronDown } from "lucide-react";
 import * as React from "react";
 import { useState } from "react";
@@ -7,7 +6,7 @@ import { ConnectToNearButton } from "./connect-to-near";
 import { Button } from "./ui/button";
 import { useAuth } from "@/contexts/auth-context";
 
-export const WindowControls: React.FC = () => {
+export const Header: React.FC = () => {
   const { isSignedIn, currentAccountId, handleSignOut } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -31,7 +30,6 @@ export const WindowControls: React.FC = () => {
                 </Button>
               </Link>
 
-              {/* Profile Dropdown - visible dropdown */}
               <div className="relative">
                 <Button
                   className="flex items-center gap-2"
@@ -72,7 +70,6 @@ export const WindowControls: React.FC = () => {
         </div>
       </div>
 
-      {/* Overlay to close dropdown when clicking outside */}
       {isDropdownOpen && (
         <div
           className="fixed inset-0 z-40"
@@ -82,23 +79,3 @@ export const WindowControls: React.FC = () => {
     </div>
   );
 };
-
-interface WindowContainerProps {
-  children: React.ReactNode;
-}
-
-export function WindowContainer({ children }: WindowContainerProps) {
-  return (
-    <div className="min-h-screen p-2 relative">
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="mx-auto min-h-[calc(100vh-1rem)] w-full border-2 border-gray-800 bg-white shadow-[4px_4px_0_rgba(0,0,0,1)]"
-      >
-        <WindowControls />
-        <div className="p-2 sm:p-4 md:p-8">{children}</div>
-      </motion.div>
-    </div>
-  );
-}

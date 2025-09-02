@@ -71,7 +71,7 @@ function CrosspostContainer() {
 
   if (!isSignedIn) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen gap-4">
+      <div className="flex flex-col items-center justify-center gap-4 h-[60vh]">
         <h2 className="text-xl font-semibold">Welcome to Open Crosspost</h2>
         <p className="text-center max-w-md mb-4">
           Please connect your NEAR wallet to get started.
@@ -109,7 +109,7 @@ function CrosspostContainer() {
       );
     } else {
       return (
-        <div className="flex flex-col items-center justify-center h-screen gap-4">
+        <div className="flex flex-col items-center justify-center gap-4 h-[60vh]">
           <p className="text-lg">
             Authorization is required to use this application.
           </p>
