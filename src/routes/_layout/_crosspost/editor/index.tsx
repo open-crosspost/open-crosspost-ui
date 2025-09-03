@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { DraftsModal } from "../../../../components/drafts-modal";
+import { PreviewModal } from "../../../../components/preview-modal";
 import { PlatformAccountsSelector } from "../../../../components/platform-accounts-selector";
 import { PostEditorCore } from "../../../../components/post-editor-core";
 import {
@@ -23,6 +24,13 @@ import { useSelectedAccounts } from "../../../../store/platform-accounts-store";
 import { MediaPreviewModal } from "../../../../components/media-preview-modal";
 import { SchedulePostModal } from "../../../../components/schedule-post-modal";
 import { ScheduledPostsFeed } from "../../../../components/scheduled-posts-feed";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../../../../components/ui/dropdown-menu";
+import { MoreHorizontal, Eye, FileText } from "lucide-react";
 
 export const Route = createFileRoute("/_layout/_crosspost/editor/")({
   component: EditorPage,
@@ -44,6 +52,7 @@ function EditorPage() {
   const [postType, setPostType] = useState<PostType>("post");
   const [targetUrl, setTargetUrl] = useState("");
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [modalMediaContent, setModalMediaContent] = useState<{
     src: string;
     type: string;
@@ -257,16 +266,60 @@ function EditorPage() {
             <div className="space-y-4 mb-4">
               <PlatformAccountsSelector disabledPlatforms={disabledPlatforms} />
               {/* Controls Bar */}
-              <div className="flex justify-between items-center mb-2">
+              <div className="flex items-center gap-2 mb-2">
                 <PostInteractionSelector
                   postType={postType}
                   targetUrl={targetUrl}
                   onPostTypeChange={setPostType}
                   onTargetUrlChange={setTargetUrl}
                 />
-                <Button onClick={() => setModalOpen(true)} size="sm">
-                  Drafts
-                </Button>
+                {/* Mobile Dropdown */}
+                <div className="lg:hidden">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-black"
+                      >
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => setIsPreviewOpen(true)}
+                        disabled={posts.every(
+                          (p) => !(p.text || "").trim() || p.text === "ㅤ",
+                        )}
+                      >
+                        <Eye className="mr-2 h-4 w-4" />
+                        Preview
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setModalOpen(true)}>
+                        <FileText className="mr-2 h-4 w-4" />
+                        Drafts
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+                {/* Desktop Buttons */}
+                <div className="hidden lg:flex gap-2 flex-shrink-0">
+                  <Button
+                    onClick={() => setIsPreviewOpen(true)}
+                    disabled={posts.every(
+                      (p) => !(p.text || "").trim() || p.text === "ㅤ",
+                    )}
+                    variant="outline"
+                    size="sm"
+                    className="border-black"
+                  >
+                    Preview
+                  </Button>
+                  <Button onClick={() => setModalOpen(true)} size="sm">
+                    Drafts
+                  </Button>
+                </div>
               </div>
             </div>
 
@@ -347,6 +400,12 @@ function EditorPage() {
         posts={posts}
         selectedPlatforms={selectedAccounts.map((account) => account.platform)}
         onScheduled={handleSchedulePost}
+      />
+      <PreviewModal
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        posts={posts}
+        selectedAccounts={selectedAccounts}
       />
     </div>
   );

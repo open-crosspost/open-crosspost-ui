@@ -46,7 +46,7 @@ export function ProfilePage() {
   return (
     <div className="flex flex-col space-y-6">
       <div className="p-4">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
+        <h1 className="text-2xl font-bold flex items-center gap-2 text-gray-900 dark:text-white">
           <span>{accountId}</span>
           <InlineBadges accountId={accountId} />
         </h1>
@@ -138,9 +138,11 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
   if (isLoading) {
     return (
       <div className="p-4">
-        <h2 className="text-xl font-semibold mb-4">Posts for {accountId}</h2>
+        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+          Posts for {accountId}
+        </h2>
         <div className="flex justify-center items-center h-32">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-gray-100"></div>
         </div>
       </div>
     );
@@ -149,8 +151,10 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
   if (isError) {
     return (
       <div className="p-4">
-        <h2 className="text-xl font-semibold mb-4">Posts for {accountId}</h2>
-        <div className="p-4 text-center text-red-600">
+        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+          Posts for {accountId}
+        </h2>
+        <div className="p-4 text-center text-red-600 dark:text-red-400">
           <p>{error?.message || "An unknown error occurred."}</p>
           <Button onClick={() => refetch()} className="mt-2">
             Retry
@@ -163,8 +167,10 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
   if (!posts || posts.length === 0) {
     return (
       <div className="p-4">
-        <h2 className="text-xl font-semibold mb-4">Posts for {accountId}</h2>
-        <p className="text-center text-gray-500 py-8">
+        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+          Posts for {accountId}
+        </h2>
+        <p className="text-center text-gray-500 dark:text-gray-400 py-8">
           No posts found for this account.
         </p>
       </div>
@@ -173,28 +179,30 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4">Posts for {accountId}</h2>
+      <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+        Posts for {accountId}
+      </h2>
       <div className="space-y-3">
         {posts.map((post) => (
           <div
             key={post.id}
-            className="p-3 hover:bg-gray-50 transition-colors base-component rounded-md"
+            className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors base-component rounded-md"
           >
             <div className="flex justify-between items-center mb-2 text-sm">
               <div className="flex items-center space-x-1.5">
                 <PlatformIcon
                   platform={post.platform}
-                  className="w-4 h-4 text-gray-600"
+                  className="w-4 h-4 text-gray-600 dark:text-gray-400"
                 />
-                <span className="font-medium capitalize text-gray-700">
+                <span className="font-medium capitalize text-gray-700 dark:text-gray-300">
                   {post.platform}
                 </span>
-                <span className="text-gray-400">•</span>
-                <span className="text-gray-500 capitalize">
+                <span className="text-gray-400 dark:text-gray-500">•</span>
+                <span className="text-gray-500 dark:text-gray-400 capitalize">
                   {post.type ?? "post"}
                 </span>
               </div>
-              <span className="text-gray-500 text-xs">
+              <span className="text-gray-500 dark:text-gray-400 text-xs">
                 {new Date(post.createdAt).toLocaleDateString()} •{" "}
                 {new Date(post.createdAt).toLocaleTimeString([], {
                   hour: "2-digit",
@@ -221,7 +229,7 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
                 href={post.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-800 transition-colors"
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
                 title={`View on ${post.platform}`}
               >
                 view post

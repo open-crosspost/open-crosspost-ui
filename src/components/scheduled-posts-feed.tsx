@@ -40,15 +40,15 @@ const StatusBadge: React.FC<{ status: ScheduledPost["status"] }> = ({
   const getStatusColor = () => {
     switch (status) {
       case "pending":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200";
       case "executing":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200";
       case "completed":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200";
       case "failed":
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200";
     }
   };
 
@@ -86,7 +86,7 @@ const ScheduledPostItem: React.FC<ScheduledPostItemProps> = ({
   };
 
   return (
-    <div className="p-4 base-component rounded-md hover:bg-gray-50 transition-colors">
+    <div className="p-4 base-component rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
       <div className="flex justify-between items-center mb-3">
         <div className="flex items-center gap-2">
           <StatusIcon status={post.status} />
@@ -106,13 +106,13 @@ const ScheduledPostItem: React.FC<ScheduledPostItemProps> = ({
 
       <div className="space-y-2">
         {post.posts && post.posts.length > 0 && (
-          <div className="p-3 bg-gray-50 rounded">
-            <div className="text-gray-700 line-clamp-2">
+          <div className="p-3 bg-gray-50 dark:bg-black rounded">
+            <div className="text-gray-700 dark:text-white line-clamp-2">
               {post.posts[0]?.text?.replace("ㅤ", "").trim() ||
                 "No text content"}
             </div>
             {post.posts[0]?.media && post.posts[0].media.length > 0 && (
-              <div className="text-gray-500 text-xs mt-1">
+              <div className="text-gray-500 dark:text-gray-400 text-xs mt-1">
                 + {post.posts[0].media.length} media file
                 {post.posts[0].media.length !== 1 ? "s" : ""}
               </div>
@@ -121,13 +121,13 @@ const ScheduledPostItem: React.FC<ScheduledPostItemProps> = ({
         )}
 
         {post.status === "failed" && post.error && (
-          <div className="mt-2 p-2 bg-red-50 rounded text-sm text-red-700">
+          <div className="mt-2 p-2 bg-red-50 dark:bg-red-900 rounded text-sm text-red-700 dark:text-red-300">
             <strong>Error:</strong> {post.error}
           </div>
         )}
 
         {post.executedAt && (
-          <div className="text-xs text-gray-500 mt-3">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-3">
             {post.status === "completed" ? "Completed" : "Failed"} at:{" "}
             {new Date(post.executedAt).toLocaleDateString()} •{" "}
             {new Date(post.executedAt).toLocaleTimeString([], {
@@ -207,8 +207,11 @@ export const ScheduledPostsFeed: React.FC = () => {
       </div>
 
       {sortedPosts.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          <Calendar size={48} className="mx-auto mb-4 text-gray-300" />
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+          <Calendar
+            size={48}
+            className="mx-auto mb-4 text-gray-300 dark:text-gray-600"
+          />
           <p className="text-lg font-medium mb-2">No scheduled posts</p>
           <p>
             {filter === "all"
