@@ -232,13 +232,13 @@ function EditorPage() {
   return (
     <div className="w-full h-full lg:px-6 lg:pb-6">
       {/* Mobile Tab Navigation - Only visible on mobile */}
-      <div className="lg:hidden border-b border-gray-200 mb-6">
+      <div className="lg:hidden border-b border-gray-200 dark:border-gray-600 mb-6">
         <div className="flex">
           <button
             className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${
               activeTab === "editor"
-                ? "border-black text-black bg-gray-50"
-                : "border-transparent text-gray-500 hover:text-gray-700"
+                ? "border-black dark:border-white text-black dark:text-white bg-gray-50 dark:bg-gray-800"
+                : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
             }`}
             onClick={() => setActiveTab("editor")}
           >
@@ -247,8 +247,8 @@ function EditorPage() {
           <button
             className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${
               activeTab === "scheduled"
-                ? "border-black text-black bg-gray-50"
-                : "border-transparent text-gray-500 hover:text-gray-700"
+                ? "border-black dark:border-white text-black dark:text-white bg-gray-50 dark:bg-gray-800"
+                : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
             }`}
             onClick={() => setActiveTab("scheduled")}
           >
