@@ -216,7 +216,7 @@ function LeaderboardPage() {
       cell: (info) => {
         const accountId = info.getValue();
         return (
-          <div className="flex items-center gap-2 w-[120px]">
+          <div className="flex items-center gap-2 w-[180px]">
             <Link
               to={`/profile/$accountId`}
               params={{ accountId }}
