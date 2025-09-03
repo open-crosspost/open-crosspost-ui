@@ -109,49 +109,38 @@ export function SchedulePostModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 base-component">
-        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+      <div className="bg-white dark:bg-black rounded-lg p-6 w-full max-w-md mx-4 base-component">
+        <h2 className="text-xl font-bold mb-4 flex items-center gap-2 ">
           <Calendar size={20} />
           Schedule Post
         </h2>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Date</label>
+            <label className="block text-sm font-medium mb-2 ">Date</label>
             <input
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
               min={currentDate}
-              className="w-full p-2 border-2 border-gray-800 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 border-2 border-primary  rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 "
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Time</label>
+            <label className="block text-sm font-medium mb-2 ">Time</label>
             <input
               type="time"
               value={selectedTime}
               onChange={(e) => setSelectedTime(e.target.value)}
               min={selectedDate === currentDate ? currentTime : undefined}
-              className="w-full p-2 border-2 border-gray-800 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 border-2 border-primary  rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 "
             />
           </div>
 
-          <div className="bg-gray-50 p-3 rounded">
-            <p className="text-sm text-gray-600 mb-2">
-              <strong>Platforms:</strong>{" "}
-              {selectedPlatforms?.join(", ") || "None selected"}
-            </p>
-            <p className="text-sm text-gray-600">
-              <strong>Posts:</strong> {posts?.length || 0} part
-              {(posts?.length || 0) !== 1 ? "s" : ""}
-            </p>
-          </div>
-
           {selectedDate && selectedTime && (
-            <div className="bg-blue-50 p-3 rounded">
-              <p className="text-sm text-blue-800 flex items-center gap-2">
+            <div className="bg-blue-50 dark:bg-blue-900 p-3 rounded">
+              <p className="text-sm text-blue-800 dark:text-white flex items-center gap-2">
                 <Clock size={16} />
                 Scheduled for:{" "}
                 {new Date(`${selectedDate}T${selectedTime}`).toLocaleString()}
@@ -161,7 +150,7 @@ export function SchedulePostModal({
         </div>
 
         <div className="flex gap-2 mt-6">
-          <Button onClick={onClose} className="flex-1" variant="outline">
+          <Button onClick={onClose} className="flex-1">
             Cancel
           </Button>
           <Button

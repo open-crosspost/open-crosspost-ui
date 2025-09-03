@@ -3,7 +3,7 @@ import { Button } from "./ui/button";
 
 export function Footer() {
   return (
-    <footer className="flex justify-between m-2 sm:m-4 font-mono text-gray-500 text-xs sm:text-sm">
+    <footer className="flex justify-between m-2 sm:m-4 font-mono text-gray-500 dark:text-gray-400 text-xs sm:text-sm">
       <div className="flex gap-2">
         <Button asChild>
           <a

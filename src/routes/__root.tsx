@@ -8,6 +8,7 @@ import React from "react";
 import { z } from "zod";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/auth-context";
+import { ThemeProvider } from "@/contexts/theme-context";
 
 export const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
@@ -48,13 +49,15 @@ function RootComponent() {
   const { pretend } = useSearch({ from: Route.id });
 
   return (
-    <AuthProvider pretendAccountId={pretend}>
-      <Outlet />
-      <Toaster />
-      <React.Suspense>
-        <TanStackRouterDevtools position="bottom-left" />
-        <ReactQueryDevtools buttonPosition="bottom-left" />
-      </React.Suspense>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider pretendAccountId={pretend}>
+        <Outlet />
+        <Toaster />
+        <React.Suspense>
+          <TanStackRouterDevtools position="bottom-left" />
+          <ReactQueryDevtools buttonPosition="bottom-left" />
+        </React.Suspense>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
