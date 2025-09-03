@@ -470,7 +470,7 @@ function LeaderboardPage() {
                       {row.getVisibleCells()?.map((cell) => (
                         <TableCell
                           key={cell.id}
-                          className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white"
+                          className="px-6 py-4 whitespace-nowrap text-sm "
                         >
                           {flexRender(
                             cell.column.columnDef.cell,

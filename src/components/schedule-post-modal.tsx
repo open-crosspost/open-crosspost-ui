@@ -110,35 +110,31 @@ export function SchedulePostModal({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-black rounded-lg p-6 w-full max-w-md mx-4 base-component">
-        <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-gray-900 dark:text-white">
+        <h2 className="text-xl font-bold mb-4 flex items-center gap-2 ">
           <Calendar size={20} />
           Schedule Post
         </h2>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
-              Date
-            </label>
+            <label className="block text-sm font-medium mb-2 ">Date</label>
             <input
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
               min={currentDate}
-              className="w-full p-2 border-2 border-gray-800 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              className="w-full p-2 border-2 border-primary  rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 "
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
-              Time
-            </label>
+            <label className="block text-sm font-medium mb-2 ">Time</label>
             <input
               type="time"
               value={selectedTime}
               onChange={(e) => setSelectedTime(e.target.value)}
               min={selectedDate === currentDate ? currentTime : undefined}
-              className="w-full p-2 border-2 border-gray-800 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              className="w-full p-2 border-2 border-primary  rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 "
             />
           </div>
 
@@ -154,11 +150,7 @@ export function SchedulePostModal({
         </div>
 
         <div className="flex gap-2 mt-6">
-          <Button
-            onClick={onClose}
-            className="flex-1 border-2 border-black dark:border-white"
-            variant="outline"
-          >
+          <Button onClick={onClose} className="flex-1">
             Cancel
           </Button>
           <Button

@@ -46,7 +46,7 @@ export function ProfilePage() {
   return (
     <div className="flex flex-col space-y-6">
       <div className="p-4">
-        <h1 className="text-2xl font-bold flex items-center gap-2 text-gray-900 dark:text-white">
+        <h1 className="text-2xl font-bold flex items-center gap-2">
           <span>{accountId}</span>
           <InlineBadges accountId={accountId} />
         </h1>
@@ -138,9 +138,7 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
   if (isLoading) {
     return (
       <div className="p-4">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-          Posts for {accountId}
-        </h2>
+        <h2 className="text-xl font-semibold mb-4">Posts for {accountId}</h2>
         <div className="flex justify-center items-center h-32">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-gray-100"></div>
         </div>
@@ -151,9 +149,7 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
   if (isError) {
     return (
       <div className="p-4">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-          Posts for {accountId}
-        </h2>
+        <h2 className="text-xl font-semibold mb-4">Posts for {accountId}</h2>
         <div className="p-4 text-center text-red-600 dark:text-red-400">
           <p>{error?.message || "An unknown error occurred."}</p>
           <Button onClick={() => refetch()} className="mt-2">
@@ -167,9 +163,7 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
   if (!posts || posts.length === 0) {
     return (
       <div className="p-4">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-          Posts for {accountId}
-        </h2>
+        <h2 className="text-xl font-semibold mb-4">Posts for {accountId}</h2>
         <p className="text-center text-gray-500 dark:text-gray-400 py-8">
           No posts found for this account.
         </p>
@@ -179,9 +173,7 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-        Posts for {accountId}
-      </h2>
+      <h2 className="text-xl font-semibold mb-4">Posts for {accountId}</h2>
       <div className="space-y-3">
         {posts.map((post) => (
           <div

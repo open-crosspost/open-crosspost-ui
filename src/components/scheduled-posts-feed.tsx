@@ -12,6 +12,12 @@ import {
 } from "lucide-react";
 import { Button } from "./ui/button";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import {
   useScheduledPostsStore,
   ScheduledPost,
 } from "../store/scheduled-posts-store";
@@ -93,11 +99,9 @@ const ScheduledPostItem: React.FC<ScheduledPostItemProps> = ({
           <StatusBadge status={post.status} />
         </div>
         <Button
-          bu
           size="sm"
-          variant="outline"
           onClick={handleDelete}
-          className="p-0 w-9 h-9 text-red-500 hover:text-red-700 base-component flex items-center justify-center border-2 border-black min-w-[36px] min-h-[36px] max-w-[36px] max-h-[36px]"
+          className="p-0 w-9 h-9 text-red-500 hover:text-red-700 base-component flex items-center justify-center min-w-[36px] min-h-[36px] max-w-[36px] max-h-[36px]"
           title="Delete scheduled post"
         >
           <Trash2 size={16} />
@@ -184,26 +188,43 @@ export const ScheduledPostsFeed: React.FC = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold">Scheduled Posts</h2>
-        <div className="relative">
-          <select
-            value={filter}
-            onChange={(e) =>
-              setFilter(
-                e.target.value as "all" | "pending" | "completed" | "failed",
-              )
-            }
-            className="appearance-none inline-flex items-center justify-start gap-2 whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:shadow-[1px_1px_0_rgba(0,0,0,1)] hover:translate-y-0.5 min-h-[36px] touch-manipulation bg-white text-primary border-2 border-primary hover:bg-secondary/90 base-component h-9 px-3 py-2 pr-10 cursor-pointer text-left max-w-32"
-          >
-            <option value="all">All ({scheduledPosts.length})</option>
-            <option value="pending">Pending ({pendingCount})</option>
-            <option value="completed">Completed ({completedCount})</option>
-            <option value="failed">Failed ({failedCount})</option>
-          </select>
-          <ChevronDown
-            size={14}
-            className="absolute right-1 top-1/2 transform -translate-y-1/2 pointer-events-none"
-          />
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button className="flex items-center gap-2 max-w-32">
+              {filter === "all" && `All (${scheduledPosts.length})`}
+              {filter === "pending" && `Pending (${pendingCount})`}
+              {filter === "completed" && `Completed (${completedCount})`}
+              {filter === "failed" && `Failed (${failedCount})`}
+              <ChevronDown size={14} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={() => setFilter("all")}
+              className={filter === "all" ? "bg-accent" : ""}
+            >
+              All ({scheduledPosts.length})
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => setFilter("pending")}
+              className={filter === "pending" ? "bg-accent" : ""}
+            >
+              Pending ({pendingCount})
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => setFilter("completed")}
+              className={filter === "completed" ? "bg-accent" : ""}
+            >
+              Completed ({completedCount})
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => setFilter("failed")}
+              className={filter === "failed" ? "bg-accent" : ""}
+            >
+              Failed ({failedCount})
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {sortedPosts.length === 0 ? (

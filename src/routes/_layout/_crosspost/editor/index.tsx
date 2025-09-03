@@ -232,7 +232,7 @@ function EditorPage() {
   return (
     <div className="w-full h-full lg:px-6 lg:pb-6">
       {/* Mobile Tab Navigation - Only visible on mobile */}
-      <div className="lg:hidden border-b border-gray-200 dark:border-gray-600 mb-6">
+      <div className="lg:hidden border-b border-gray-200  mb-6">
         <div className="flex">
           <button
             className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${
@@ -277,11 +277,7 @@ function EditorPage() {
                 <div className="lg:hidden">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-black"
-                      >
+                      <Button size="sm">
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -310,9 +306,7 @@ function EditorPage() {
                     disabled={posts.every(
                       (p) => !(p.text || "").trim() || p.text === "ㅤ",
                     )}
-                    variant="outline"
                     size="sm"
-                    className="border-black"
                   >
                     Preview
                   </Button>
@@ -355,8 +349,7 @@ function EditorPage() {
                       posts.every((p) => !(p.text || "").trim()) ||
                       selectedAccounts.length === 0
                     }
-                    className="flex-1 sm:flex-auto border-2 border-black"
-                    variant="outline"
+                    className="flex-1 sm:flex-auto"
                   >
                     Schedule
                   </Button>

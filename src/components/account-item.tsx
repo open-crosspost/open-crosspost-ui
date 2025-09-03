@@ -42,7 +42,7 @@ export function AccountItem({
               ? "border-2 border-gray-200 bg-gray-100 dark:bg-gray-800 opacity-60 cursor-not-allowed"
               : isSelected
                 ? "border-2 border-green-500 bg-green-50 dark:bg-black cursor-pointer"
-                : "border-2 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                : "border-2 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 dark:border-gray-800 cursor-pointer"
         }`}
         onClick={handleClick}
         title={title}
@@ -116,7 +116,7 @@ export function AccountItem({
             ? "border-gray-200 bg-gray-100 dark:bg-gray-800 opacity-60"
             : isSelected
               ? "border-green-500 bg-green-50 dark:bg-black"
-              : "border-gray-200"
+              : "border-gray-200 dark:border-gray-800"
       }`}
       title={title}
     >

@@ -1,10 +1,8 @@
-import React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Button } from "./ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
-import { X } from "lucide-react";
-import { ConnectedAccount } from "@crosspost/types";
 import { EditorContent } from "@/store/drafts-store";
+import { ConnectedAccount } from "@crosspost/types";
+import React from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 
 interface PreviewModalProps {
   isOpen: boolean;
@@ -23,11 +21,9 @@ export function PreviewModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-black border border-gray-200 dark:border-gray-600 rounded-lg">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-black border border-gray-200  rounded-lg">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
-            Preview
-          </DialogTitle>
+          <DialogTitle className="text-xl font-bold ">Preview</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -37,7 +33,7 @@ export function PreviewModal({
 
           {selectedAccounts.map((account) => (
             <div key={account.userId} className="space-y-4">
-              <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+              <div className="border border-gray-200  rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
                 <div className="flex items-center gap-3 mb-3">
                   <Avatar className="h-10 w-10">
                     <AvatarImage

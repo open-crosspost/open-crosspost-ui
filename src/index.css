@@ -111,7 +111,7 @@
 
 @layer components {
   .base-component {
-    @apply border-2 border-gray-800 bg-white shadow-custom dark:border-gray-600 dark:bg-black;
+    @apply border-2 border-primary bg-white shadow-custom dark:bg-black dark:shadow-[4px_4px_0_rgba(255,255,255,0.3)];
   }
 
   .base-component-hover {

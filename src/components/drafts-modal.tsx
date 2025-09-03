@@ -29,7 +29,7 @@ export function DraftsModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.2 }}
-          className="relative w-[calc(100%-0.5rem)] sm:w-full max-w-2xl mx-auto border-2 border-gray-800 dark:border-gray-600 bg-white dark:bg-black shadow-[2px_2px_0_rgba(0,0,0,1)] dark:shadow-[2px_2px_0_rgba(255,255,255,0.3)] sm:shadow-[4px_4px_0_rgba(0,0,0,1)] dark:sm:shadow-[4px_4px_0_rgba(255,255,255,0.3)]"
+          className="relative w-[calc(100%-0.5rem)] sm:w-full max-w-2xl mx-auto border-2 border-primary  bg-white dark:bg-black shadow-[2px_2px_0_rgba(0,0,0,1)] dark:shadow-[2px_2px_0_rgba(255,255,255,0.3)] sm:shadow-[4px_4px_0_rgba(0,0,0,1)] dark:sm:shadow-[4px_4px_0_rgba(255,255,255,0.3)]"
         >
           <ModalWindowControls onClose={() => setModalOpen(false)} />
           <div className="p-3 sm:p-6">
@@ -57,7 +57,7 @@ export function DraftsModal({
                   {drafts.map((draft) => (
                     <div
                       key={draft.id}
-                      className="border-2 border-gray-800 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 p-3 sm:p-4 shadow-[2px_2px_0_rgba(0,0,0,1)] hover:bg-gray-200 dark:hover:bg-gray-700"
+                      className="border-2 border-primary  bg-gray-100 dark:bg-gray-800 p-3 sm:p-4 shadow-[2px_2px_0_rgba(0,0,0,1)] hover:bg-gray-200 dark:hover:bg-gray-700"
                     >
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
                         <span className="text-sm text-gray-600 dark:text-white">

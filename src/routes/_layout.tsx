@@ -17,7 +17,7 @@ function LayoutComponent() {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="mx-auto min-h-[calc(100vh-1rem)] w-full border-2 border-gray-800 dark:border-gray-600 bg-white dark:bg-black shadow-[4px_4px_0_rgba(0,0,0,1)] dark:shadow-[4px_4px_0_rgba(255,255,255,0.3)]"
+          className="mx-auto min-h-[calc(100vh-1rem)] w-full border-2 border-primary  bg-white dark:bg-black shadow-[4px_4px_0_rgba(0,0,0,1)] dark:shadow-[4px_4px_0_rgba(255,255,255,0.3)]"
         >
           <Header />
           <div className="p-2 sm:p-4 md:p-8">
