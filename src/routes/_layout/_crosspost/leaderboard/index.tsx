@@ -86,10 +86,10 @@ const fetchAllLeaderboardData = async ({
       timeframe,
       startDate,
       endDate,
-      platforms: [platform as Platform],
+      platforms: platform ? [platform as Platform] : undefined,
     });
 
-    const entries = response.data?.entries || [];
+    const entries = Array.isArray(response.data?.entries) ? response.data.entries : [];
     allEntries.push(...entries);
 
     hasMore = entries.length === limit;
@@ -106,6 +106,10 @@ function LeaderboardPage() {
 
   const parsedStartDate = startDate ? new Date(startDate) : undefined;
   const parsedEndDate = endDate ? new Date(endDate) : undefined;
+  
+  // Validate custom date range
+  const isValidDateRange = timeframe !== TimePeriod.CUSTOM || 
+    (parsedStartDate && parsedEndDate && parsedStartDate <= parsedEndDate);
 
   const [sorting, setSorting] = useState<SortingState>([
     { id: "rank", desc: false },
@@ -120,6 +124,7 @@ function LeaderboardPage() {
     data: queryResult,
     isLoading,
     error,
+    isFetching,
   } = useQuery({
     queryKey: [
       "leaderboard",
@@ -131,18 +136,24 @@ function LeaderboardPage() {
       platforms,
     ],
     queryFn: async () => {
-      const entries = await fetchLeaderboard({
+      const result = await fetchLeaderboard({
         limit: pagination.pageSize,
         offset: pagination.pageIndex * pagination.pageSize,
         timeframe: timeframe ?? TimePeriod.ALL,
+        startDate,
+        endDate,
+        platforms,
       });
-      return { entries };
+      return result;
     },
+    enabled: isValidDateRange, // Only run query if date range is valid
+    staleTime: 30000, // Cache for 30 seconds
+    refetchOnWindowFocus: false, // Don't refetch on window focus
   });
 
   // Extract data and metadata from query result
-  const data = queryResult?.entries || [];
-  const totalEntries = queryResult?.meta?.pagination?.total || data.length; // Fallback to data.length if meta is not available
+  const data = Array.isArray(queryResult?.entries) ? queryResult.entries : [];
+  const totalEntries = queryResult?.meta?.pagination?.total || 0;
 
   // Export fields configuration
   const exportFields: ExportField<AccountActivityEntry>[] = [
@@ -184,11 +195,12 @@ function LeaderboardPage() {
     try {
       const allData = await fetchAllLeaderboardData({
         timeframe: timeframe ?? TimePeriod.ALL,
+        platform: platforms?.[0], // Pass the first platform if available
         startDate,
         endDate,
       });
 
-      if (allData.length === 0) {
+      if (!Array.isArray(allData) || allData.length === 0) {
         alert("No data to export");
         return;
       }
@@ -201,7 +213,7 @@ function LeaderboardPage() {
       exportData(allData, exportFields, filename, format);
     } catch (error) {
       console.error("Export failed:", error);
-      alert("Export failed. Please try again.");
+      alert(`Export failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -425,15 +437,24 @@ function LeaderboardPage() {
         </div>
       )}
 
+
       {/* Loading state */}
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 dark:border-blue-400"></div>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 dark:border-blue-400 mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-400">Loading leaderboard data...</p>
+          </div>
         </div>
       ) : (
         <>
           {/* Table */}
-          <div className="overflow-x-auto base-component rounded-lg">
+          <div className="overflow-x-auto base-component rounded-lg relative">
+            {isFetching && !isLoading && (
+              <div className="absolute top-2 right-2 z-10">
+                <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-500 dark:border-blue-400"></div>
+              </div>
+            )}
             <Table className="min-w-full">
               <TableHeader className="bg-gray-50 dark:bg-gray-800">
                 {table.getHeaderGroups().map((headerGroup) => (
