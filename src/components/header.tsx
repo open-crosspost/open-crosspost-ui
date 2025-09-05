@@ -41,7 +41,9 @@ export const Header: React.FC = () => {
                 onClick={toggleDarkMode}
                 size="icon"
                 className="flex items-center justify-center w-9 h-9 p-0 flex-shrink-0"
-                title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+                title={
+                  isDarkMode ? "Switch to light mode" : "Switch to dark mode"
+                }
               >
                 {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
               </Button>

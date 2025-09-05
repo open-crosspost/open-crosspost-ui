@@ -89,7 +89,9 @@ const fetchAllLeaderboardData = async ({
       platforms: platform ? [platform as Platform] : undefined,
     });
 
-    const entries = Array.isArray(response.data?.entries) ? response.data.entries : [];
+    const entries = Array.isArray(response.data?.entries)
+      ? response.data.entries
+      : [];
     allEntries.push(...entries);
 
     hasMore = entries.length === limit;
@@ -106,9 +108,10 @@ function LeaderboardPage() {
 
   const parsedStartDate = startDate ? new Date(startDate) : undefined;
   const parsedEndDate = endDate ? new Date(endDate) : undefined;
-  
+
   // Validate custom date range
-  const isValidDateRange = timeframe !== TimePeriod.CUSTOM || 
+  const isValidDateRange =
+    timeframe !== TimePeriod.CUSTOM ||
     (parsedStartDate && parsedEndDate && parsedStartDate <= parsedEndDate);
 
   const [sorting, setSorting] = useState<SortingState>([
@@ -213,7 +216,9 @@ function LeaderboardPage() {
       exportData(allData, exportFields, filename, format);
     } catch (error) {
       console.error("Export failed:", error);
-      alert(`Export failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      alert(
+        `Export failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     }
   };
 
@@ -437,13 +442,14 @@ function LeaderboardPage() {
         </div>
       )}
 
-
       {/* Loading state */}
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 dark:border-blue-400 mx-auto mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-400">Loading leaderboard data...</p>
+            <p className="text-gray-600 dark:text-gray-400">
+              Loading leaderboard data...
+            </p>
           </div>
         </div>
       ) : (
