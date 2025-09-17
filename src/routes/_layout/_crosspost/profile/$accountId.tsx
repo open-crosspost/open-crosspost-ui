@@ -60,7 +60,11 @@ const PlatformIcon: React.FC<{ platform: string; className?: string }> = ({
   platform,
   className,
 }) => {
-  switch (platform.toLowerCase()) {
+  if (!platform) {
+    return <LinkIcon className={className} />; // Default icon for undefined platform
+  }
+  
+  switch (platform?.toLowerCase()) {
     case "twitter":
       return <Twitter className={className} />;
     default:

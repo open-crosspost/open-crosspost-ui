@@ -81,7 +81,14 @@ export function useConnectedAccounts() {
         const response = await client.auth.getConnectedAccounts();
 
         if (response.success && response.data) {
-          return response.data.accounts;
+          // Ensure accounts is an array and filter out any malformed entries
+          const accounts = response.data.accounts || [];
+          return accounts.filter(account => 
+            account && 
+            typeof account === 'object' && 
+            account.platform && 
+            account.userId
+          );
         } else {
           const errorMessage = response.errors?.length
             ? response.errors[0].message
@@ -145,7 +152,7 @@ export const useConnectAccount = () => {
         client.setAuthentication(authToken);
 
         const response: any = await client.auth.loginToPlatform(
-          platform.toLowerCase() as any,
+          platform?.toLowerCase() as any,
         );
 
         if (
@@ -199,7 +206,7 @@ export const useDisconnectAccount = createAuthenticatedMutation<
   mutationKey: ["disconnectAccount"],
   clientMethod: async (client, { platform, userId }) => {
     const response = await client.auth.revokeAuth(
-      platform.toLowerCase() as any,
+      platform?.toLowerCase() as any,
       userId,
     );
     if (response.success) {
@@ -235,7 +242,7 @@ export const useRefreshAccount = createAuthenticatedMutation<
   mutationKey: ["refreshAccount"],
   clientMethod: async (client, { platform, userId }) => {
     const response = await client.auth.refreshProfile(
-      platform.toLowerCase() as any,
+      platform?.toLowerCase() as any,
       userId,
     );
     if (response.success) {
@@ -263,7 +270,7 @@ export const useCheckAccountStatus = createAuthenticatedMutation<
   mutationKey: ["checkAccountStatus"],
   clientMethod: async (client, { platform, userId }) => {
     const response = await client.auth.getAuthStatus(
-      platform.toLowerCase() as any,
+      platform?.toLowerCase() as any,
       userId,
     );
 
@@ -342,7 +349,15 @@ export function useAllAccounts() {
   const { data: apiAccounts = [] } = useConnectedAccounts();
   const { data: profile } = useNearSocialAccount();
 
-  return [...apiAccounts, ...(profile ? [profile] : [])];
+  // Filter out any malformed accounts that might be missing required properties
+  const validApiAccounts = apiAccounts.filter(account => 
+    account && 
+    typeof account === 'object' && 
+    account.platform && 
+    account.userId
+  );
+
+  return [...validApiAccounts, ...(profile ? [profile] : [])];
 }
 
 // Hook to get selected accounts

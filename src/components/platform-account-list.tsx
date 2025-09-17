@@ -2,7 +2,7 @@ import { RefreshCw, Twitter } from "lucide-react";
 import React from "react";
 import { PlatformAccountItem } from "./platform-account";
 import { ConnectPlatform } from "./connect-platform";
-import { ConnectedAccount, Platform, PlatformName } from "@crosspost/types";
+import { ConnectedAccount, PlatformName } from "@crosspost/types";
 import { usePlatformAccountsStore } from "../store/platform-accounts-store";
 
 interface PlatformAccountListProps {
@@ -18,7 +18,7 @@ export function PlatformAccountList({
 }: PlatformAccountListProps) {
   const { isAccountSelected } = usePlatformAccountsStore();
   const filteredAccounts = accounts.filter(
-    (account) => account.platform === platform.toLowerCase(),
+    (account) => platform && account?.platform === platform.toLowerCase(),
   );
 
   return (
@@ -38,13 +38,20 @@ export function PlatformAccountList({
         <>
           {filteredAccounts.length === 0 ? (
             <div className="rounded-md border-2 border-dashed border-gray-200 p-4 sm:p-8 text-center">
-              {platform === Platform.TWITTER && (
+              {platform?.toLowerCase() === "twitter" && (
                 <Twitter className="mx-auto h-12 w-12 text-gray-400" />
               )}
-              <h3 className="mt-2 text-lg font-medium text-gray-900">
+              {platform?.toLowerCase() === "farcaster" && (
+                <img 
+                  src="/farcaster_logo.svg" 
+                  alt="Farcaster Logo" 
+                  className="mx-auto h-12 w-12 text-gray-400" 
+                />
+              )}
+              <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-gray-300">
                 No {platform} accounts connected
               </h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Connect your {platform} accounts to start crossposting
               </p>
               <div className="mt-6">
