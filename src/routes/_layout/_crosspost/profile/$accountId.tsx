@@ -66,7 +66,7 @@ const PlatformIcon: React.FC<{ platform: string; className?: string }> = ({
     case Platform.FARCASTER:
       return (
         <img
-          src="/farcaster_logo.svg"
+          src="/platforms/farcaster.svg"
           alt="Farcaster Logo"
           className={`text-gray-400 ${className}`}
         />

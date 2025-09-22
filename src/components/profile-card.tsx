@@ -58,7 +58,7 @@ export function ProfileCard({
             )}
             {platform === Platform.FARCASTER && (
               <img
-                src="/farcaster_logo.svg"
+                src="/platforms/farcaster.svg"
                 alt="Farcaster"
                 width={size === "sm" ? 14 : size === "md" ? 18 : 22}
                 height={size === "sm" ? 14 : size === "md" ? 18 : 22}

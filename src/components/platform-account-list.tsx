@@ -43,7 +43,7 @@ export function PlatformAccountList({
               )}
               {platform === Platform.FARCASTER && (
                 <img 
-                  src="/farcaster_logo.svg" 
+                  src="/platforms/farcaster.svg" 
                   alt="Farcaster Logo" 
                   className="mx-auto h-12 w-12 text-gray-400" 
                 />
