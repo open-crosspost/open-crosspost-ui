@@ -18,7 +18,7 @@ export function PlatformAccountList({
 }: PlatformAccountListProps) {
   const { isAccountSelected } = usePlatformAccountsStore();
   const filteredAccounts = accounts.filter(
-    (account) => platform && account?.platform === platform.toLowerCase(),
+    (account) => account?.platform === platform?.toLowerCase(),
   );
 
   return (
