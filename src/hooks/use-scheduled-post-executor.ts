@@ -42,8 +42,7 @@ export function useScheduledPostExecutor() {
         (account: ConnectedAccount) =>
           scheduledPost.platforms.some(
             (platform: string) =>
-              platform && account.platform && 
-              platform.toLowerCase() === account.platform.toLowerCase(),
+              platform?.toLowerCase() === account.platform?.toLowerCase(),
           ),
       );
 

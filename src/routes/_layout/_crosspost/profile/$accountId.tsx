@@ -1,4 +1,5 @@
-import { AccountPost, PlatformName } from "@crosspost/types";
+import { useAuth } from "@/contexts/auth-context";
+import { AccountPost, Platform, PlatformName } from "@crosspost/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { Link as LinkIcon, Trash2, Twitter } from "lucide-react";
@@ -9,7 +10,6 @@ import { useDeletePost } from "../../../../hooks/use-post-mutations";
 import { toast } from "../../../../hooks/use-toast";
 import { getClient } from "../../../../lib/authorization-service";
 import { getProfile } from "../../../../lib/utils/near-social-node";
-import { useAuth } from "@/contexts/auth-context";
 
 export const Route = createFileRoute("/_layout/_crosspost/profile/$accountId")({
   loader: async ({ params }) => {
@@ -60,13 +60,17 @@ const PlatformIcon: React.FC<{ platform: string; className?: string }> = ({
   platform,
   className,
 }) => {
-  if (!platform) {
-    return <LinkIcon className={className} />; // Default icon for undefined platform
-  }
-  
   switch (platform?.toLowerCase()) {
-    case "twitter":
+    case Platform.TWITTER:
       return <Twitter className={className} />;
+    case Platform.FARCASTER:
+      return (
+        <img
+          src="/farcaster_logo.svg"
+          alt="Farcaster Logo"
+          className={`text-gray-400 ${className}`}
+        />
+      );
     default:
       return <LinkIcon className={className} />; // Default icon
   }

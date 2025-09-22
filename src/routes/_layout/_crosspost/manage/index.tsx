@@ -1,4 +1,4 @@
-import { PlatformName } from "@crosspost/types";
+import { PlatformName, SUPPORTED_PLATFORMS } from "@crosspost/types";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import React from "react";
 import { PlatformAccountItem } from "../../../../components/platform-account";
@@ -11,8 +11,6 @@ import {
   usePlatformAccountsStore,
 } from "../../../../store/platform-accounts-store";
 import { RefreshCw } from "lucide-react";
-
-const SUPPORTED_PLATFORMS: PlatformName[] = ["Twitter", "Farcaster"];
 
 export const Route = createFileRoute("/_layout/_crosspost/manage/")({
   component: ManageAccountsPage,
@@ -69,7 +67,7 @@ function ManageAccountsPage() {
           </div>
 
           {/* Other Platform Accounts */}
-          {SUPPORTED_PLATFORMS.filter(platform => platform).map((platform) => (
+          {SUPPORTED_PLATFORMS.map((platform) => (
             <PlatformAccountList
               key={platform}
               platform={platform}

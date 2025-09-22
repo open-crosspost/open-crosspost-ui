@@ -2,7 +2,7 @@ import { RefreshCw, Twitter } from "lucide-react";
 import React from "react";
 import { PlatformAccountItem } from "./platform-account";
 import { ConnectPlatform } from "./connect-platform";
-import { ConnectedAccount, PlatformName } from "@crosspost/types";
+import { ConnectedAccount, Platform, PlatformName } from "@crosspost/types";
 import { usePlatformAccountsStore } from "../store/platform-accounts-store";
 
 interface PlatformAccountListProps {
@@ -38,10 +38,10 @@ export function PlatformAccountList({
         <>
           {filteredAccounts.length === 0 ? (
             <div className="rounded-md border-2 border-dashed border-gray-200 p-4 sm:p-8 text-center">
-              {platform?.toLowerCase() === "twitter" && (
+              {platform === Platform.TWITTER && (
                 <Twitter className="mx-auto h-12 w-12 text-gray-400" />
               )}
-              {platform?.toLowerCase() === "farcaster" && (
+              {platform === Platform.FARCASTER && (
                 <img 
                   src="/farcaster_logo.svg" 
                   alt="Farcaster Logo" 

@@ -82,13 +82,7 @@ export function useConnectedAccounts() {
 
         if (response.success && response.data) {
           // Ensure accounts is an array and filter out any malformed entries
-          const accounts = response.data.accounts || [];
-          return accounts.filter(account => 
-            account && 
-            typeof account === 'object' && 
-            account.platform && 
-            account.userId
-          );
+          return response.data.accounts || [];
         } else {
           const errorMessage = response.errors?.length
             ? response.errors[0].message
@@ -350,14 +344,7 @@ export function useAllAccounts() {
   const { data: profile } = useNearSocialAccount();
 
   // Filter out any malformed accounts that might be missing required properties
-  const validApiAccounts = apiAccounts.filter(account => 
-    account && 
-    typeof account === 'object' && 
-    account.platform && 
-    account.userId
-  );
-
-  return [...validApiAccounts, ...(profile ? [profile] : [])];
+  return [...apiAccounts, ...(profile ? [profile] : [])];
 }
 
 // Hook to get selected accounts
