@@ -108,7 +108,7 @@ export function AuthorizationModal({
         </DialogHeader>
 
         <div className="space-y-4 py-3 sm:py-4">
-          <div className="rounded-md border-2 border-gray-200 p-3 sm:p-4">
+          <div className="rounded-md border-2 border-gray-200 dark:border-gray-700 p-3 sm:p-4">
             <h3 className="font-medium">You are authorizing {APP_NAME} to:</h3>
             <ul className="mt-2 list-disc pl-5 text-sm">
               <li>Post content to social platforms you connect</li>

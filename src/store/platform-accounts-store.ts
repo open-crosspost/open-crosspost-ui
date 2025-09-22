@@ -81,7 +81,8 @@ export function useConnectedAccounts() {
         const response = await client.auth.getConnectedAccounts();
 
         if (response.success && response.data) {
-          return response.data.accounts;
+          // Ensure accounts is an array and filter out any malformed entries
+          return response.data.accounts || [];
         } else {
           const errorMessage = response.errors?.length
             ? response.errors[0].message
@@ -145,7 +146,7 @@ export const useConnectAccount = () => {
         client.setAuthentication(authToken);
 
         const response: any = await client.auth.loginToPlatform(
-          platform.toLowerCase() as any,
+          platform?.toLowerCase() as any,
         );
 
         if (
@@ -199,7 +200,7 @@ export const useDisconnectAccount = createAuthenticatedMutation<
   mutationKey: ["disconnectAccount"],
   clientMethod: async (client, { platform, userId }) => {
     const response = await client.auth.revokeAuth(
-      platform.toLowerCase() as any,
+      platform?.toLowerCase() as any,
       userId,
     );
     if (response.success) {
@@ -235,7 +236,7 @@ export const useRefreshAccount = createAuthenticatedMutation<
   mutationKey: ["refreshAccount"],
   clientMethod: async (client, { platform, userId }) => {
     const response = await client.auth.refreshProfile(
-      platform.toLowerCase() as any,
+      platform?.toLowerCase() as any,
       userId,
     );
     if (response.success) {
@@ -263,7 +264,7 @@ export const useCheckAccountStatus = createAuthenticatedMutation<
   mutationKey: ["checkAccountStatus"],
   clientMethod: async (client, { platform, userId }) => {
     const response = await client.auth.getAuthStatus(
-      platform.toLowerCase() as any,
+      platform?.toLowerCase() as any,
       userId,
     );
 
@@ -342,6 +343,7 @@ export function useAllAccounts() {
   const { data: apiAccounts = [] } = useConnectedAccounts();
   const { data: profile } = useNearSocialAccount();
 
+  // Filter out any malformed accounts that might be missing required properties
   return [...apiAccounts, ...(profile ? [profile] : [])];
 }
 

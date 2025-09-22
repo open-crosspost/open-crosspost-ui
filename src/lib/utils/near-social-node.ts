@@ -67,6 +67,7 @@ export function getSocialLink(platform: string, username: string): string {
     telegram: `https://t.me/${username}`,
     linkedin: `https://linkedin.com/in/${username}`,
     twitter: `https://twitter.com/${username}`,
+    farcaster: `https://warpcast.com/${username}`,
     website: `https://${username}`,
   };
   return links[platform] || "#";
