@@ -19,7 +19,10 @@ export function detectPlatformFromUrl(url: string): PlatformName | null {
     if (hostname.includes("x.com") || hostname.includes("twitter.com")) {
       return Platform.TWITTER;
     }
-    if (hostname.includes("warpcast.com") || hostname.includes("farcaster.xyz")) {
+    if (
+      hostname.includes("warpcast.com") ||
+      hostname.includes("farcaster.xyz")
+    ) {
       return Platform.FARCASTER;
     }
     // Add more platform detection rules here as needed
@@ -71,7 +74,7 @@ export function extractPostIdFromUrl(
         }
       }
     }
-    
+
     if (platform === Platform.FARCASTER) {
       // Farcaster URLs typically have format: /posts/{hash}
       const postsIndex = pathSegments.findIndex(

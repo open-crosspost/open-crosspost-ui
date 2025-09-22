@@ -42,10 +42,10 @@ export function PlatformAccountList({
                 <Twitter className="mx-auto h-12 w-12 text-gray-400" />
               )}
               {platform === Platform.FARCASTER && (
-                <img 
-                  src="/platforms/farcaster.svg" 
-                  alt="Farcaster Logo" 
-                  className="mx-auto h-12 w-12 text-gray-400" 
+                <img
+                  src="/platforms/farcaster.svg"
+                  alt="Farcaster Logo"
+                  className="mx-auto h-12 w-12 text-gray-400"
                 />
               )}
               <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-gray-300">
