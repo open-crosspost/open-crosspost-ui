@@ -32,9 +32,7 @@ export default async () => {
         // near
         networkId: network,
         fastintear:
-          isProduction || isStaging
-            ? "https://unpkg.com/fastintear@latest/dist/umd/browser.global.js"
-            : "/js/fastintear.js",
+          "https://unpkg.com/fastintear@0.1.16/dist/umd/browser.global.js",
       },
     },
     source: {
@@ -69,21 +67,6 @@ export default async () => {
             routesDirectory: "./src/routes",
             enableRouteGeneration: false,
           }),
-          ...(isProduction || isStaging
-            ? []
-            : [
-                new rspack.CopyRspackPlugin({
-                  patterns: [
-                    {
-                      from: path.resolve(
-                        __dirname,
-                        "node_modules/fastintear/dist/umd/browser.global.js",
-                      ),
-                      to: "js/fastintear.js",
-                    },
-                  ],
-                }),
-              ]),
         ],
         module: {
           rules: [
