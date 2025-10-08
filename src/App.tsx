@@ -3,6 +3,7 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import React from "react";
 import "./index.css";
 import { routeTree } from "./routeTree.gen";
+import { ThemeProvider } from "./contexts/theme-context";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,8 +32,10 @@ declare module "@tanstack/react-router" {
 // Main App component
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
