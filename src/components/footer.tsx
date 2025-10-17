@@ -36,7 +36,7 @@ export function Footer() {
             <img
               src="/black-dot.svg"
               alt="everything"
-              className="w-[16px] h-[16px] sm:w-[24px] sm:h-[24px]"
+              className="w-[16px] h-[16px] sm:w-[24px] sm:h-[24px] dark:invert"
             />
           </a>
         </div>
@@ -44,7 +44,7 @@ export function Footer() {
           <img
             src="/built-on-near.svg"
             alt="built on near"
-            className="w-full h-auto"
+            className="w-full h-auto dark:invert"
           />
         </div>
       </div>

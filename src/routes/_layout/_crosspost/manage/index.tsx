@@ -22,6 +22,8 @@ function ManageAccountsPage() {
   const { data: profile, isLoading: isLoadingProfile } = useNearSocialAccount();
   const { selectedAccountIds } = usePlatformAccountsStore();
 
+  console.log('SUPPORTED_PLATFORMS:', SUPPORTED_PLATFORMS);
+
   const handleContinue = () => {
     navigate({ to: "/editor" });
   };
@@ -66,7 +68,7 @@ function ManageAccountsPage() {
             )}
           </div>
 
-          {/* Other Platform Accounts */}
+          {/* Other Platform Accounts - Twitter & Farcaster */}
           {SUPPORTED_PLATFORMS.map((platform) => (
             <PlatformAccountList
               key={platform}

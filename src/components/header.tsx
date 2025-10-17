@@ -34,19 +34,19 @@ export const Header: React.FC = () => {
           </div>
         </Link>
         <div className="flex items-center gap-2 sm:gap-3">
+          <Button
+            onClick={toggleDarkMode}
+            size="icon"
+            className="flex items-center justify-center w-9 h-9 p-0 flex-shrink-0"
+            title={
+              isDarkMode ? "Switch to light mode" : "Switch to dark mode"
+            }
+          >
+            {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+          </Button>
           {!isSignedIn && <ConnectToNearButton />}
           {isSignedIn && currentAccountId && (
             <>
-              <Button
-                onClick={toggleDarkMode}
-                size="icon"
-                className="flex items-center justify-center w-9 h-9 p-0 flex-shrink-0"
-                title={
-                  isDarkMode ? "Switch to light mode" : "Switch to dark mode"
-                }
-              >
-                {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
-              </Button>
               <Link to="/leaderboard">
                 <Button className="flex items-center gap-2 px-3 sm:px-4 py-2 h-9 min-w-fit">
                   <Trophy size={16} />

@@ -24,9 +24,21 @@ export function PlatformAccountList({
   return (
     <div className="space-y-4 w-full">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <h2 className="text-xl font-semibold capitalize">
-          {platform} Accounts
-        </h2>
+        <div className="flex items-center gap-3">
+          {platform === Platform.TWITTER && (
+            <Twitter className="h-6 w-6" />
+          )}
+          {platform === Platform.FARCASTER && (
+            <img
+              src="/platforms/farcaster.svg"
+              alt="Farcaster"
+              className="h-6 w-6 dark:invert"
+            />
+          )}
+          <h2 className="text-xl font-semibold capitalize">
+            {platform} Accounts
+          </h2>
+        </div>
         <ConnectPlatform platform={platform} />
       </div>
 
@@ -37,7 +49,7 @@ export function PlatformAccountList({
       ) : (
         <>
           {filteredAccounts.length === 0 ? (
-            <div className="rounded-md border-2 border-dashed border-gray-200 p-4 sm:p-8 text-center">
+            <div className="rounded-md border-2 border-dashed border-gray-200 dark:border-gray-700 p-4 sm:p-8 text-center">
               {platform === Platform.TWITTER && (
                 <Twitter className="mx-auto h-12 w-12 text-gray-400" />
               )}
@@ -45,7 +57,7 @@ export function PlatformAccountList({
                 <img
                   src="/platforms/farcaster.svg"
                   alt="Farcaster Logo"
-                  className="mx-auto h-12 w-12 text-gray-400"
+                  className="mx-auto h-12 w-12 text-gray-400 dark:invert"
                 />
               )}
               <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-gray-300">

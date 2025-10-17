@@ -107,7 +107,7 @@ export function ConnectPlatform({
                     alt="Farcaster"
                     width={size === "sm" ? 18 : 24}
                     height={size === "sm" ? 18 : 24}
-                    className="object-contain"
+                    className="object-contain dark:invert"
                   />
                 ) : (
                   <svg

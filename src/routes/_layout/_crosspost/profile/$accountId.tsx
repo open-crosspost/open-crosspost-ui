@@ -5,6 +5,7 @@ import { createFileRoute, useParams } from "@tanstack/react-router";
 import { Link as LinkIcon, Trash2, Twitter } from "lucide-react";
 import React from "react";
 import { InlineBadges } from "../../../../components/badges/inline-badges";
+import { Avatar, AvatarFallback, AvatarImage } from "../../../../components/ui/avatar";
 import { Button } from "../../../../components/ui/button";
 import { useDeletePost } from "../../../../hooks/use-post-mutations";
 import { toast } from "../../../../hooks/use-toast";
@@ -43,14 +44,31 @@ export function ProfilePage() {
     );
   }
 
+  // Get profile image URL (but not background image)
+  const profileImageUrl = data.profile?.image?.ipfs
+    ? `https://ipfs.near.social/ipfs/${data.profile.image.ipfs}`
+    : data.profile?.image?.url || null;
+
   return (
-    <div className="flex flex-col space-y-6">
-      <div className="p-4">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <span>{accountId}</span>
-          <InlineBadges accountId={accountId} />
-        </h1>
+    <div className="flex flex-col space-y-4">
+      {/* Profile Header */}
+      <div className="base-component p-6">
+        <div className="flex items-center gap-3">
+          <Avatar className="h-12 w-12 rounded-none border-2 border-white">
+            {profileImageUrl && (
+              <AvatarImage src={profileImageUrl} alt={accountId} className="rounded-none" />
+            )}
+            <AvatarFallback className="bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-white text-lg font-semibold rounded-none">
+              {accountId.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex items-center gap-2">
+            <span className="text-xl font-semibold">{accountId}</span>
+            <InlineBadges accountId={accountId} />
+          </div>
+        </div>
       </div>
+
       <AccountPostsList accountId={accountId || "Anonymous"} />
     </div>
   );
@@ -145,10 +163,12 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
 
   if (isLoading) {
     return (
-      <div className="p-4">
-        <h2 className="text-xl font-semibold mb-4">Posts for {accountId}</h2>
+      <div className="base-component p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold">Recent Posts</h2>
+        </div>
         <div className="flex justify-center items-center h-32">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-gray-100"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       </div>
     );
@@ -156,8 +176,10 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
 
   if (isError) {
     return (
-      <div className="p-4">
-        <h2 className="text-xl font-semibold mb-4">Posts for {accountId}</h2>
+      <div className="base-component p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold">Recent Posts</h2>
+        </div>
         <div className="p-4 text-center text-red-600 dark:text-red-400">
           <p>{error?.message || "An unknown error occurred."}</p>
           <Button onClick={() => refetch()} className="mt-2">
@@ -170,8 +192,11 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
 
   if (!posts || posts.length === 0) {
     return (
-      <div className="p-4">
-        <h2 className="text-xl font-semibold mb-4">Posts for {accountId}</h2>
+      <div className="base-component p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold">Recent Posts</h2>
+          <span className="text-sm text-gray-500 dark:text-gray-400">0 posts</span>
+        </div>
         <p className="text-center text-gray-500 dark:text-gray-400 py-8">
           No posts found for this account.
         </p>
@@ -180,48 +205,56 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
   }
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4">Posts for {accountId}</h2>
-      <div className="space-y-3">
+    <div className="base-component p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-semibold">Recent Posts</h2>
+        <span className="text-sm text-gray-500 dark:text-gray-400">{posts.length} posts</span>
+      </div>
+      <div className="space-y-6">
         {posts.map((post) => (
-          <div
-            key={post.id}
-            className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors base-component rounded-md"
-          >
-            <div className="flex justify-between items-center mb-2 text-sm">
-              <div className="flex items-center space-x-1.5">
+          <div key={post.id} className="space-y-2">
+            <div className="flex justify-between items-start">
+              <div className="flex items-center space-x-2">
                 <PlatformIcon
                   platform={post.platform}
-                  className="w-4 h-4 text-gray-600 dark:text-gray-400"
+                  className="w-4 h-4 text-gray-500 dark:text-gray-400"
                 />
-                <span className="font-medium capitalize text-gray-700 dark:text-gray-300">
-                  {post.platform}
+                <span className="text-sm text-gray-700 dark:text-gray-300">
+                  {post.platform.charAt(0).toUpperCase() +
+                    post.platform.slice(1)}
                 </span>
                 <span className="text-gray-400 dark:text-gray-500">•</span>
-                <span className="text-gray-500 dark:text-gray-400 capitalize">
-                  {post.type ?? "post"}
+                <span className="text-sm text-gray-500 dark:text-gray-400 capitalize">
+                  {post.type ?? "Post"}
                 </span>
               </div>
-              <span className="text-gray-500 dark:text-gray-400 text-xs">
-                {new Date(post.createdAt).toLocaleDateString()} •{" "}
-                {new Date(post.createdAt).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
-              {accountId === currentAccountId && (
-                <Button
-                  size="sm"
-                  onClick={() =>
-                    handleDeletePost(post.id, post.platform, post.userId)
-                  }
-                  disabled={deletePostMutation.isPending}
-                  title="Delete post"
-                  className="text-red-500 hover:text-red-700"
-                >
-                  <Trash2 size={16} />
-                </Button>
-              )}
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {new Date(post.createdAt).toLocaleDateString("en-US", {
+                    month: "numeric",
+                    day: "numeric",
+                    year: "numeric",
+                  })}{" "}
+                  •{" "}
+                  {new Date(post.createdAt).toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                  })}
+                </span>
+                {accountId === currentAccountId && (
+                  <button
+                    onClick={() =>
+                      handleDeletePost(post.id, post.platform, post.userId)
+                    }
+                    disabled={deletePostMutation.isPending}
+                    title="Delete post"
+                    className="text-red-600 hover:text-red-500 dark:text-red-500 dark:hover:text-red-400 transition-colors"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                )}
+              </div>
             </div>
 
             {post.url && (
@@ -229,10 +262,11 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
                 href={post.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+                className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-500 dark:hover:text-blue-400 transition-colors"
                 title={`View on ${post.platform}`}
               >
-                view post
+                <LinkIcon size={14} />
+                View on {post.platform.toLowerCase()}
               </a>
             )}
           </div>
