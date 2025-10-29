@@ -54,7 +54,7 @@ export function ProfilePage() {
       {/* Profile Header */}
       <div className="base-component p-6">
         <div className="flex items-center gap-3">
-          <Avatar className="h-12 w-12 rounded-none border-2 border-white">
+          <Avatar className="h-12 w-12 rounded-none border-2 border-white flex-shrink-0">
             {profileImageUrl && (
               <AvatarImage src={profileImageUrl} alt={accountId} className="rounded-none" />
             )}
@@ -62,10 +62,10 @@ export function ProfilePage() {
               {accountId.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <div className="flex items-center gap-2">
-            <span className="text-xl font-semibold">{accountId}</span>
+          <span className="text-xl font-semibold flex items-center gap-2">
+            {accountId}
             <InlineBadges accountId={accountId} />
-          </div>
+          </span>
         </div>
       </div>
 

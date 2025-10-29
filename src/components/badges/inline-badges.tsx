@@ -20,11 +20,11 @@ export function InlineBadges({ accountId }: BadgeProps) {
   if (!accountId) return null;
 
   return (
-    <div className={`inline-flex items-center gap-1`}>
+    <span className="inline-flex items-center gap-1">
       <LeaderboardBadge accountId={accountId} />
       <ShitzuBadge accountId={accountId} />
       <BlackdragonBadge accountId={accountId} />
       <NekoBadge accountId={accountId} />
-    </div>
+    </span>
   );
 }
