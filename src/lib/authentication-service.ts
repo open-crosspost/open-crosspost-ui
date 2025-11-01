@@ -91,10 +91,9 @@ export function createAuthenticatedMutation<
           });
 
           const message = `Authenticating request for NEAR account: ${currentAccountId}${authDetails ? ` (${authDetails})` : ""}`;
-          const authToken = await sign({
+          const authToken = await sign(message, {
             signer: near,
             recipient: "crosspost.near",
-            message,
           });
 
           client.setAuthentication(authToken);

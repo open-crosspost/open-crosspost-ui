@@ -3,7 +3,7 @@ import { near } from "@/lib/near";
 import { getImageUrl, getProfile } from "@/lib/utils/near-social-node";
 import { getErrorMessage } from "@crosspost/sdk";
 import { ConnectedAccount, Platform } from "@crosspost/types";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { sign } from "near-sign-verify";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
@@ -136,10 +136,9 @@ export const useConnectAccount = () => {
         });
 
         const message = `Authenticating request for NEAR account: ${currentAccountId}${authDetails ? ` (${authDetails})` : ""}`;
-        const authToken = await sign({
+        const authToken = await sign(message, {
           signer: near,
           recipient: "crosspost.near",
-          message,
         });
 
         client.setAuthentication(authToken);

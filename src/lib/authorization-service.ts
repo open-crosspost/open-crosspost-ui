@@ -36,10 +36,9 @@ export async function authorize(): Promise<boolean> {
     const client = getClient();
 
     const message = `I authorize crosspost to post on my behalf to connected social platforms using my NEAR account: ${near.accountId()}`;
-    const authToken = await sign({
+    const authToken = await sign(message, {
       signer: near,
       recipient: "crosspost.near",
-      message,
     });
     client.setAuthentication(authToken);
 
