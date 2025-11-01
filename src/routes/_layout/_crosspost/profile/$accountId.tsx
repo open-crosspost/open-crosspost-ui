@@ -1,4 +1,5 @@
-import { AccountPost, PlatformName } from "@crosspost/types";
+import { useAuth } from "@/contexts/auth-context";
+import { AccountPost, Platform, PlatformName } from "@crosspost/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { Link as LinkIcon, Trash2, Twitter } from "lucide-react";
@@ -9,7 +10,6 @@ import { useDeletePost } from "../../../../hooks/use-post-mutations";
 import { toast } from "../../../../hooks/use-toast";
 import { getClient } from "../../../../lib/authorization-service";
 import { getProfile } from "../../../../lib/utils/near-social-node";
-import { useAuth } from "@/contexts/auth-context";
 
 export const Route = createFileRoute("/_layout/_crosspost/profile/$accountId")({
   loader: async ({ params }) => {
@@ -60,9 +60,17 @@ const PlatformIcon: React.FC<{ platform: string; className?: string }> = ({
   platform,
   className,
 }) => {
-  switch (platform.toLowerCase()) {
-    case "twitter":
+  switch (platform?.toLowerCase()) {
+    case Platform.TWITTER:
       return <Twitter className={className} />;
+    case Platform.FARCASTER:
+      return (
+        <img
+          src="/platforms/farcaster.svg"
+          alt="Farcaster Logo"
+          className={`text-gray-400 ${className}`}
+        />
+      );
     default:
       return <LinkIcon className={className} />; // Default icon
   }
@@ -140,7 +148,7 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
       <div className="p-4">
         <h2 className="text-xl font-semibold mb-4">Posts for {accountId}</h2>
         <div className="flex justify-center items-center h-32">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-gray-100"></div>
         </div>
       </div>
     );
@@ -150,7 +158,7 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
     return (
       <div className="p-4">
         <h2 className="text-xl font-semibold mb-4">Posts for {accountId}</h2>
-        <div className="p-4 text-center text-red-600">
+        <div className="p-4 text-center text-red-600 dark:text-red-400">
           <p>{error?.message || "An unknown error occurred."}</p>
           <Button onClick={() => refetch()} className="mt-2">
             Retry
@@ -164,7 +172,7 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
     return (
       <div className="p-4">
         <h2 className="text-xl font-semibold mb-4">Posts for {accountId}</h2>
-        <p className="text-center text-gray-500 py-8">
+        <p className="text-center text-gray-500 dark:text-gray-400 py-8">
           No posts found for this account.
         </p>
       </div>
@@ -178,24 +186,28 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
         {posts.map((post) => (
           <div
             key={post.id}
-            className="p-3 hover:bg-gray-50 transition-colors base-component rounded-md"
+            className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors base-component rounded-md"
           >
             <div className="flex justify-between items-center mb-2 text-sm">
               <div className="flex items-center space-x-1.5">
                 <PlatformIcon
                   platform={post.platform}
-                  className="w-4 h-4 text-gray-600"
+                  className="w-4 h-4 text-gray-600 dark:text-gray-400"
                 />
-                <span className="font-medium capitalize text-gray-700">
+                <span className="font-medium capitalize text-gray-700 dark:text-gray-300">
                   {post.platform}
                 </span>
-                <span className="text-gray-400">•</span>
-                <span className="text-gray-500 capitalize">
+                <span className="text-gray-400 dark:text-gray-500">•</span>
+                <span className="text-gray-500 dark:text-gray-400 capitalize">
                   {post.type ?? "post"}
                 </span>
               </div>
-              <span className="text-gray-500">
-                {new Date(post.createdAt).toLocaleDateString()}
+              <span className="text-gray-500 dark:text-gray-400 text-xs">
+                {new Date(post.createdAt).toLocaleDateString()} •{" "}
+                {new Date(post.createdAt).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </span>
               {accountId === currentAccountId && (
                 <Button
@@ -217,7 +229,7 @@ const AccountPostsList: React.FC<{ accountId: string }> = ({ accountId }) => {
                 href={post.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-800 transition-colors"
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
                 title={`View on ${post.platform}`}
               >
                 view post

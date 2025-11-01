@@ -11,7 +11,7 @@ import { BadgeProps } from "./inline-badges";
 export function LeaderboardBadge({ accountId }: BadgeProps) {
   const { data: leaderboard } = useLeaderboardQuery(3);
 
-  if (!leaderboard) {
+  if (!leaderboard || !Array.isArray(leaderboard)) {
     return null;
   }
 

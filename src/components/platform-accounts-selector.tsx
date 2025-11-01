@@ -76,7 +76,7 @@ export function PlatformAccountsSelector({
   }
 
   return (
-    <div className="border-2 border-gray-200 rounded-md p-3 sm:p-4 w-full">
+    <div className="border-2 border-gray-200 dark:border-gray-800 rounded-md p-3 sm:p-4 w-full">
       <div className="flex justify-between items-center mb-2">
         <h3 className="font-medium">Post to</h3>
         <Button size="sm" onClick={handleConnectAccounts}>

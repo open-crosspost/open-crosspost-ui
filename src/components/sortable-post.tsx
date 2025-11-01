@@ -81,6 +81,8 @@ function SortablePostComponent({
           className={`min-h-[150px] w-full rounded-lg resize-none focus:ring-2 focus:ring-blue-500 ${
             post.text && post.text.length > 280 ? "border-destructive" : ""
           }`}
+          acceptImages={true}
+          onImageUpload={(file) => onMediaUpload(index, file)}
         />
         <div className="flex flex-col gap-2 mt-2">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">

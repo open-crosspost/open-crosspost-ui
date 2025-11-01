@@ -18,7 +18,7 @@ export function PlatformAccountList({
 }: PlatformAccountListProps) {
   const { isAccountSelected } = usePlatformAccountsStore();
   const filteredAccounts = accounts.filter(
-    (account) => account.platform === platform.toLowerCase(),
+    (account) => account?.platform === platform?.toLowerCase(),
   );
 
   return (
@@ -41,10 +41,17 @@ export function PlatformAccountList({
               {platform === Platform.TWITTER && (
                 <Twitter className="mx-auto h-12 w-12 text-gray-400" />
               )}
-              <h3 className="mt-2 text-lg font-medium text-gray-900">
+              {platform === Platform.FARCASTER && (
+                <img
+                  src="/platforms/farcaster.svg"
+                  alt="Farcaster Logo"
+                  className="mx-auto h-12 w-12 text-gray-400"
+                />
+              )}
+              <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-gray-300">
                 No {platform} accounts connected
               </h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Connect your {platform} accounts to start crossposting
               </p>
               <div className="mt-6">

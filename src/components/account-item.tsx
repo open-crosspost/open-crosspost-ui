@@ -37,12 +37,12 @@ export function AccountItem({
       <div
         className={`flex items-center p-3 rounded-md transition-colors ${
           hasError
-            ? "border-2 border-red-500 bg-red-50 opacity-80 cursor-not-allowed"
+            ? "border-2 border-red-500 bg-red-50 dark:bg-red-900 opacity-80 cursor-not-allowed"
             : disabled
-              ? "border-2 border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed"
+              ? "border-2 border-gray-200 bg-gray-100 dark:bg-gray-800 opacity-60 cursor-not-allowed"
               : isSelected
-                ? "border-2 border-green-500 bg-green-50 cursor-pointer"
-                : "border-2 border-gray-200 hover:bg-gray-50 cursor-pointer"
+                ? "border-2 border-green-500 bg-green-50 dark:bg-black cursor-pointer"
+                : "border-2 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 dark:border-gray-800 cursor-pointer"
         }`}
         onClick={handleClick}
         title={title}
@@ -111,12 +111,12 @@ export function AccountItem({
     <div
       className={`flex flex-col sm:flex-row sm:items-center sm:justify-between rounded-md border-2 p-3 sm:p-4 gap-3 ${
         hasError
-          ? "border-red-500 bg-red-50 opacity-80"
+          ? "border-red-500 bg-red-50 dark:bg-red-900 opacity-80"
           : disabled
-            ? "border-gray-200 bg-gray-100 opacity-60"
+            ? "border-gray-200 bg-gray-100 dark:bg-gray-800 opacity-60"
             : isSelected
-              ? "border-green-500 bg-green-50"
-              : "border-gray-200"
+              ? "border-green-500 bg-green-50 dark:bg-black"
+              : "border-gray-200 dark:border-gray-800"
       }`}
       title={title}
     >
@@ -158,7 +158,7 @@ export function AccountItem({
           disabled={disabled || hasError}
           className={
             isSelected && !hasError
-              ? "bg-green-200 text-black hover:bg-green-300"
+              ? "bg-green-200 dark:bg-black text-black dark:text-white hover:bg-green-300 dark:hover:bg-gray-800"
               : ""
           }
         >

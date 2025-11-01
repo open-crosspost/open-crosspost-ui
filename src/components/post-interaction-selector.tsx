@@ -25,28 +25,26 @@ export function PostInteractionSelector({
   const detectedPlatform = targetUrl ? detectPlatformFromUrl(targetUrl) : null;
 
   return (
-    <div className="flex gap-2">
-      <div className="flex items-center gap-1">
-        <div className="flex items-center gap-1">
-          {types.map((type) => (
-            <Button
-              key={type}
-              size="sm"
-              onClick={() => onPostTypeChange(type)}
-              className={cn(
-                "capitalize",
-                postType === type &&
-                  "bg-green-100 text-black hover:bg-green-200",
-              )}
-            >
-              {type}
-            </Button>
-          ))}
-        </div>
+    <div className="flex gap-2 items-center w-full">
+      <div className="flex items-center gap-1 flex-shrink-0">
+        {types.map((type) => (
+          <Button
+            key={type}
+            size="sm"
+            onClick={() => onPostTypeChange(type)}
+            className={cn(
+              "capitalize",
+              postType === type &&
+                "bg-green-100 dark:bg-black text-black dark:text-white hover:bg-green-200 dark:hover:bg-gray-800",
+            )}
+          >
+            {type}
+          </Button>
+        ))}
       </div>
 
       {(postType === "quote" || postType === "reply") && (
-        <div className="space-y-2">
+        <div className="flex-1 min-w-0">
           <Input
             value={targetUrl}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -54,7 +52,7 @@ export function PostInteractionSelector({
             }
             placeholder={`Enter URL to ${postType} (e.g., https://x.com/user/status/123)`}
             className={cn(
-              "w-full sm:w-[400px] border-2",
+              "w-full border-2",
               !detectedPlatform && targetUrl && "border-red-500",
               detectedPlatform && "border-green-500",
             )}
