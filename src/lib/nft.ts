@@ -17,7 +17,7 @@ export const SHITZU_CONTRACT_ID = "shitzu.bodega-lab.near";
 export const SHITZU_REWARDS_CONTRACT_ID = "rewards.0xshitzu.near"; // for staked NFTs
 
 // Blackdragon NFT contract ID
-export const BLACKDRAGON_NFT_CONTRACT_ID = "blackdragonforevernft.near";
+export const BLACKDRAGON_NFT_CONTRACT_ID = "blackdragonforever.nfts.tg";
 
 interface CheckNFTOwnershipParams {
   accountId: string;
