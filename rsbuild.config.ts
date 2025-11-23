@@ -41,6 +41,9 @@ export default async () => {
         "process.env.OPEN_CROSSPOST_PROXY_API": JSON.stringify(
           process.env.OPEN_CROSSPOST_PROXY_API,
         ),
+        "process.env.UNDER_MAINTENANCE": JSON.stringify(
+          process.env.UNDER_MAINTENANCE,
+        ),
       },
     },
     server: {

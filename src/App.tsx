@@ -3,6 +3,8 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import React from "react";
 import "./index.css";
 import { routeTree } from "./routeTree.gen";
+import { UNDER_MAINTENANCE } from "./config";
+import { MaintenancePage } from "./components/maintenance-page";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,6 +32,11 @@ declare module "@tanstack/react-router" {
 }
 // Main App component
 export default function App() {
+  // Show maintenance page if maintenance mode is enabled
+  if (UNDER_MAINTENANCE) {
+    return <MaintenancePage />;
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
