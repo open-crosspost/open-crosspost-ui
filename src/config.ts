@@ -33,3 +33,9 @@ export const OPEN_CROSSPOST_PROXY_API = process.env.OPEN_CROSSPOST_PROXY_API;
 // Authentication configuration
 export const AUTH_STORAGE_PREFIX = "crosspost_auth_";
 export const APP_NAME = "Crosspost";
+
+// Maintenance mode - defaults to false, can be overridden via env var
+export const UNDER_MAINTENANCE =
+  process.env.UNDER_MAINTENANCE === "true" ||
+  process.env.UNDER_MAINTENANCE === "1" ||
+  true; // Set to true to enable maintenance mode
