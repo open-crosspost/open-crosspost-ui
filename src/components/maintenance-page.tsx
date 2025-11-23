@@ -34,13 +34,11 @@ export function MaintenancePage() {
             <p className="text-lg text-gray-700 mb-2">
               Crosspost is temporarily under maintenance.
             </p>
-            <p className="text-lg text-gray-700">
-              We'll be back soon.
-            </p>
+            <p className="text-lg text-gray-700">We'll be back soon.</p>
           </motion.div>
         </div>
       </motion.div>
-      
+
       {/* Footer */}
       <footer className="flex justify-between m-2 sm:m-4 font-mono text-gray-500 text-xs sm:text-sm">
         <div className="flex gap-2">
@@ -81,4 +79,3 @@ export function MaintenancePage() {
     </div>
   );
 }
-
