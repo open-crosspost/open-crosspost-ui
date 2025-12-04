@@ -144,18 +144,18 @@ function ResultsPage() {
               return (
                 <div
                   key={index}
-                  className="p-4 border rounded-md bg-green-50 border-green-200"
+                  className="p-4 border-2 rounded-md bg-green-50 dark:bg-green-900 border-black dark:border-white"
                 >
                   {account ? (
                     <ProfileCard account={account} size="md" />
                   ) : (
-                    <p className="font-medium text-green-700">
+                    <p className="font-medium text-green-700 dark:text-white">
                       Successfully posted to {success.platform} (User ID:{" "}
                       {success.userId})
                     </p>
                   )}
                   {success.details && typeof success.details === "string" && (
-                    <p className="text-sm text-green-600 mt-1">
+                    <p className="text-sm text-green-600 dark:text-white mt-1">
                       {success.details}
                     </p>
                   )}
@@ -163,7 +163,7 @@ function ResultsPage() {
                     typeof success.details === "object" &&
                     "message" in success.details &&
                     typeof success.details.message === "string" && (
-                      <p className="text-sm text-green-600 mt-1">
+                      <p className="text-sm text-green-600 dark:text-white mt-1">
                         {success.details.message}
                       </p>
                     )}
@@ -187,7 +187,7 @@ function ResultsPage() {
               return (
                 <div
                   key={index}
-                  className="p-4 border rounded-md bg-red-50 border-red-200"
+                  className="p-4 border-2 rounded-md bg-red-50 dark:bg-red-900 border-black dark:border-white"
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-grow mr-4">

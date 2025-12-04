@@ -56,6 +56,15 @@ export function ProfileCard({
                 className="text-gray-400"
               />
             )}
+            {platform === Platform.FARCASTER && (
+              <img
+                src="/platforms/farcaster.svg"
+                alt="Farcaster"
+                width={size === "sm" ? 14 : size === "md" ? 18 : 22}
+                height={size === "sm" ? 14 : size === "md" ? 18 : 22}
+                className="object-contain"
+              />
+            )}
           </AvatarFallback>
         )}
       </Avatar>

@@ -40,7 +40,7 @@ export const Avatar = ({
 
   return (
     <div
-      className={`overflow-hidden border-2 border-gray-800 shadow-custom ${className}`}
+      className={`overflow-hidden border-2 border-primary shadow-custom ${className}`}
       style={{
         width: `${size}px`,
         height: `${size}px`,

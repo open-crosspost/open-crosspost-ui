@@ -8,7 +8,7 @@ interface LoadingSpinnerProps {
 
 export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ message }) => {
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
+    <div className="flex flex-col items-center justify-center h-[60vh]">
       <motion.div
         animate={{ rotate: 360 }}
         transition={{

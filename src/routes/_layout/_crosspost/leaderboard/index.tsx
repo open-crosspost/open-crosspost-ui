@@ -86,10 +86,12 @@ const fetchAllLeaderboardData = async ({
       timeframe,
       startDate,
       endDate,
-      platforms: [platform as Platform],
+      platforms: platform ? [platform as Platform] : undefined,
     });
 
-    const entries = response.data?.entries || [];
+    const entries = Array.isArray(response.data?.entries)
+      ? response.data.entries
+      : [];
     allEntries.push(...entries);
 
     hasMore = entries.length === limit;
@@ -107,6 +109,11 @@ function LeaderboardPage() {
   const parsedStartDate = startDate ? new Date(startDate) : undefined;
   const parsedEndDate = endDate ? new Date(endDate) : undefined;
 
+  // Validate custom date range
+  const isValidDateRange =
+    timeframe !== TimePeriod.CUSTOM ||
+    (parsedStartDate && parsedEndDate && parsedStartDate <= parsedEndDate);
+
   const [sorting, setSorting] = useState<SortingState>([
     { id: "rank", desc: false },
   ]);
@@ -120,6 +127,7 @@ function LeaderboardPage() {
     data: queryResult,
     isLoading,
     error,
+    isFetching,
   } = useQuery({
     queryKey: [
       "leaderboard",
@@ -131,18 +139,24 @@ function LeaderboardPage() {
       platforms,
     ],
     queryFn: async () => {
-      const entries = await fetchLeaderboard({
+      const result = await fetchLeaderboard({
         limit: pagination.pageSize,
         offset: pagination.pageIndex * pagination.pageSize,
         timeframe: timeframe ?? TimePeriod.ALL,
+        startDate,
+        endDate,
+        platforms,
       });
-      return { entries };
+      return result;
     },
+    enabled: isValidDateRange, // Only run query if date range is valid
+    staleTime: 30000, // Cache for 30 seconds
+    refetchOnWindowFocus: false, // Don't refetch on window focus
   });
 
   // Extract data and metadata from query result
-  const data = queryResult?.entries || [];
-  const totalEntries = queryResult?.meta?.pagination?.total || data.length; // Fallback to data.length if meta is not available
+  const data = Array.isArray(queryResult?.entries) ? queryResult.entries : [];
+  const totalEntries = queryResult?.meta?.pagination?.total || 0;
 
   // Export fields configuration
   const exportFields: ExportField<AccountActivityEntry>[] = [
@@ -184,11 +198,12 @@ function LeaderboardPage() {
     try {
       const allData = await fetchAllLeaderboardData({
         timeframe: timeframe ?? TimePeriod.ALL,
+        platform: platforms?.[0], // Pass the first platform if available
         startDate,
         endDate,
       });
 
-      if (allData.length === 0) {
+      if (!Array.isArray(allData) || allData.length === 0) {
         alert("No data to export");
         return;
       }
@@ -201,7 +216,9 @@ function LeaderboardPage() {
       exportData(allData, exportFields, filename, format);
     } catch (error) {
       console.error("Export failed:", error);
-      alert("Export failed. Please try again.");
+      alert(
+        `Export failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     }
   };
 
@@ -216,11 +233,11 @@ function LeaderboardPage() {
       cell: (info) => {
         const accountId = info.getValue();
         return (
-          <div className="flex items-center gap-2 w-[120px]">
+          <div className="flex items-center gap-2 w-[180px]">
             <Link
               to={`/profile/$accountId`}
               params={{ accountId }}
-              className="text-blue-600 hover:text-blue-800 hover:underline transition-colors block truncate"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline transition-colors block truncate"
             >
               {accountId}
             </Link>
@@ -420,7 +437,7 @@ function LeaderboardPage() {
 
       {/* Error message */}
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-4">
           {getErrorMessage(error, "Failed to fetch leaderboard data")}
         </div>
       )}
@@ -428,20 +445,30 @@ function LeaderboardPage() {
       {/* Loading state */}
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 dark:border-blue-400 mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-400">
+              Loading leaderboard data...
+            </p>
+          </div>
         </div>
       ) : (
         <>
           {/* Table */}
-          <div className="overflow-x-auto base-component rounded-lg">
+          <div className="overflow-x-auto base-component rounded-lg relative">
+            {isFetching && !isLoading && (
+              <div className="absolute top-2 right-2 z-10">
+                <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-500 dark:border-blue-400"></div>
+              </div>
+            )}
             <Table className="min-w-full">
-              <TableHeader className="bg-gray-50">
+              <TableHeader className="bg-gray-50 dark:bg-gray-800">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
                       <TableHead
                         key={header.id}
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
                         onClick={header.column.getToggleSortingHandler()}
                       >
                         <div className="flex items-center gap-1">
@@ -460,14 +487,17 @@ function LeaderboardPage() {
                   </TableRow>
                 ))}
               </TableHeader>
-              <TableBody className="bg-white divide-y divide-gray-200">
+              <TableBody className="bg-white dark:bg-black divide-y divide-gray-200 dark:divide-gray-700">
                 {table.getRowModel()?.rows?.length > 0 ? (
                   table.getRowModel()?.rows?.map((row) => (
-                    <TableRow key={row.id} className="hover:bg-gray-50">
+                    <TableRow
+                      key={row.id}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-800"
+                    >
                       {row.getVisibleCells()?.map((cell) => (
                         <TableCell
                           key={cell.id}
-                          className="px-6 py-4 whitespace-nowrap text-sm"
+                          className="px-6 py-4 whitespace-nowrap text-sm "
                         >
                           {flexRender(
                             cell.column.columnDef.cell,
@@ -481,7 +511,7 @@ function LeaderboardPage() {
                   <TableRow>
                     <TableCell
                       colSpan={columns.length}
-                      className="px-6 py-4 text-center text-sm text-gray-500"
+                      className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400"
                     >
                       No data available
                     </TableCell>

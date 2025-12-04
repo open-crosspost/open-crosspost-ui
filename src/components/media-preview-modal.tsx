@@ -33,7 +33,7 @@ export function MediaPreviewModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.2 }}
-          className="relative w-[calc(100%-0.5rem)] sm:w-full max-w-4xl mx-auto border-2 border-gray-800 bg-white shadow-[2px_2px_0_rgba(0,0,0,1)] sm:shadow-[4px_4px_0_rgba(0,0,0,1)] flex flex-col max-h-[85vh]"
+          className="relative w-[calc(100%-0.5rem)] sm:w-full max-w-4xl mx-auto border-2 border-primary  bg-white dark:bg-black shadow-[2px_2px_0_rgba(0,0,0,1)] dark:shadow-[2px_2px_0_rgba(255,255,255,0.3)] sm:shadow-[4px_4px_0_rgba(0,0,0,1)] dark:sm:shadow-[4px_4px_0_rgba(255,255,255,0.3)] flex flex-col max-h-[85vh]"
         >
           <ModalWindowControls onClose={onClose} />
           <VisuallyHidden.Root>

@@ -34,7 +34,7 @@ export function PlatformAccountItem({
     usePlatformAccountsStore();
 
   const isNearSocial =
-    account.platform.toLowerCase() === ("near social" as PlatformName);
+    account.platform?.toLowerCase() === ("near social" as PlatformName);
   const isSelected = isAccountSelected(account.userId);
 
   const handleRefresh = async () => {

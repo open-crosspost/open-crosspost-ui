@@ -101,6 +101,14 @@ export function ConnectPlatform({
               <>
                 {platform === Platform.TWITTER ? (
                   <Twitter size={size === "sm" ? 18 : 24} />
+                ) : platform === Platform.FARCASTER ? (
+                  <img
+                    src="/platforms/farcaster.svg"
+                    alt="Farcaster"
+                    width={size === "sm" ? 18 : 24}
+                    height={size === "sm" ? 18 : 24}
+                    className="object-contain"
+                  />
                 ) : (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
