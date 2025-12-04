@@ -31,10 +31,6 @@ export default async () => {
         favicon: image,
         // near
         networkId: network,
-        fastintear:
-          isProduction || isStaging
-            ? "https://unpkg.com/fastintear@latest/dist/umd/browser.global.js"
-            : "/js/fastintear.js",
       },
     },
     source: {

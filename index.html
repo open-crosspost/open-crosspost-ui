@@ -16,19 +16,8 @@
     <meta name="linkedin:image" content="<%= linkedinImage %>" />
 
     <link rel="icon" href="<%= favicon %>" />
-
-    <script src="<%= fastintear %>"></script>
   </head>
   <body>
     <div id="root"></div>
-    <script>
-      window.near && window.near.config({ networkId: "<%= networkId %>" });
-
-      if (typeof window.near !== "undefined") {
-        console.log("NEAR (via global object 'near') is ready!");
-      } else {
-        console.error("NEAR global object 'near' not found!");
-      }
-    </script>
   </body>
 </html>

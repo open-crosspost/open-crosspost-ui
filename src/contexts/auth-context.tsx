@@ -58,7 +58,8 @@ export function AuthProvider({
 
   useEffect(() => {
     const client = getClient();
-    const accountListener = near.event.onAccount((newAccountId) => {
+    const unsubscribeAccount = near.subscribe((state) => {
+      const newAccountId = state.accountId;
       setCurrentAccountId(newAccountId);
       setIsSignedIn(!!newAccountId);
 
@@ -75,13 +76,13 @@ export function AuthProvider({
       }
     });
 
-    const txListener = near.event.onTx((tx) => {
+    const unsubscribeTx = near.onTx((tx) => {
       console.log(tx);
     });
 
     return () => {
-      near.event.offAccount(accountListener);
-      near.event.offTx(txListener);
+      unsubscribeAccount();
+      unsubscribeTx();
     };
   }, [clearSelectedAccounts, deleteDraft, clearAutoSave, drafts]);
 

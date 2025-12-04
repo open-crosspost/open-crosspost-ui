@@ -1,6 +1,8 @@
-import * as FastIntear from "fastintear";
+import { createNearClient } from "fastintear";
+import { NETWORK_ID } from "../config";
 
-export const near: typeof FastIntear =
-  typeof window !== "undefined"
-    ? window.near // in browser
-    : FastIntear; // on server
+export const nearClient = createNearClient({
+  networkId: NETWORK_ID,
+});
+
+export { nearClient as near };
