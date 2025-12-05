@@ -1,6 +1,7 @@
 import { getImageUrl, getProfile } from "./src/lib/utils/near-social-node";
 // import { pluginModuleFederation } from "@module-federation/rsbuild-plugin";
 import { defineConfig, rspack } from "@rsbuild/core";
+import { pluginNodePolyfill } from "@rsbuild/plugin-node-polyfill";
 import { pluginReact } from "@rsbuild/plugin-react";
 import TanStackRouterRspack from "@tanstack/router-plugin/rspack";
 import path from "path";
@@ -65,22 +66,31 @@ export default async () => {
             routesDirectory: "./src/routes",
             enableRouteGeneration: false,
           }),
-          ...(isProduction || isStaging
-            ? []
-            : [
-                new rspack.CopyRspackPlugin({
-                  patterns: [
-                    {
-                      from: path.resolve(
-                        __dirname,
-                        "node_modules/fastintear/dist/umd/browser.global.js",
-                      ),
-                      to: "js/fastintear.js",
-                    },
-                  ],
-                }),
-              ]),
         ],
+        resolve: {
+          fallback: {
+            crypto: "crypto-browserify",
+            stream: "stream-browserify",
+            buffer: "buffer",
+            util: "util",
+            process: "process/browser",
+            http: "stream-http",
+            https: "https-browserify",
+            url: "url",
+            zlib: "browserify-zlib",
+            path: "path-browserify",
+            fs: false,
+            net: false,
+            tls: false,
+          },
+          // Explicitly resolve @walletconnect packages for dynamic requires
+          alias: {
+            "@walletconnect/sign-client": path.resolve(
+              __dirname,
+              "node_modules/@walletconnect/sign-client"
+            ),
+          },
+        },
         module: {
           rules: [
             {
@@ -156,6 +166,12 @@ export default async () => {
       },
     },
     plugins: [
+      pluginNodePolyfill({
+        globals: {
+          Buffer: true,
+          process: true,
+        },
+      }),
       pluginReact(),
       // pluginModuleFederation({
       //   name: "www",

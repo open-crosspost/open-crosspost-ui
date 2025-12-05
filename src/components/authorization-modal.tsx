@@ -19,7 +19,7 @@ import {
 import { APP_NAME } from "../config";
 import { toast } from "../hooks/use-toast";
 import { authorize } from "../lib/authorization-service";
-import { near } from "../lib/near";
+import { useWallet } from "../integrations/near-wallet";
 
 interface AuthorizationModalProps {
   isOpen: boolean;
@@ -35,6 +35,7 @@ export function AuthorizationModal({
   message,
 }: AuthorizationModalProps) {
   const [isAuthorizing, setIsAuthorizing] = useState(false);
+  const { accountId } = useWallet();
 
   const handleRequestAuthorization = async () => {
     setIsAuthorizing(true);
@@ -121,7 +122,7 @@ export function AuthorizationModal({
             <p className="font-medium text-amber-800">Important:</p>
             <p className="mt-1 text-amber-700">
               Your NEAR account{" "}
-              <span className="font-bold">{near.accountId()}</span> will be used
+              <span className="font-bold">{accountId || "..."}</span> will be used
               to sign all requests. You can revoke access at any time by
               disconnecting your accounts.
             </p>

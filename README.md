@@ -13,7 +13,7 @@
 
 </div>
 
-This is a simple user interface using `@crosspost/sdk` from the [open crosspost proxy service](https://github.com/open-crosspost/open-crosspost-proxy-service). It uses [fastintear](https://github.com/elliotBraem/fastintear) for NEAR integration, and [near-sign-verify](https://github.com/elliotBraem/near-sign-verify) for signing crossposts.
+This is a simple user interface using `@crosspost/sdk` from the [open crosspost proxy service](https://github.com/open-crosspost/open-crosspost-proxy-service). It uses [near-kit](https://github.com/elliotBraem/near-kit) and [@hot-labs/near-connect](https://github.com/elliotBraem/near-connect) for NEAR wallet integration, [@builddao/near-social-js](https://github.com/builddao/near-social-js) for SocialDB interactions, and [near-sign-verify](https://github.com/elliotBraem/near-sign-verify) for signing crossposts.
 
 <details>
   <summary>Table of Contents</summary>
