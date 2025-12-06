@@ -42,7 +42,6 @@ export function usePostMedia(
         return;
       }
 
-      // First check if we can add this media type
       const checkMediaCompatibility = (currentPosts: EditorContent[]) => {
         const post = currentPosts[index];
         const existingmedia = post.media || [];

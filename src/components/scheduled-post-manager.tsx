@@ -17,6 +17,5 @@ export const ScheduledPostManager: React.FC = () => {
     }
   }, [isSignedIn, checkAndExecutePendingPosts]);
 
-  // This component doesn't render anything visible
   return null;
 };

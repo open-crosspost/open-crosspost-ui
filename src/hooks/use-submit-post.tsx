@@ -1,13 +1,5 @@
-import { ToastAction } from "@/components/ui/toast";
 import { useAuth } from "@/contexts/auth-context";
-import {
-  ApiErrorCode,
-  ConnectedAccount,
-  ErrorDetail,
-  MultiStatusData,
-  PlatformName,
-  SuccessDetail,
-} from "@crosspost/types";
+import { ConnectedAccount, MultiStatusData, PlatformName } from "@crosspost/types";
 import { useNavigate } from "@tanstack/react-router";
 import React, { useState } from "react";
 import { PostType } from "../components/post-interaction-selector";
@@ -15,7 +7,12 @@ import {
   NearSocialService,
   transformNearSocialPost,
 } from "../lib/near-social-service";
-import { parseCrosspostError } from "../lib/utils/error-utils";
+import {
+  aggregateSubmissionResults,
+  ProcessedSubmissionResult,
+  SubmitStatus,
+} from "../lib/utils/submission-utils";
+import { showSubmissionResultToast, showSubmissionStartToast } from "../lib/utils/submission-toasts";
 import {
   detectPlatformFromUrl,
   extractPostIdFromUrl,
@@ -29,12 +26,7 @@ import {
 } from "./use-post-mutations";
 import { toast } from "./use-toast";
 
-export type SubmitStatus =
-  | "idle"
-  | "posting"
-  | "success"
-  | "partial-success"
-  | "failure";
+export type { SubmitStatus };
 
 export interface SubmitResult {
   status: SubmitStatus;
@@ -43,13 +35,10 @@ export interface SubmitResult {
     succeeded: number;
     failed: number;
   };
-  results?: SuccessDetail[];
-  errors?: ErrorDetail[];
+  results?: ProcessedSubmissionResult["results"];
+  errors?: ProcessedSubmissionResult["errors"];
 }
 
-/**
- * Hook to manage the post submission process across platforms
- */
 export function useSubmitPost() {
   const { isSignedIn } = useAuth();
   const navigate = useNavigate();
@@ -104,7 +93,6 @@ export function useSubmitPost() {
     setStatus("posting");
     setResult({ status: "posting" });
 
-    // For quote or reply, validate the URL and filter accounts by platform
     if ((postType === "quote" || postType === "reply") && targetUrl) {
       const detectedPlatform = detectPlatformFromUrl(targetUrl);
 
@@ -119,7 +107,6 @@ export function useSubmitPost() {
         return "failure";
       }
 
-      // Filter accounts to only include those from the detected platform
       processingAccounts = processingAccounts.filter(
         (account) => account.platform === detectedPlatform,
       );
@@ -136,7 +123,6 @@ export function useSubmitPost() {
       }
     }
 
-    // Separate NEAR Social accounts - only used for regular posts
     const nearSocialAccounts =
       postType === "post"
         ? processingAccounts.filter(
@@ -151,26 +137,13 @@ export function useSubmitPost() {
           )
         : processingAccounts;
 
-    // Initial toast
-    const uniquePlatforms = new Set([
-      ...otherAccounts.map((a) => a.platform),
-      ...(nearSocialAccounts.length > 0 ? ["Near Social" as PlatformName] : []),
-    ]);
-    // totalAccounts for the toast should reflect the number of accounts being processed in *this* attempt
-    const totalAccountsForThisAttempt = processingAccounts.length;
-    toast({
-      title: "Crossposting...",
-      description: `Publishing to ${uniquePlatforms.size} platform${uniquePlatforms.size > 1 ? "s" : ""} and ${totalAccountsForThisAttempt} account${totalAccountsForThisAttempt > 1 ? "s" : ""}`,
-      variant: "default",
-    });
+    showSubmissionStartToast(otherAccounts, nearSocialAccounts, processingAccounts.length);
 
-    // Results tracking
     let nearSocialSuccess = true;
     let nearSocialError: any = null;
     let apiResponse: MultiStatusData | null = null;
     let apiError: any = null;
 
-    // --- Post to NEAR Social (only for regular posts) ---
     if (nearSocialAccounts.length > 0 && postType === "post") {
       try {
         const nearSocialService = new NearSocialService();
@@ -183,7 +156,6 @@ export function useSubmitPost() {
       }
     }
 
-    // --- Post to Other Platforms ---
     if (otherAccounts.length > 0) {
       try {
         const postRequest = {
@@ -195,7 +167,6 @@ export function useSubmitPost() {
         };
 
         if (postType === "reply" && targetUrl) {
-          // Extract platform and postId from URL using utility functions
           const platform = detectPlatformFromUrl(targetUrl);
           const postId = extractPostIdFromUrl(targetUrl, platform);
 
@@ -209,7 +180,6 @@ export function useSubmitPost() {
             postId,
           });
         } else if (postType === "quote" && targetUrl) {
-          // For quote posts, use the dedicated quote mutation
           const platform = detectPlatformFromUrl(targetUrl);
           const postId = extractPostIdFromUrl(targetUrl, platform);
 
@@ -223,7 +193,6 @@ export function useSubmitPost() {
             postId,
           });
         } else {
-          // Regular post
           apiResponse = await createPostMutation.mutateAsync(postRequest);
         }
       } catch (error) {
@@ -232,193 +201,50 @@ export function useSubmitPost() {
       }
     }
 
-    // --- Process Results ---
-    let finalStatus: SubmitStatus = "idle";
-    let finalSummary = {
-      total: 0,
-      succeeded: 0,
-      failed: 0,
-    };
-    let finalResults: SuccessDetail[] = [];
-    let finalErrors: ErrorDetail[] = [];
+    const processed = aggregateSubmissionResults(
+      apiResponse,
+      apiError,
+      otherAccounts,
+      nearSocialSuccess,
+      nearSocialAccounts,
+      nearSocialError,
+    );
 
-    const nearSocialResultCount = nearSocialAccounts.length;
-    const apiResultCount = otherAccounts.length;
-
-    // Process API results
-    if (apiResponse) {
-      finalSummary = apiResponse.summary;
-      finalResults = apiResponse.results || [];
-      finalErrors = apiResponse.errors || [];
-    } else if (apiError) {
-      // Parse the error to extract any available data
-      const errorData = parseCrosspostError(apiError);
-
-      if (errorData.summary) {
-        finalSummary = errorData.summary;
-      } else {
-        finalSummary = {
-          total: apiResultCount,
-          succeeded: 0,
-          failed: apiResultCount,
-        };
-      }
-
-      finalResults = errorData.results || [];
-      finalErrors = errorData.errors || [];
-
-      // If no specific errors from parseCrosspostError but we have a general message,
-      // create a generic error for each account that was part of this API call.
-      if (
-        finalErrors.length === 0 &&
-        errorData.message &&
-        otherAccounts.length > 0
-      ) {
-        finalErrors = otherAccounts.map((acc) => ({
-          message: errorData.message || "Posting failed for this account.",
-          code: (errorData.code as ApiErrorCode) || ApiErrorCode.PLATFORM_ERROR,
-          recoverable: false,
-          details: {
-            platform: acc.platform,
-            userId: acc.profile?.userId || "",
-          },
-        }));
-      } else if (finalErrors.length === 0 && errorData.message) {
-        // Generic error if no accounts were processed (e.g. network error before sending to any platform)
-        finalErrors.push({
-          message: errorData.message || "An unknown error occurred.",
-          code: (errorData.code as ApiErrorCode) || ApiErrorCode.UNKNOWN_ERROR,
-          recoverable: false,
-          details: {},
-        });
-      }
-    }
-
-    // Combine NEAR Social results
-    const totalSucceeded =
-      finalSummary.succeeded + (nearSocialSuccess ? nearSocialResultCount : 0);
-    const totalFailed =
-      finalSummary.failed + (!nearSocialSuccess ? nearSocialResultCount : 0);
-    const totalAttempted = totalSucceeded + totalFailed;
-
-    const combinedSummary = {
-      total: totalAttempted,
-      succeeded: totalSucceeded,
-      failed: totalFailed,
-    };
-
-    // Add NEAR Social errors if any
-    if (!nearSocialSuccess && nearSocialAccounts.length > 0) {
-      nearSocialAccounts.forEach((acc) => {
-        finalErrors.push({
-          message: nearSocialError?.message || "NEAR Social post failed",
-          code: ApiErrorCode.PLATFORM_ERROR,
-          recoverable: false,
-          details: {
-            platform: acc.platform,
-            userId: acc.profile?.userId || "",
-          },
-        });
-      });
-    }
-
-    // Add NEAR Social successes if any
-    if (nearSocialSuccess && nearSocialAccounts.length > 0) {
-      nearSocialAccounts.forEach((acc) => {
-        finalResults.push({
-          platform: acc.platform,
-          userId: acc.profile?.userId || "",
-          status: "success",
-          details: { message: "Successfully posted to NEAR Social" },
-        });
-      });
-    }
-
-    // Determine final status
-    if (totalSucceeded === totalAttempted && totalAttempted > 0) {
-      finalStatus = "success";
-    } else if (totalSucceeded > 0 && totalFailed > 0) {
-      finalStatus = "partial-success";
-    } else if (totalFailed === totalAttempted && totalAttempted > 0) {
-      finalStatus = "failure";
-    } else {
-      finalStatus = "idle";
-    }
-
-    setStatus(finalStatus);
-    const submissionOutcomeData = {
-      status: finalStatus,
-      summary: combinedSummary,
-      results: finalResults,
-      errors: finalErrors,
-    };
-    setResult(submissionOutcomeData);
-
-    // Store the detailed outcome
-    const submissionRequest = {
-      posts: nonEmptyPosts,
-      selectedAccounts: selectedAccounts,
-      postType: postType,
-      targetUrl: targetUrl || undefined,
-    };
-    setSubmissionOutcome({
-      summary: combinedSummary,
-      results: finalResults,
-      errors: finalErrors,
-      request: submissionRequest,
+    setStatus(processed.status);
+    setResult({
+      status: processed.status,
+      summary: processed.summary,
+      results: processed.results,
+      errors: processed.errors,
     });
 
-    if (finalStatus === "success") {
-      toast({
-        title: "Success!",
-        description: `Your post has been published successfully to all ${combinedSummary.total} account${combinedSummary.total > 1 ? "s" : ""}.`,
-        variant: "success",
-      });
-    } else if (finalStatus === "partial-success") {
-      toast({
-        title: "Partial Success",
-        description: `Posted to ${combinedSummary.succeeded} of ${combinedSummary.total} accounts.`,
-        variant: "default",
-        action: (
-          <ToastAction
-            altText="See Results"
-            onClick={() => navigate({ to: "/results" })}
-          >
-            See Results
-          </ToastAction>
-        ),
-      });
-    } else if (finalStatus === "failure") {
-      toast({
-        title: "Post Failed",
-        description: `Failed to publish post to any of the ${combinedSummary.total} selected account${combinedSummary.total > 1 ? "s" : ""}.`,
-        variant: "destructive",
-        action: (
-          <ToastAction
-            altText="See Details"
-            onClick={() => navigate({ to: "/results" })}
-          >
-            See Details
-          </ToastAction>
-        ),
-      });
-    } else if (
-      finalStatus === "idle" &&
-      totalAttempted === 0 &&
+    setSubmissionOutcome({
+      summary: processed.summary,
+      results: processed.results,
+      errors: processed.errors,
+      request: {
+        posts: nonEmptyPosts,
+        selectedAccounts: selectedAccounts,
+        postType: postType,
+        targetUrl: targetUrl || undefined,
+      },
+    });
+
+    const showNoCompatible =
+      processed.status === "idle" &&
+      processed.summary.total === 0 &&
       nonEmptyPosts.length > 0 &&
       processingAccounts.length === 0 &&
-      selectedAccounts.length > 0
-    ) {
-      // This case means all initially selected accounts were filtered out (e.g. for quote/reply)
-      toast({
-        title: "No Compatible Accounts",
-        description:
-          "None of your selected accounts are compatible with this action.",
-        variant: "default",
-      });
-    }
+      selectedAccounts.length > 0;
 
-    return finalStatus;
+    showSubmissionResultToast(
+      processed.status,
+      processed.summary,
+      () => navigate({ to: "/results" }),
+      showNoCompatible,
+    );
+
+    return processed.status;
   };
 
   return {

@@ -42,11 +42,10 @@ export function PostEditorCore({
   onTextFocus,
   onTextBlur,
 }: PostEditorCoreProps) {
-  // Set up DnD sensors
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8, // Minimum distance required before activating drag, helps with touch devices
+        distance: 8,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -54,7 +53,6 @@ export function PostEditorCore({
     }),
   );
 
-  // Handle drag end for sortable posts
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {

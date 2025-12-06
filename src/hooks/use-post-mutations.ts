@@ -7,7 +7,6 @@ import {
 } from "@crosspost/types";
 import { createAuthenticatedMutation } from "../lib/authentication-service";
 
-// Re-export scheduling hooks
 export {
   useSchedulePost,
   useScheduleReplyPost,
@@ -17,9 +16,6 @@ export {
   type ScheduleReplyPostRequest,
 } from "./use-schedule-post";
 
-/**
- * Hook for creating a new post across multiple platforms
- */
 export const useCreatePost = createAuthenticatedMutation<
   MultiStatusData,
   Error,
@@ -30,9 +26,6 @@ export const useCreatePost = createAuthenticatedMutation<
   getAuthDetails: () => "createPost",
 });
 
-/**
- * Hook for replying to an existing post
- */
 export const useReplyPost = createAuthenticatedMutation<
   MultiStatusData,
   Error,
@@ -40,12 +33,9 @@ export const useReplyPost = createAuthenticatedMutation<
 >({
   mutationKey: ["replyPost"],
   clientMethod: (client, params) => client.post.replyToPost(params),
-  getAuthDetails: () => "replyToPost",
+  getAuthDetails: () => "replyPost",
 });
 
-/**
- * Hook for quoting an existing post
- */
 export const useQuotePost = createAuthenticatedMutation<
   MultiStatusData,
   Error,
@@ -56,9 +46,6 @@ export const useQuotePost = createAuthenticatedMutation<
   getAuthDetails: () => "quotePost",
 });
 
-/**
- * Hook for deleting a post
- */
 export const useDeletePost = createAuthenticatedMutation<
   unknown,
   Error,

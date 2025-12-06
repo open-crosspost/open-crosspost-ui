@@ -80,7 +80,6 @@ export function useConnectedAccounts() {
         const response = await client.auth.getConnectedAccounts();
 
         if (response.success && response.data) {
-          // Ensure accounts is an array and filter out any malformed entries
           return response.data.accounts || [];
         } else {
           const errorMessage = response.errors?.length

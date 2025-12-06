@@ -186,7 +186,6 @@ export function WalletProvider({
           throw new Error("Invalid signature response from wallet");
         }
 
-        // Ensure publicKey is a string
         let publicKeyString: string;
         if (typeof signedMessage.publicKey === 'string') {
           publicKeyString = signedMessage.publicKey;
@@ -196,7 +195,6 @@ export function WalletProvider({
           throw new Error("Invalid publicKey format in signature response");
         }
 
-        // Ensure signature is a string (near-kit should return base64 encoded string)
         let signatureString: string;
         if (typeof signedMessage.signature === 'string') {
           signatureString = signedMessage.signature;
