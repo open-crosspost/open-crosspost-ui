@@ -128,7 +128,20 @@ export function WalletProvider({
   const connect = useCallback(() => {
     if (connector) {
       setIsConnecting(true);
-      connector.connect();
+      Promise.resolve(connector.connect()).catch((error: unknown) => {
+        setIsConnecting(false);
+        if (
+          error instanceof Error &&
+          (error.message.includes('User rejected') ||
+            error.message.toLowerCase().includes('rejected') ||
+            error.message.toLowerCase().includes('cancelled') ||
+            error.message.toLowerCase().includes('denied'))
+        ) {
+          // User closed/rejected wallet prompt; keep this non-fatal.
+          return;
+        }
+        console.error('Wallet connect error:', error);
+      });
     }
   }, [connector]);
 
